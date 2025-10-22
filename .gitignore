@@ -1,15 +1,22 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# Android Studio / IntelliJ
+# Ignores the entire .idea directory, which is the root cause of your issue.
+.idea/
+
+# Gradle
+.gradle/
+/build/
+
+# Android build outputs and generated files
+/captures/
+.externalNativeBuild/
+.cxx/
+
+# Local configuration files that should not be committed
+# Contains machine-specific paths (like SDK location)
 local.properties
+
+# Android Studio module files
+*.iml
+
+# Mac-specific file
+.DS_Store
