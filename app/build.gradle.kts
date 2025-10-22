@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id ("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -49,6 +50,8 @@ android {
 dependencies {
     // implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
 
+    implementation(libs.kotlinx.serialization.json)
+
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
@@ -65,7 +68,7 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     // Icons
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.material.icons.extended)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
