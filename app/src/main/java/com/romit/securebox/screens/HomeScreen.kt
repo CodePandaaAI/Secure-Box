@@ -51,7 +51,7 @@ fun HomeScreen(
     ) {
         Text(
             text = "Recent Downloads",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(vertical = 8.dp)
         )
