@@ -6,11 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.romit.securebox.screens.HomeScreen
 import com.romit.securebox.ui.theme.SecureBoxTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,18 +20,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             SecureBoxTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    FileScreen(
+                    HomeScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
     }
-}
-
-@Composable
-fun FileScreen(modifier: Modifier = Modifier) {
-
 }
 
 @Composable
