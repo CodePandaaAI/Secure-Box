@@ -9,15 +9,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,14 +23,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.StorageCategory
-import com.romit.securebox.util.StorageHelper.formatDate
-import com.romit.securebox.util.StorageHelper.formatFileSize
-import com.romit.securebox.util.StorageHelper.getFileIcon
 import com.romit.securebox.viewmodels.HomeScreenViewModel
 
 @Composable
@@ -47,27 +43,34 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
             .fillMaxSize(),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Recent Downloads",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Start
         )
-        Spacer(Modifier.height(8.dp))
-
-        uiState.recentFiles.forEach { file ->
-            RecentFileCard(file = file, onClick = {})
+        Spacer(Modifier.height(16.dp))
+        if (uiState.isLoading) {
+            CircularProgressIndicator()
+        } else {
+            uiState.recentFiles.forEach { file ->
+                FileCard(file = file, onClick = {})
+            }
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(16.dp))
         Text(
             "Categories",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Start
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(16.dp))
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -134,53 +137,12 @@ fun HomeScreen(
 }
 
 @Composable
-fun RecentFileCard(
-    file: FileItem, onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = getFileIcon(file.mimeType, file.isDirectory),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = file.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = "${formatFileSize(file.size)} • ${formatDate(file.lastModified)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun StorageCategoryUi(
     category: StorageCategory, onClick: (String) -> Unit, modifier: Modifier
 ) {
-    Surface(
+    Card(
         modifier = modifier.clickable { onClick(category.path) },
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.primary
+        shape = RoundedCornerShape(24.dp)
     ) {
         Row(
             modifier = Modifier

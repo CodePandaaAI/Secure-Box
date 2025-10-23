@@ -1,10 +1,12 @@
 package com.romit.securebox.viewmodels
 
+import android.R.attr.path
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romit.securebox.data.model.HomeUiState
 import com.romit.securebox.data.repository.FileRepository
 import com.romit.securebox.util.StorageHelper
+import com.romit.securebox.util.StorageHelper.getStorageCategories
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -22,11 +24,12 @@ class HomeScreenViewModel : ViewModel() {
 
     fun getRecentFiles() {
         viewModelScope.launch {
+            _uiState.update { it.copy(error = null, isLoading = true) }
             try {
                 val recentFiles = repo.getRecentFiles(limit = 6)
-                _uiState.update { it.copy(recentFiles = recentFiles) }
+                _uiState.update { it.copy(recentFiles = recentFiles, isLoading = false) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message) }
+                _uiState.update { it.copy(error = e.message, isLoading = false) }
             }
         }
     }
