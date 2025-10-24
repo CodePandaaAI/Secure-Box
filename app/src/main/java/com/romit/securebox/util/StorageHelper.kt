@@ -3,19 +3,19 @@ package com.romit.securebox.util
 import android.os.Environment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
-import androidx.compose.material.icons.filled.AudioFile
+import androidx.compose.material.icons.automirrored.outlined.InsertDriveFile
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderZip
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.PermMedia
 import androidx.compose.material.icons.filled.PictureAsPdf
-import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.VideoFile
-import androidx.compose.material.icons.filled.VideoLibrary
+import androidx.compose.material.icons.outlined.Audiotrack
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.romit.securebox.data.model.StorageCategory
@@ -23,7 +23,6 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.log10
 
 object StorageHelper {
     fun getStorageCategories(): List<StorageCategory> {
@@ -44,37 +43,37 @@ object StorageHelper {
                 name = "Downloads",
                 description = "Downloaded Files",
                 path = downloadsPath,
-                icon = Icons.Default.Download
+                icon = Icons.Outlined.Download
             ),
             StorageCategory(
                 name = "Images",
                 description = "All Images",
                 path = dcimPath,
-                icon = Icons.Default.PermMedia
+                icon = Icons.Outlined.Image
             ),
             StorageCategory(
                 name = "Videos",
                 description = "Video files",
                 path = moviesPath,
-                icon = Icons.Default.VideoLibrary
+                icon = Icons.Outlined.VideoLibrary
             ),
             StorageCategory(
                 name = "Music",
                 description = "Audio files",
                 path = musicPath,
-                icon = Icons.Default.MusicNote
+                icon = Icons.Outlined.Audiotrack
             ),
             StorageCategory(
                 name = "Documents",
                 description = "Documents and files",
                 path = documentsPath,
-                icon = Icons.Default.Description
+                icon = Icons.AutoMirrored.Outlined.InsertDriveFile
             ),
             StorageCategory(
                 name = "Internal Storage",
                 description = "Browse all files",
                 path = internalPath,
-                icon = Icons.Default.Storage
+                icon = Icons.Outlined.Storage
             )
         )
     }

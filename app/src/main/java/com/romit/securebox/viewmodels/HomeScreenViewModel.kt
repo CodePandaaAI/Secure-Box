@@ -1,12 +1,10 @@
 package com.romit.securebox.viewmodels
 
-import android.R.attr.path
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romit.securebox.data.model.HomeUiState
 import com.romit.securebox.data.repository.FileRepository
 import com.romit.securebox.util.StorageHelper
-import com.romit.securebox.util.StorageHelper.getStorageCategories
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
