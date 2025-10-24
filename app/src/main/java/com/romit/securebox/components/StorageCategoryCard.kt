@@ -51,7 +51,7 @@ fun StorageCategoryCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    category.description,
+                    category.dirSize ?: "",
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

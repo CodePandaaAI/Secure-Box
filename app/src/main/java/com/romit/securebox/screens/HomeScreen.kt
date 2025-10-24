@@ -66,6 +66,9 @@ fun HomeScreen(
             textAlign = TextAlign.Start
         )
         Spacer(Modifier.height(16.dp))
+        if (uiState.storageCategoriesList.isEmpty()) {
+            CircularProgressIndicator()
+            return@Column}
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),

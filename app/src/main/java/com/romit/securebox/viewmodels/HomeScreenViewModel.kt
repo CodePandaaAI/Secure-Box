@@ -33,11 +33,15 @@ class HomeScreenViewModel : ViewModel() {
     }
 
     fun getStorageCategories() {
-        try {
-            val storageCategoriesList = StorageHelper.getStorageCategories()
-            _uiState.update { it.copy(storageCategoriesList = storageCategoriesList) }
-        } catch (e: Exception) {
-            _uiState.update { it.copy(error = e.message) }
+        viewModelScope.launch {
+            try {
+                val storageCategoriesList = StorageHelper.getStorageCategories().map { dir ->
+                    dir.copy(dirSize = repo.getDirectorySize(dir.path))
+                }
+                _uiState.update { it.copy(storageCategoriesList = storageCategoriesList) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message) }
+            }
         }
     }
 }

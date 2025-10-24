@@ -2,11 +2,11 @@ package com.romit.securebox.data.repository
 
 import android.os.Environment
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.util.StorageHelper
 import com.romit.securebox.util.StorageHelper.getMimeType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.collections.emptyList
 
 class FileRepository {
     suspend fun getRecentFiles(limit: Int = 6): List<FileItem> {
@@ -51,6 +51,17 @@ class FileRepository {
             } catch (e: Exception) {
                 return@withContext emptyList()
             }
+        }
+    }
+
+    suspend fun getDirectorySize(directory: String): String {
+        val file = File(directory)
+        if (!file.exists()) return ""
+        return withContext(Dispatchers.IO) {
+            if (file.listFiles()!!.isEmpty()) return@withContext ""
+            val dirSize = file.walkTopDown().sumOf { it.length() }
+            val formatedSize = StorageHelper.formatFileSize(dirSize)
+            return@withContext formatedSize
         }
     }
 }

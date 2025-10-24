@@ -26,53 +26,47 @@ import java.util.Locale
 
 object StorageHelper {
     fun getStorageCategories(): List<StorageCategory> {
-        val downloadsPath =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath
-        val dcimPath =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath
-        val moviesPath =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).absolutePath
-        val musicPath =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).absolutePath
-        val documentsPath =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).absolutePath
-        val internalPath = Environment.getExternalStorageDirectory().absolutePath
+        val downloadsDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val dcimDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+        val moviesDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+        val musicDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+        val documentsDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+        val internalDir = Environment.getExternalStorageDirectory()
 
         return listOf(
             StorageCategory(
                 name = "Downloads",
-                description = "Downloaded Files",
-                path = downloadsPath,
+                path = downloadsDir.absolutePath,
                 icon = Icons.Outlined.Download
             ),
             StorageCategory(
                 name = "Images",
-                description = "All Images",
-                path = dcimPath,
+                path = dcimDir.absolutePath,
                 icon = Icons.Outlined.Image
             ),
             StorageCategory(
                 name = "Videos",
-                description = "Video files",
-                path = moviesPath,
+                path = moviesDir.absolutePath,
                 icon = Icons.Outlined.VideoLibrary
             ),
             StorageCategory(
                 name = "Music",
-                description = "Audio files",
-                path = musicPath,
+                path = musicDir.absolutePath,
                 icon = Icons.Outlined.Audiotrack
             ),
             StorageCategory(
                 name = "Documents",
-                description = "Documents and files",
-                path = documentsPath,
+                path = documentsDir.absolutePath,
                 icon = Icons.AutoMirrored.Outlined.InsertDriveFile
             ),
             StorageCategory(
                 name = "Internal Storage",
-                description = "Browse all files",
-                path = internalPath,
+                path = internalDir.absolutePath,
                 icon = Icons.Outlined.Storage
             )
         )
@@ -97,31 +91,31 @@ object StorageHelper {
     fun formatFileSize(bytes: Long): String {
         if (bytes < 1024) return "$bytes B"
 
-        val kb = bytes / 1024.0
-        if (kb < 1024) return "%.1f KB".format(kb)
+        val kilobytes = bytes / 1024.0
+        if (kilobytes < 1024) return "%.1f KB".format(kilobytes)
 
-        val mb = kb / 1024.0
-        if (mb < 1024) return "%.1f MB".format(mb)
+        val megabytes = kilobytes / 1024.0
+        if (megabytes < 1024) return "%.1f MB".format(megabytes)
 
-        val gb = mb / 1024.0
-        return "%.2f GB".format(gb)
+        val gigabytes = megabytes / 1024.0
+        return "%.2f GB".format(gigabytes)
     }
 
     fun formatDate(timestamp: Long): String {
         val date = Date(timestamp)
         val now = Date()
 
-        val diffInMillis = now.time - date.time
-        val diffInDays = diffInMillis / (1000 * 60 * 60 * 24)
+        val differenceInMilliseconds = now.time - date.time
+        val differenceInDays = differenceInMilliseconds / (1000 * 60 * 60 * 24)
 
         return when {
-            diffInDays == 0L -> {
+            differenceInDays == 0L -> {
                 // Today: show time only
                 SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
             }
 
-            diffInDays == 1L -> "Yesterday"
-            diffInDays < 7 -> SimpleDateFormat(
+            differenceInDays == 1L -> "Yesterday"
+            differenceInDays < 7 -> SimpleDateFormat(
                 "EEEE",
                 Locale.getDefault()
             ).format(date) // Day-of-week
