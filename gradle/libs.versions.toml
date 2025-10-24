@@ -15,6 +15,9 @@ activityCompose = "1.11.0"
 composeBom = "2025.10.01"
 uiTextGoogleFonts = "1.9.4"
 navigationCompose = "2.9.5"
+ksp = "2.2.20-2.0.4"
+hilt = "2.57.2"
+serialization = "2.2.20"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
@@ -45,3 +48,6 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+serialization = {id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization"}
