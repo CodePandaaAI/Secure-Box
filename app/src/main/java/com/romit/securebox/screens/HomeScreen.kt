@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.StorageCategoryCard
 import com.romit.securebox.viewmodels.HomeScreenViewModel
@@ -30,7 +30,7 @@ import com.romit.securebox.viewmodels.HomeScreenViewModel
 fun HomeScreen(
     onCategoryClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: HomeScreenViewModel = viewModel()
+    viewModel: HomeScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     Column(
@@ -42,7 +42,7 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Recent Downloads",
+            text = "Recent",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.fillMaxWidth(),

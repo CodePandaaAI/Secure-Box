@@ -48,8 +48,6 @@ android {
 }
 
 dependencies {
-    // implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
-
     implementation(libs.kotlinx.serialization.json)
 
     // Navigation
@@ -59,13 +57,14 @@ dependencies {
     implementation(libs.androidx.compose.ui.text.google.fonts)
 
     // ViewModel
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    // ViewModel utilities for Compose
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // ViewModel utilities for Compose
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     // Icons
     implementation(libs.androidx.compose.material.icons.extended)

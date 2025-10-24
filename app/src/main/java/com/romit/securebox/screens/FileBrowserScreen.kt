@@ -10,7 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 
@@ -18,7 +18,7 @@ import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 fun FileBrowserScreen(
     modifier: Modifier = Modifier,
     path: String,
-    viewmodel: FileBrowserScreenViewModel = viewModel()
+    viewmodel: FileBrowserScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewmodel.uiState.collectAsState()
 

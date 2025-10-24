@@ -7,8 +7,11 @@ import com.romit.securebox.util.StorageHelper.getMimeType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class FileRepository {
+@Singleton
+class FileRepository @Inject constructor() {
     suspend fun getRecentFiles(limit: Int = 6): List<FileItem> {
         return withContext(Dispatchers.IO) {
             try {
@@ -56,9 +59,9 @@ class FileRepository {
 
     suspend fun getDirectorySize(directory: String): String {
         val file = File(directory)
-        if (!file.exists()) return ""
+        if (!file.exists()) return "0.0 B"
         return withContext(Dispatchers.IO) {
-            if (file.listFiles()!!.isEmpty()) return@withContext ""
+            if (file.listFiles()!!.isEmpty()) return@withContext "0.0B"
             val dirSize = file.walkTopDown().sumOf { it.length() }
             val formatedSize = StorageHelper.formatFileSize(dirSize)
             return@withContext formatedSize

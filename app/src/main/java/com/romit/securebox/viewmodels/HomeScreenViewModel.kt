@@ -5,15 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.romit.securebox.data.model.HomeUiState
 import com.romit.securebox.data.repository.FileRepository
 import com.romit.securebox.util.StorageHelper
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class HomeScreenViewModel : ViewModel() {
+@HiltViewModel
+class HomeScreenViewModel @Inject constructor(private val repository: FileRepository) : ViewModel() {
     private var _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
-    val repo = FileRepository()
 
     init {
         getStorageCategories()
@@ -24,7 +26,7 @@ class HomeScreenViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(error = null, isLoading = true) }
             try {
-                val recentFiles = repo.getRecentFiles(limit = 6)
+                val recentFiles = repository.getRecentFiles(limit = 6)
                 _uiState.update { it.copy(recentFiles = recentFiles, isLoading = false) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message, isLoading = false) }
@@ -36,7 +38,7 @@ class HomeScreenViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val storageCategoriesList = StorageHelper.getStorageCategories().map { dir ->
-                    dir.copy(dirSize = repo.getDirectorySize(dir.path))
+                    dir.copy(dirSize = repository.getDirectorySize(dir.path))
                 }
                 _uiState.update { it.copy(storageCategoriesList = storageCategoriesList) }
             } catch (e: Exception) {

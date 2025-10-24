@@ -6,21 +6,23 @@ import com.romit.securebox.data.model.FileBrowserUiState
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.repository.FileRepository
 import com.romit.securebox.util.StorageHelper.getMimeType
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FileBrowserScreenViewModel() : ViewModel() {
+@HiltViewModel
+class FileBrowserScreenViewModel @Inject constructor(private val repository: FileRepository) : ViewModel() {
     private var _uiState = MutableStateFlow(FileBrowserUiState())
     val uiState = _uiState.asStateFlow()
-    val repo = FileRepository()
 
     fun getDirFiles(path: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(error = null, isLoading = true) }
             try {
-                val files = repo.getDirFiles(path)
+                val files = repository.getDirFiles(path)
                 val fileItems = files.sortedByDescending { it.lastModified() }.map { file ->
                     FileItem(
                         path = file.absolutePath,
