@@ -3,9 +3,7 @@ package com.romit.securebox.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romit.securebox.data.model.FileBrowserUiState
-import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.repository.FileRepository
-import com.romit.securebox.util.StorageHelper.getMimeType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,20 +20,10 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
         viewModelScope.launch {
             _uiState.update { it.copy(error = null, isLoading = true) }
             try {
-                val files = repository.getDirFiles(path)
-                val fileItems = files.sortedByDescending { it.lastModified() }.map { file ->
-                    FileItem(
-                        path = file.absolutePath,
-                        name = file.name,
-                        isDirectory = file.isDirectory,
-                        size = file.length(),
-                        lastModified = file.lastModified(),
-                        mimeType = getMimeType(file),
-                        extension = file.extension
-                    )
-                }
+                val files = repository.getDirFileItems(path)
+
                 _uiState.update {
-                    it.copy(dirFiles = fileItems, error = null, isLoading = false)
+                    it.copy(dirFiles = files, error = null, isLoading = false)
                 }
 
             } catch (e: Exception) {

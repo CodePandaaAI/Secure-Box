@@ -6,14 +6,15 @@ import com.romit.securebox.data.model.HomeUiState
 import com.romit.securebox.data.repository.FileRepository
 import com.romit.securebox.util.StorageHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
-class HomeScreenViewModel @Inject constructor(private val repository: FileRepository) : ViewModel() {
+class HomeScreenViewModel @Inject constructor(private val repository: FileRepository) :
+    ViewModel() {
     private var _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
 

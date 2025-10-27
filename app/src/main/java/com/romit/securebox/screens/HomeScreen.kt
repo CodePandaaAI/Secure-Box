@@ -53,10 +53,14 @@ fun HomeScreen(
         Spacer(Modifier.height(16.dp))
         if (uiState.isLoading) {
             CircularProgressIndicator()
-        } else {
+        }
+        else if (uiState.recentFiles.isNotEmpty()) {
             uiState.recentFiles.forEach { file ->
-                FileCard(file = file, onFileClick = { file-> onFileClicked(file) })
+                FileCard(file = file, onFileClick = { file -> onFileClicked(file) })
             }
+        }
+        else {
+            Text("No Recent Files", style = MaterialTheme.typography.titleLarge)
         }
 
         Spacer(Modifier.height(16.dp))

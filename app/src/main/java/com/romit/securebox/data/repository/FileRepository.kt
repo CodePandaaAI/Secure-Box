@@ -45,12 +45,24 @@ class FileRepository @Inject constructor() {
         }
     }
 
-    suspend fun getDirFiles(path: String): List<File> {
+    suspend fun getDirFileItems(path: String): List<FileItem> {
         return withContext(Dispatchers.IO) {
             if (!File(path).exists()) return@withContext emptyList()
             try {
-                val files = File(path).listFiles()?.toList()
-                return@withContext files!!
+                val files = File(path).listFiles() ?: return@withContext emptyList()
+
+                files.sortedByDescending { it.lastModified() }
+                    .map { file ->
+                        FileItem(
+                            path = file.absolutePath,
+                            name = file.name,
+                            isDirectory = file.isDirectory,
+                            size = file.length(),
+                            lastModified = file.lastModified(),
+                            mimeType = if (file.isDirectory) null else getMimeType(file),
+                            extension = file.extension
+                        )
+                    }
             } catch (e: Exception) {
                 return@withContext emptyList()
             }
@@ -58,13 +70,22 @@ class FileRepository @Inject constructor() {
     }
 
     suspend fun getDirectorySize(directory: String): String {
-        val file = File(directory)
-        if (!file.exists()) return "0.0 B"
         return withContext(Dispatchers.IO) {
-            if (file.listFiles()!!.isEmpty()) return@withContext "0.0B"
-            val dirSize = file.walkTopDown().sumOf { it.length() }
-            val formatedSize = StorageHelper.formatFileSize(dirSize)
-            return@withContext formatedSize
+            val file = File(directory)
+
+            if (!file.exists()) return@withContext "0 B"
+            if (!file.isDirectory) return@withContext "0 B"
+
+            val files = file.listFiles()
+            if (files == null || files.isEmpty()) return@withContext "0 B"
+
+            try {
+                val dirSize = file.walkTopDown().sumOf { it.length() }
+                StorageHelper.formatFileSize(dirSize)
+            } catch (e: Exception) {
+                "0 B"
+            }
         }
     }
+
 }
