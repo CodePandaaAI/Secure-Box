@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.screens.HomeScreen
+import com.romit.securebox.util.openFile
 
 
 @Composable
@@ -71,6 +72,10 @@ fun AppNavHost(navController: NavHostController) {
                 HomeScreen(
                     onCategoryClicked = { path ->
                         navController.navigate(Screen.FileBrowser(path))
+                    },
+                    onFileClicked = { file ->
+                        if (file.isDirectory) navController.navigate(Screen.FileBrowser(path = file.path))
+                        else openFile(context, file)
                     }
                 )
             }
@@ -81,6 +86,7 @@ fun AppNavHost(navController: NavHostController) {
                     path = path,
                     onFileClicked = { file ->
                         if (file.isDirectory) navController.navigate(Screen.FileBrowser(path = file.path))
+                        else openFile(context, file)
                     }
                 )
             }

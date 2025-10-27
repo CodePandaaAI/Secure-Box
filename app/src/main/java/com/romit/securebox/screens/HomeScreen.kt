@@ -24,12 +24,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.StorageCategoryCard
+import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.viewmodels.HomeScreenViewModel
 
 @Composable
 fun HomeScreen(
     onCategoryClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onFileClicked: (FileItem) -> Unit,
     viewModel: HomeScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -53,7 +55,7 @@ fun HomeScreen(
             CircularProgressIndicator()
         } else {
             uiState.recentFiles.forEach { file ->
-                FileCard(file = file, onFileClick = {})
+                FileCard(file = file, onFileClick = { file-> onFileClicked(file) })
             }
         }
 
@@ -68,7 +70,8 @@ fun HomeScreen(
         Spacer(Modifier.height(16.dp))
         if (uiState.storageCategoriesList.isEmpty()) {
             CircularProgressIndicator()
-            return@Column}
+            return@Column
+        }
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
