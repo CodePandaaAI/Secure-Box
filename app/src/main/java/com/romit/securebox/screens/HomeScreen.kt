@@ -42,7 +42,7 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Recent",
+            text = "Recents",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.fillMaxWidth(),
@@ -53,7 +53,7 @@ fun HomeScreen(
             CircularProgressIndicator()
         } else {
             uiState.recentFiles.forEach { file ->
-                FileCard(file = file, onClick = {})
+                FileCard(file = file, onFileClick = {})
             }
         }
 

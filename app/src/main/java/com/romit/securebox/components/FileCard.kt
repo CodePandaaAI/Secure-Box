@@ -28,15 +28,17 @@ import com.romit.securebox.util.StorageHelper.getFileIcon
 
 @Composable
 fun FileCard(
-    file: FileItem, onClick: () -> Unit
+    file: FileItem, onFileClick: (FileItem) -> Unit
 ) {
-    val iconAndColor = remember { getFileIcon(file.mimeType, file.isDirectory) }
+    val iconAndColor = remember(file.mimeType, file.isDirectory) {  // Added keys!
+        getFileIcon(file.mimeType, file.isDirectory)
+    }
 
     Card(
         modifier = Modifier
             .padding(vertical = 4.dp)
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClick = { onFileClick(file) }),
         shape = RoundedCornerShape(24.dp)
     ) {
         Row(
@@ -48,9 +50,11 @@ fun FileCard(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(
-                    imageVector = getFileIcon(file.mimeType, file.isDirectory).first,
+                    imageVector = iconAndColor.first,
                     contentDescription = null,
-                    modifier = Modifier.padding(8.dp).size(40.dp)
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(40.dp)
                 )
             }
 

@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,7 +49,7 @@ fun AppNavHost(navController: NavHostController) {
         modifier = Modifier.fillMaxSize(),
         topBar = {
             AppTopBar(
-                isHomeScreen = isHomeScreen,
+                currentBackStackEntryProvider = { currentBackStackEntry },
                 onBackClick = {
                     if (isHomeScreen) {
                         // Exit app when on home screen
@@ -76,7 +77,12 @@ fun AppNavHost(navController: NavHostController) {
 
             composable<Screen.FileBrowser> { backStackEntry ->
                 val path = backStackEntry.toRoute<Screen.FileBrowser>().path
-                FileBrowserScreen(path = path)
+                FileBrowserScreen(
+                    path = path,
+                    onFileClicked = { file ->
+                        if (file.isDirectory) navController.navigate(Screen.FileBrowser(path = file.path))
+                    }
+                )
             }
         }
     }
@@ -85,15 +91,17 @@ fun AppNavHost(navController: NavHostController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
-    isHomeScreen: Boolean,
+    currentBackStackEntryProvider: () -> NavBackStackEntry?,  // ✅ Lambda parameter
     onBackClick: () -> Unit
 ) {
+    // ✅ Read the state HERE in the child
+    val currentBackStackEntry = currentBackStackEntryProvider()
+    val isHomeScreen = currentBackStackEntry?.destination?.route == Screen.Home::class.qualifiedName
+
     CenterAlignedTopAppBar(
         title = { Text("Secure Box") },
         navigationIcon = {
-            IconButton(
-                onClick = onBackClick
-            ) {
+            IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
                     contentDescription = if (isHomeScreen) "Exit app" else "Go back"
