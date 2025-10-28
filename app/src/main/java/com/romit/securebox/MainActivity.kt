@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.romit.securebox.screens.navigation.AppNavHost
 import com.romit.securebox.screens.navigation.SecureApp
 import com.romit.securebox.ui.theme.SecureBoxTheme
 import dagger.hilt.android.AndroidEntryPoint

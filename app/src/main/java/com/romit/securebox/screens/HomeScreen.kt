@@ -83,14 +83,14 @@ fun HomeScreen(
         ) {
             StorageCategoryCard(
                 uiState.storageCategoriesList[0],
-                onClick = { onCategoryClicked(it) },
+                onCategoryClick = { onCategoryClicked(it) },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
             )
             StorageCategoryCard(
                 uiState.storageCategoriesList[1],
-                onClick = { onCategoryClicked(it) },
+                onCategoryClick = { onCategoryClicked(it) },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
@@ -104,14 +104,14 @@ fun HomeScreen(
         ) {
             StorageCategoryCard(
                 uiState.storageCategoriesList[2],
-                onClick = { onCategoryClicked(it) },
+                onCategoryClick = { onCategoryClicked(it) },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
             )
             StorageCategoryCard(
                 uiState.storageCategoriesList[3],
-                onClick = { onCategoryClicked(it) },
+                onCategoryClick = { onCategoryClicked(it) },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
@@ -125,14 +125,14 @@ fun HomeScreen(
         ) {
             StorageCategoryCard(
                 uiState.storageCategoriesList[4],
-                onClick = { onCategoryClicked(it) },
+                onCategoryClick = { onCategoryClicked(it) },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
             )
             StorageCategoryCard(
                 uiState.storageCategoriesList[5],
-                onClick = { onCategoryClicked(it) },
+                onCategoryClick = { onCategoryClicked(it) },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()

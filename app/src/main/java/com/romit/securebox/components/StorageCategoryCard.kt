@@ -25,11 +25,12 @@ import com.romit.securebox.data.model.StorageCategory
 
 @Composable
 fun StorageCategoryCard(
-    category: StorageCategory, onClick: (String) -> Unit, modifier: Modifier
+    category: StorageCategory, onCategoryClick: (String) -> Unit, modifier: Modifier
 ) {
     Card(
-        modifier = modifier.clickable { onClick(category.path) },
-        shape = RoundedCornerShape(24.dp)
+        onClick = { onCategoryClick(category.path) },
+        shape = RoundedCornerShape(24.dp),
+        modifier = modifier
     ) {
         Row(
             modifier = Modifier
@@ -38,7 +39,11 @@ fun StorageCategoryCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(imageVector = category.icon, contentDescription = null, modifier = Modifier.size(24.dp))
+            Icon(
+                imageVector = category.icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -82,7 +87,11 @@ fun StorageCategoryCardPrev(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(imageVector = Icons.Default.Image, contentDescription = null, modifier = Modifier.size(40.dp))
+            Icon(
+                imageVector = Icons.Default.Image,
+                contentDescription = null,
+                modifier = Modifier.size(40.dp)
+            )
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -97,7 +106,11 @@ fun StorageCategoryCardPrev(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, modifier = Modifier.size(24.dp))
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }

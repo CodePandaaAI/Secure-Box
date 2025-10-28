@@ -65,7 +65,7 @@ fun FileBrowserScreen(
                     ),
                 contentScale = ContentScale.Crop
             )
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(8.dp))
             Text("Empty")
         }
     }
