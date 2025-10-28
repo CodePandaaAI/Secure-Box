@@ -6,10 +6,14 @@ import com.romit.securebox.data.model.HomeUiState
 import com.romit.securebox.data.repository.FileRepository
 import com.romit.securebox.util.StorageHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,10 +42,17 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
     fun getStorageCategories() {
         viewModelScope.launch {
             try {
-                val storageCategoriesList = StorageHelper.getStorageCategories().map { dir ->
-                    dir.copy(dirSize = repository.getDirectorySize(dir.path))
+                val categories = StorageHelper.getStorageCategories()
+                _uiState.update { it.copy(storageCategoriesList = categories) }
+
+                val categoriesWithSizes = withContext(Dispatchers.IO) {
+                    categories.map { dir ->
+                        async {  // Each size calculated in parallel!
+                            dir.copy(dirSize = repository.getDirectorySize(dir.path))
+                        }
+                    }.awaitAll()
                 }
-                _uiState.update { it.copy(storageCategoriesList = storageCategoriesList) }
+                _uiState.update { it.copy(storageCategoriesList = categoriesWithSizes) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }

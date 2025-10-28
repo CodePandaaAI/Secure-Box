@@ -1,9 +1,7 @@
 package com.romit.securebox.screens.navigation
 
-import android.app.Activity
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -18,7 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavBackStackEntry
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,6 +27,7 @@ import androidx.navigation.toRoute
 import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.screens.HomeScreen
 import com.romit.securebox.util.openFile
+import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 
 
 @Composable
@@ -41,26 +41,16 @@ fun AppNavHost(navController: NavHostController) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
 
-    val isHomeScreen = currentBackStackEntry?.destination?.route == Screen.Home::class.qualifiedName
-
-    BackHandler(enabled = isHomeScreen) {
-        // When on home screen, system back button exits app
-        (context as? Activity)?.finish()
-    }
+    val isHomeScreen = currentBackStackEntry?.destination?.hasRoute<Screen.Home>() == true
+    val sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             AppTopBar(
-                currentBackStackEntryProvider = { currentBackStackEntry },
+                isHomeScreen = isHomeScreen,
                 onBackClick = {
-                    if (isHomeScreen) {
-                        // Exit app when on home screen
-                        (context as? Activity)?.finish()
-                    } else {
-                        // Navigate back when on other screens
-                        navController.popBackStack()
-                    }
+                    navController.popBackStack()
                 }
             )
         }
@@ -69,39 +59,24 @@ fun AppNavHost(navController: NavHostController) {
             modifier = Modifier.padding(innerPadding),
             navController = navController,
             startDestination = Screen.Home,
-            enterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                    animationSpec = tween(500)
-                )
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                    tween(500)
-                )
-            },
-            popEnterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.End,
-                    animationSpec = tween(500)
-                )
-            },
-            popExitTransition = {
-                slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.End,
-                    animationSpec = tween(500)
-                )
-            }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
         ) {
             composable<Screen.Home> {
                 HomeScreen(
                     onCategoryClicked = { path ->
-                        navController.navigate(Screen.FileBrowser(path))
+                        navController.navigate(Screen.FileBrowser(path)) {
+                            launchSingleTop = true
+                        }
                     },
                     onFileClicked = { file ->
-                        if (file.isDirectory) navController.navigate(Screen.FileBrowser(path = file.path))
-                        else openFile(context, file)
+                        if (file.isDirectory) {
+                            navController.navigate(Screen.FileBrowser(path = file.path))
+                        } else {
+                            openFile(context, file)
+                        }
                     }
                 )
             }
@@ -109,10 +84,14 @@ fun AppNavHost(navController: NavHostController) {
             composable<Screen.FileBrowser> { backStackEntry ->
                 val path = backStackEntry.toRoute<Screen.FileBrowser>().path
                 FileBrowserScreen(
+                    viewmodel = sharedFileBrowserViewModel,
                     path = path,
                     onFileClicked = { file ->
-                        if (file.isDirectory) navController.navigate(Screen.FileBrowser(path = file.path))
-                        else openFile(context, file)
+                        if (file.isDirectory) {
+                            navController.navigate(Screen.FileBrowser(path = file.path))
+                        } else {
+                            openFile(context, file)
+                        }
                     }
                 )
             }
@@ -123,21 +102,19 @@ fun AppNavHost(navController: NavHostController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
-    currentBackStackEntryProvider: () -> NavBackStackEntry?,  // ✅ Lambda parameter
+    isHomeScreen: Boolean,
     onBackClick: () -> Unit
 ) {
-    // ✅ Read the state HERE in the child
-    val currentBackStackEntry = currentBackStackEntryProvider()
-    val isHomeScreen = currentBackStackEntry?.destination?.route == Screen.Home::class.qualifiedName
-
     CenterAlignedTopAppBar(
         title = { Text("Secure Box") },
         navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
-                    contentDescription = if (isHomeScreen) "Exit app" else "Go back"
-                )
+            if (!isHomeScreen) {
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
+                        contentDescription = "Go back"
+                    )
+                }
             }
         }
     )

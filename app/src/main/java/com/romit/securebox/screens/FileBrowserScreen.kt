@@ -23,7 +23,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.R
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.FileItem
@@ -34,7 +33,7 @@ fun FileBrowserScreen(
     modifier: Modifier = Modifier,
     path: String,
     onFileClicked: (FileItem) -> Unit,
-    viewmodel: FileBrowserScreenViewModel = hiltViewModel()
+    viewmodel: FileBrowserScreenViewModel
 ) {
     val uiState by viewmodel.uiState.collectAsState()
 

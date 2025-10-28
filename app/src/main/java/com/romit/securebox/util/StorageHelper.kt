@@ -4,12 +4,17 @@ import android.os.Environment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.automirrored.outlined.InsertDriveFile
+import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderZip
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Slideshow
+import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.VideoFile
 import androidx.compose.material.icons.outlined.Audiotrack
 import androidx.compose.material.icons.outlined.Download
@@ -78,12 +83,56 @@ object StorageHelper {
         // Pick icon based on MIME type
         return when {
             mimeType == null -> Pair(Icons.AutoMirrored.Filled.InsertDriveFile, 0)
+
+            // Images
             mimeType.startsWith("image/") -> Pair(Icons.Default.Image, Color(0xFF3D92E7))
+
+            // Videos
             mimeType.startsWith("video/") -> Pair(Icons.Default.VideoFile, Color(0xFF987BE1))
+
+            // Audio
             mimeType.startsWith("audio/") -> Pair(Icons.Default.MusicNote, Color(0xFFD9A04A))
+
+            // Documents
             mimeType == "application/pdf" -> Pair(Icons.Default.PictureAsPdf, Color(0xFFF17346))
             mimeType.startsWith("text/") -> Pair(Icons.Default.Description, Color(0xFF202020))
+
+            // Microsoft Office Documents
+            mimeType == "application/msword" ||
+                    mimeType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ->
+                Pair(Icons.Default.Description, Color(0xFF2B579A)) // Word docs
+
+            mimeType == "application/vnd.ms-excel" ||
+                    mimeType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ->
+                Pair(Icons.Default.TableChart, Color(0xFF1D6F42)) // Excel sheets
+
+            mimeType == "application/vnd.ms-powerpoint" ||
+                    mimeType == "application/vnd.openxmlformats-officedocument.presentationml.presentation" ->
+                Pair(Icons.Default.Slideshow, Color(0xFFD24726)) // PowerPoint presentations
+
+            // Archives
             mimeType.contains("zip") -> Pair(Icons.Default.FolderZip, Color(0xFF24B2A2))
+            mimeType == "application/x-rar-compressed" ||
+                    mimeType == "application/vnd.rar" -> Pair(Icons.Default.FolderZip, Color(0xFF24B2A2))
+            mimeType == "application/x-7z-compressed" -> Pair(Icons.Default.FolderZip, Color(0xFF24B2A2))
+            mimeType == "application/x-tar" ||
+                    mimeType == "application/gzip" -> Pair(Icons.Default.FolderZip, Color(0xFF24B2A2))
+
+            // Android APK
+            mimeType == "application/vnd.android.package-archive" ->
+                Pair(Icons.Default.Android, Color(0xFF3DDC84))
+
+            // Code files
+            mimeType == "application/json" ||
+                    mimeType == "application/javascript" ||
+                    mimeType == "application/xml" ||
+                    mimeType.startsWith("text/x-") -> Pair(Icons.Default.Code, Color(0xFF616161))
+
+            // Executables
+            mimeType == "application/x-msdownload" ||
+                    mimeType == "application/x-executable" ->
+                Pair(Icons.Default.Settings, Color(0xFF757575))
+
             else -> Pair(Icons.AutoMirrored.Filled.InsertDriveFile, 0)
         }
     }
