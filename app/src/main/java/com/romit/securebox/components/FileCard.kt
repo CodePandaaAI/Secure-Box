@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -28,7 +27,7 @@ import com.romit.securebox.util.StorageHelper.getFileIcon
 fun FileCard(
     file: FileItem, onFileClick: (FileItem) -> Unit
 ) {
-    val iconAndColor = remember(file.mimeType, file.isDirectory) {  // Added keys!
+    val icon = remember(file.mimeType, file.isDirectory) {  // Added keys!
         getFileIcon(file.mimeType, file.isDirectory)
     }
 
@@ -43,12 +42,11 @@ fun FileCard(
             modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
-                color = if (iconAndColor.second != 0) iconAndColor.second as Color
-                else MaterialTheme.colorScheme.surfaceContainer,
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(
-                    imageVector = iconAndColor.first,
+                    imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier
                         .padding(16.dp)

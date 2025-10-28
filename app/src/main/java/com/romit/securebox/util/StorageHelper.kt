@@ -79,74 +79,56 @@ object StorageHelper {
         )
     }
 
-    fun getFileIcon(mimeType: String?, isDirectory: Boolean): Pair<ImageVector, Any> {
-        if (isDirectory) return Pair(Icons.Default.Folder, 0)
+    fun getFileIcon(mimeType: String?, isDirectory: Boolean): ImageVector {
+        if (isDirectory) return Icons.Default.Folder
 
         // Pick icon based on MIME type
         return when {
-            mimeType == null -> Pair(Icons.AutoMirrored.Filled.InsertDriveFile, 0)
+            mimeType == null -> Icons.AutoMirrored.Filled.InsertDriveFile
 
             // Images
-            mimeType.startsWith("image/") -> Pair(Icons.Default.Image, Color(0xFF3D92E7))
+            mimeType.startsWith("image/") -> Icons.Default.Image
 
             // Videos
-            mimeType.startsWith("video/") -> Pair(Icons.Default.VideoFile, Color(0xFF987BE1))
+            mimeType.startsWith("video/") -> Icons.Default.VideoFile
 
             // Audio
-            mimeType.startsWith("audio/") -> Pair(Icons.Default.MusicNote, Color(0xFFD9A04A))
+            mimeType.startsWith("audio/") -> Icons.Default.MusicNote
 
             // Documents
-            mimeType == "application/pdf" -> Pair(Icons.Default.PictureAsPdf, Color(0xFFF17346))
-            mimeType.startsWith("text/") -> Pair(Icons.Default.Description, Color(0xFF202020))
+            mimeType == "application/pdf" -> Icons.Default.PictureAsPdf
+            mimeType.startsWith("text/") -> Icons.Default.Description
 
             // Microsoft Office Documents
             mimeType == "application/msword" ||
                     mimeType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ->
-                Pair(Icons.Default.Description, Color(0xFF2B579A)) // Word docs
+                Icons.Default.Description // Word docs
 
             mimeType == "application/vnd.ms-excel" ||
                     mimeType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ->
-                Pair(Icons.Default.TableChart, Color(0xFF1D6F42)) // Excel sheets
+                Icons.Default.TableChart // Excel sheets
 
             mimeType == "application/vnd.ms-powerpoint" ||
                     mimeType == "application/vnd.openxmlformats-officedocument.presentationml.presentation" ->
-                Pair(Icons.Default.Slideshow, Color(0xFFD24726)) // PowerPoint presentations
+                Icons.Default.Slideshow // PowerPoint presentations
 
             // Archives
-            mimeType.contains("zip") -> Pair(Icons.Default.FolderZip, Color(0xFF24B2A2))
-            mimeType == "application/x-rar-compressed" ||
-                    mimeType == "application/vnd.rar" -> Pair(
-                Icons.Default.FolderZip,
-                Color(0xFF24B2A2)
-            )
-
-            mimeType == "application/x-7z-compressed" -> Pair(
-                Icons.Default.FolderZip,
-                Color(0xFF24B2A2)
-            )
-
-            mimeType == "application/x-tar" ||
-                    mimeType == "application/gzip" -> Pair(
-                Icons.Default.FolderZip,
-                Color(0xFF24B2A2)
-            )
+            mimeType.contains("zip") || mimeType == "application/x-rar-compressed" || mimeType == "application/vnd.rar" || mimeType == "application/x-7z-compressed" || mimeType == "application/x-tar" || mimeType == "application/gzip" -> Icons.Default.FolderZip
 
             // Android APK
-            mimeType == "application/vnd.android.package-archive" ->
-                Pair(Icons.Default.Android, Color(0xFF3DDC84))
+            mimeType == "application/vnd.android.package-archive" -> Icons.Default.Android
 
             // Code files
             mimeType == "application/json" ||
                     mimeType == "application/javascript" ||
                     mimeType == "application/xml" ||
-                    mimeType.startsWith("text/x-") -> Pair(Icons.Default.Code, Color(0xFF616161))
+                    mimeType.startsWith("text/x-") -> Icons.Default.Code
 
             // Executables
             mimeType == "application/x-msdownload" ||
-                    mimeType == "application/x-executable" ->
-                Pair(Icons.Default.Settings, Color(0xFF757575))
+                    mimeType == "application/x-executable" -> Icons.Default.Settings
 
-            else -> Pair(Icons.AutoMirrored.Filled.InsertDriveFile, 0)
+            else -> Icons.AutoMirrored.Filled.InsertDriveFile
         }
     }
 

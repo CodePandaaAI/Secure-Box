@@ -31,7 +31,7 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
         viewModelScope.launch {
             _uiState.update { it.copy(error = null, isLoading = true) }
             try {
-                val recentFiles = repository.getRecentFiles(limit = 6)
+                val recentFiles = repository.getRecentFiles(limit = 4)
                 _uiState.update { it.copy(recentFiles = recentFiles, isLoading = false) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message, isLoading = false) }

@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 @Singleton
 class FileRepository @Inject constructor() {
-    suspend fun getRecentFiles(limit: Int = 6): List<FileItem> {
+    suspend fun getRecentFiles(limit: Int): List<FileItem> {
         return withContext(Dispatchers.IO) {
             try {
                 val downloadDir =
