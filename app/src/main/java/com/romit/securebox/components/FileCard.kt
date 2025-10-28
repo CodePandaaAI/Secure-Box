@@ -22,7 +22,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.StorageHelper.formatDate
-import com.romit.securebox.util.StorageHelper.formatFileSize
 import com.romit.securebox.util.StorageHelper.getFileIcon
 
 @Composable
@@ -68,7 +67,7 @@ fun FileCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "${formatFileSize(file.size)} • ${formatDate(file.lastModified)}",
+                    text = "${file.size} • ${formatDate(file.lastModified)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

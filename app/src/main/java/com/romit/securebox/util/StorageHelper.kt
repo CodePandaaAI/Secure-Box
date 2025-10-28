@@ -28,6 +28,8 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.log10
+import kotlin.math.pow
 
 object StorageHelper {
     fun getStorageCategories(): List<StorageCategory> {
@@ -113,10 +115,21 @@ object StorageHelper {
             // Archives
             mimeType.contains("zip") -> Pair(Icons.Default.FolderZip, Color(0xFF24B2A2))
             mimeType == "application/x-rar-compressed" ||
-                    mimeType == "application/vnd.rar" -> Pair(Icons.Default.FolderZip, Color(0xFF24B2A2))
-            mimeType == "application/x-7z-compressed" -> Pair(Icons.Default.FolderZip, Color(0xFF24B2A2))
+                    mimeType == "application/vnd.rar" -> Pair(
+                Icons.Default.FolderZip,
+                Color(0xFF24B2A2)
+            )
+
+            mimeType == "application/x-7z-compressed" -> Pair(
+                Icons.Default.FolderZip,
+                Color(0xFF24B2A2)
+            )
+
             mimeType == "application/x-tar" ||
-                    mimeType == "application/gzip" -> Pair(Icons.Default.FolderZip, Color(0xFF24B2A2))
+                    mimeType == "application/gzip" -> Pair(
+                Icons.Default.FolderZip,
+                Color(0xFF24B2A2)
+            )
 
             // Android APK
             mimeType == "application/vnd.android.package-archive" ->
@@ -137,18 +150,37 @@ object StorageHelper {
         }
     }
 
-    fun formatFileSize(bytes: Long): String {
+    fun getDirectorySize(directory: File): Long {
+        var size = 0L
+        if (directory.isDirectory) {
+            directory.walkTopDown().forEach { file ->
+                if (file.isFile) {
+                    size += file.length()
+                }
+            }
+        }
+        return size
+    }
+
+    fun formatSize(bytes: Long): String {
+        if (bytes < 0) return "Invalid size"
         if (bytes < 1024) return "$bytes B"
 
-        val kilobytes = bytes / 1024.0
-        if (kilobytes < 1024) return "%.1f KB".format(kilobytes)
+        val units = arrayOf("B", "KB", "MB", "GB", "TB")
+        val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt()
 
-        val megabytes = kilobytes / 1024.0
-        if (megabytes < 1024) return "%.1f MB".format(megabytes)
+        val unitIndex = if (digitGroups < units.size) digitGroups else units.size - 1
 
-        val gigabytes = megabytes / 1024.0
-        return "%.2f GB".format(gigabytes)
+        val value = bytes / 1024.0.pow(unitIndex.toDouble())
+
+        return String.format(
+            Locale.getDefault(),
+            "%.1f %s",
+            value,
+            units[unitIndex]
+        )
     }
+
 
     fun formatDate(timestamp: Long): String {
         val date = Date(timestamp)
