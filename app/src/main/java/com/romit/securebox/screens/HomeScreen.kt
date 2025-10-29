@@ -37,30 +37,33 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     Column(
         modifier = modifier
+            .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+            .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Recents",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Start
-        )
-        Spacer(Modifier.height(16.dp))
-        if (uiState.isLoading) {
-            CircularProgressIndicator()
-        }
-        else if (uiState.recentFiles.isNotEmpty()) {
-            uiState.recentFiles.forEach { file ->
-                FileCard(file = file, onFileClick = { file -> onFileClicked(file) })
+        when {
+            uiState.isLoading -> {
+                CircularProgressIndicator()
             }
-        }
-        else {
-            Text("No Recent Files", style = MaterialTheme.typography.titleLarge)
+
+            uiState.recentFiles.isNotEmpty() -> {
+                Text(
+                    text = "Recents",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start
+                )
+                Spacer(Modifier.height(16.dp))
+                uiState.recentFiles.forEach { file ->
+                    FileCard(file = file, onFileClick = { file -> onFileClicked(file) })
+                }
+            }
+
+            else -> {
+                Text("No Recent Files", style = MaterialTheme.typography.titleLarge)
+            }
         }
 
         Spacer(Modifier.height(16.dp))

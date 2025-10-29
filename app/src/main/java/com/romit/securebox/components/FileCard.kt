@@ -73,3 +73,53 @@ fun FileCard(
         }
     }
 }
+
+@Composable
+fun RecentsFileCard(
+    file: FileItem, onFileClick: (FileItem) -> Unit
+) {
+    val icon = remember(file.mimeType, file.isDirectory) {  // Added keys!
+        getFileIcon(file.mimeType, file.isDirectory)
+    }
+
+    Surface(
+        onClick = { onFileClick(file) },
+        shape = RoundedCornerShape(24.dp),
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(32.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = file.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "${file.size} • ${formatDate(file.lastModified)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}

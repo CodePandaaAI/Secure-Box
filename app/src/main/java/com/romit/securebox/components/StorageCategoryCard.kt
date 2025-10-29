@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,10 +32,11 @@ import com.romit.securebox.data.model.StorageCategory
 fun StorageCategoryCard(
     category: StorageCategory, onCategoryClick: (String) -> Unit, modifier: Modifier
 ) {
-    Card(
+    Surface(
         onClick = { onCategoryClick(category.path) },
         shape = RoundedCornerShape(24.dp),
-        modifier = modifier
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Row(
             modifier = Modifier
@@ -69,7 +71,7 @@ fun StorageCategoryCard(
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .background(MaterialTheme.colorScheme.surface)
                     .padding(4.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -120,8 +122,8 @@ fun StorageCategoryCardPrev(
             }
             Box(
                 modifier = Modifier
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainer),
+                    .clip(CircleShape).background(MaterialTheme.colorScheme.surface),
+
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
