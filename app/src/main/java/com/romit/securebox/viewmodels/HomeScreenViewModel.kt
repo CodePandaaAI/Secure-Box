@@ -2,6 +2,7 @@ package com.romit.securebox.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.HomeUiState
 import com.romit.securebox.data.repository.FileRepository
 import com.romit.securebox.util.StorageHelper
@@ -57,5 +58,13 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
                 _uiState.update { it.copy(error = e.message) }
             }
         }
+    }
+
+    fun toggleShowBottomSheet() {
+        _uiState.update { it.copy(showBottomSheet = !uiState.value.showBottomSheet) }
+    }
+
+    fun selectedFileForBottomSheet(file: FileItem?) {
+        _uiState.update { it.copy(selectedFile = file) }
     }
 }

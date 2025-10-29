@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,6 +29,7 @@ import com.romit.securebox.components.StorageCategoryCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.viewmodels.HomeScreenViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onCategoryClicked: (String) -> Unit,
@@ -57,7 +60,14 @@ fun HomeScreen(
                 )
                 Spacer(Modifier.height(16.dp))
                 uiState.recentFiles.forEach { file ->
-                    FileCard(file = file, onFileClick = { file -> onFileClicked(file) })
+                    FileCard(
+                        file = file,
+                        onFileClick = { file -> onFileClicked(file) },
+                        onFileOperation = { fileItem ->
+                            viewModel.selectedFileForBottomSheet(fileItem)
+                            viewModel.toggleShowBottomSheet()
+                        }
+                    )
                 }
             }
 
@@ -140,6 +150,20 @@ fun HomeScreen(
                     .weight(1f)
                     .fillMaxWidth()
             )
+        }
+    }
+    if (uiState.showBottomSheet && uiState.selectedFile != null) {
+        ModalBottomSheet(onDismissRequest = {
+            viewModel.toggleShowBottomSheet()
+            viewModel.selectedFileForBottomSheet(null)
+        }
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Bottom sheet content")
+            }
         }
     }
 }

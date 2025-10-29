@@ -3,6 +3,7 @@ package com.romit.securebox.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romit.securebox.data.model.FileBrowserUiState
+import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.repository.FileRepository
 import com.romit.securebox.util.StorageHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -69,5 +70,13 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
                 }
             }
         }
+    }
+
+    fun toggleShowBottomSheet() {
+        _uiState.update { it.copy(showBottomSheet = !uiState.value.showBottomSheet) }
+    }
+
+    fun selectedFileForBottomSheet(file: FileItem?) {
+        _uiState.update { it.copy(selectedFile = file) }
     }
 }

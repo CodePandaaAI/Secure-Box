@@ -28,7 +28,7 @@ import com.romit.securebox.util.StorageHelper.getFileIcon
 
 @Composable
 fun FileCard(
-    file: FileItem, onFileClick: (FileItem) -> Unit
+    file: FileItem, onFileClick: (FileItem) -> Unit, onFileOperation: (FileItem) -> Unit
 ) {
     val icon = remember(file.mimeType, file.isDirectory) {  // Added keys!
         getFileIcon(file.mimeType, file.isDirectory)
@@ -76,7 +76,7 @@ fun FileCard(
             }
 
             IconButton(
-                onClick = {}
+                onClick = { onFileOperation(file) }
             ) {
                 Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
             }

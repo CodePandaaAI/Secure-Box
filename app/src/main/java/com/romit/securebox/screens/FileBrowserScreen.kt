@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +31,7 @@ import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FileBrowserScreen(
     modifier: Modifier = Modifier,
@@ -41,32 +45,57 @@ fun FileBrowserScreen(
         viewmodel.getDirFiles(path)
     }
 
-    if (uiState.isLoading) {
-        CircularProgressIndicator()
-    } else if (uiState.dirFiles.isNotEmpty()) {
-        LazyColumn(contentPadding = PaddingValues(8.dp)) {
-            items(uiState.dirFiles, key = { file -> file.path }) { file ->
-                FileCard(file = file) { fileItem -> onFileClicked(fileItem) }
+    when {
+        uiState.isLoading -> {
+            CircularProgressIndicator()
+        }
+
+        uiState.dirFiles.isNotEmpty() -> {
+            LazyColumn(contentPadding = PaddingValues(8.dp)) {
+                items(uiState.dirFiles, key = { file -> file.path }) { file ->
+                    FileCard(
+                        file = file,
+                        onFileClick = {file-> onFileClicked(file)},
+                        onFileOperation = { fileItem ->
+                            viewmodel.selectedFileForBottomSheet(fileItem)
+                            viewmodel.toggleShowBottomSheet()
+                        }
+                    )
+                }
             }
         }
-    } else {
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+
+        else -> {
+            Column(
+                modifier = modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.empty),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(Modifier.height(8.dp))
+                Text("Empty")
+            }
+        }
+    }
+    if (uiState.showBottomSheet && uiState.selectedFile != null) {
+        ModalBottomSheet(onDismissRequest = {
+            viewmodel.toggleShowBottomSheet()
+            viewmodel.selectedFileForBottomSheet(null)
+        }
         ) {
-            Image(
-                painter = painterResource(R.drawable.empty),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(
-                        CircleShape
-                    ),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(Modifier.height(8.dp))
-            Text("Empty")
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Bottom sheet content")
+            }
         }
     }
 }
