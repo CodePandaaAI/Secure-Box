@@ -53,10 +53,10 @@ class FileRepository @Inject constructor() {
 
                 files.sortedByDescending { it.lastModified() }
                     .map { file ->
-                        val size = if (file.isDirectory) {
-                            StorageHelper.getDirectorySize(file)
-                        } else {
+                        val size = if (!file.isDirectory) {
                             file.length()
+                        } else {
+                            0
                         }
                         FileItem(
                             path = file.absolutePath,
