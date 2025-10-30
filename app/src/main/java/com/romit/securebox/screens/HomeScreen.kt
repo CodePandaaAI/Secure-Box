@@ -1,5 +1,6 @@
 package com.romit.securebox.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,8 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -65,7 +72,6 @@ fun HomeScreen(
                         onFileClick = { file -> onFileClicked(file) },
                         onFileOperation = { fileItem ->
                             viewModel.selectedFileForBottomSheet(fileItem)
-                            viewModel.toggleShowBottomSheet()
                         }
                     )
                 }
@@ -152,17 +158,39 @@ fun HomeScreen(
             )
         }
     }
-    if (uiState.showBottomSheet && uiState.selectedFile != null) {
+    if (uiState.selectedFile != null) {
         ModalBottomSheet(onDismissRequest = {
-            viewModel.toggleShowBottomSheet()
             viewModel.selectedFileForBottomSheet(null)
         }
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
             ) {
-                Text("Bottom sheet content")
+                Text(
+                    text = uiState.selectedFile!!.name,
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                HorizontalDivider()
+
+                ListItem(
+                    headlineContent = { Text("Rename") },
+                    leadingContent = { Icon(Icons.Default.Edit, null) },
+                    modifier = Modifier.clickable {
+                        viewModel.selectedFileForBottomSheet(null)
+                    }
+                )
+
+                ListItem(
+                    headlineContent = { Text("Delete") },
+                    leadingContent = { Icon(Icons.Default.Delete, null) },
+                    modifier = Modifier.clickable {
+                        viewModel.selectedFileForBottomSheet(null)
+                    }
+                )
             }
         }
     }

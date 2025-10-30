@@ -60,10 +60,6 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
         }
     }
 
-    fun toggleShowBottomSheet() {
-        _uiState.update { it.copy(showBottomSheet = !uiState.value.showBottomSheet) }
-    }
-
     fun selectedFileForBottomSheet(file: FileItem?) {
         _uiState.update { it.copy(selectedFile = file) }
     }

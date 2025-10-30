@@ -1,6 +1,7 @@
 package com.romit.securebox.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,12 +9,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,10 +64,9 @@ fun FileBrowserScreen(
                 items(uiState.dirFiles, key = { file -> file.path }) { file ->
                     FileCard(
                         file = file,
-                        onFileClick = {file-> onFileClicked(file)},
+                        onFileClick = { file -> onFileClicked(file) },
                         onFileOperation = { fileItem ->
                             viewmodel.selectedFileForBottomSheet(fileItem)
-                            viewmodel.toggleShowBottomSheet()
                         }
                     )
                 }
@@ -84,17 +92,39 @@ fun FileBrowserScreen(
             }
         }
     }
-    if (uiState.showBottomSheet && uiState.selectedFile != null) {
+    if (uiState.selectedFile != null) {
         ModalBottomSheet(onDismissRequest = {
-            viewmodel.toggleShowBottomSheet()
             viewmodel.selectedFileForBottomSheet(null)
         }
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
             ) {
-                Text("Bottom sheet content")
+                Text(
+                    text = uiState.selectedFile!!.name,
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                HorizontalDivider()
+
+                ListItem(
+                    headlineContent = { Text("Rename") },
+                    leadingContent = { Icon(Icons.Default.Edit, null) },
+                    modifier = Modifier.clickable {
+                        viewmodel.selectedFileForBottomSheet(null)
+                    }
+                )
+
+                ListItem(
+                    headlineContent = { Text("Delete") },
+                    leadingContent = { Icon(Icons.Default.Delete, null) },
+                    modifier = Modifier.clickable {
+                        viewmodel.selectedFileForBottomSheet(null)
+                    }
+                )
             }
         }
     }

@@ -72,10 +72,6 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
         }
     }
 
-    fun toggleShowBottomSheet() {
-        _uiState.update { it.copy(showBottomSheet = !uiState.value.showBottomSheet) }
-    }
-
     fun selectedFileForBottomSheet(file: FileItem?) {
         _uiState.update { it.copy(selectedFile = file) }
     }
