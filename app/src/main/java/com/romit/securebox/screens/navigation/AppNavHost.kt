@@ -13,10 +13,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -47,6 +50,7 @@ fun AppNavHost(navController: NavHostController) {
 
     val isHomeScreen = currentBackStackEntry?.destination?.hasRoute<Screen.Home>() == true
     val sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -57,7 +61,8 @@ fun AppNavHost(navController: NavHostController) {
                     navController.popBackStack()
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         NavHost(
             modifier = Modifier.padding(innerPadding),
@@ -70,6 +75,7 @@ fun AppNavHost(navController: NavHostController) {
         ) {
             composable<Screen.Home> {
                 HomeScreen(
+                    snackbarHostState = snackbarHostState,
                     onCategoryClicked = { path ->
                         navController.navigate(Screen.FileBrowser(path)) {
                             launchSingleTop = true
@@ -88,6 +94,7 @@ fun AppNavHost(navController: NavHostController) {
             composable<Screen.FileBrowser> { backStackEntry ->
                 val path = backStackEntry.toRoute<Screen.FileBrowser>().path
                 FileBrowserScreen(
+                    snackbarHostState = snackbarHostState,
                     viewModel = sharedFileBrowserViewModel,
                     path = path,
                     onFileClicked = { file ->

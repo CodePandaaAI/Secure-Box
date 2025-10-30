@@ -48,10 +48,10 @@ fun HomeScreen(
     onCategoryClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
     onFileClicked: (FileItem) -> Unit,
-    viewModel: HomeScreenViewModel = hiltViewModel()
+    viewModel: HomeScreenViewModel = hiltViewModel(),
+    snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.successMessage, uiState.error) {
         uiState.successMessage?.let { message ->

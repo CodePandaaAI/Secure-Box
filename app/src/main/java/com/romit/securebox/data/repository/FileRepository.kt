@@ -102,8 +102,6 @@ class FileRepository @Inject constructor() {
                     Result.failure(IOException("Delete failed. Check permissions or storage."))
                 }
 
-            } catch (e: SecurityException) {
-                Result.failure(SecurityException("Permission denied"))
             } catch (e: Exception) {
                 Result.failure(e)
             }

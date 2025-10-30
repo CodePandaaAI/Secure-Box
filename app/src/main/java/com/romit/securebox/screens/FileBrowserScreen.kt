@@ -51,10 +51,10 @@ fun FileBrowserScreen(
     modifier: Modifier = Modifier,
     path: String,
     onFileClicked: (FileItem) -> Unit,
-    viewModel: FileBrowserScreenViewModel
+    viewModel: FileBrowserScreenViewModel,
+    snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(path) {
         viewModel.getDirFiles(path)
