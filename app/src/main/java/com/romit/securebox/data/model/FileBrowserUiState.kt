@@ -4,5 +4,6 @@ data class FileBrowserUiState(
     val dirFiles: List<FileItem> = emptyList(),
     val error: String? = null,
     val selectedFile: FileItem? = null,
+    val showDeleteDialog: Boolean = false,
     val isLoading: Boolean = false
 )

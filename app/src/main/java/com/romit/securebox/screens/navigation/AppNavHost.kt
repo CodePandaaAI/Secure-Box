@@ -88,7 +88,7 @@ fun AppNavHost(navController: NavHostController) {
             composable<Screen.FileBrowser> { backStackEntry ->
                 val path = backStackEntry.toRoute<Screen.FileBrowser>().path
                 FileBrowserScreen(
-                    viewmodel = sharedFileBrowserViewModel,
+                    viewModel = sharedFileBrowserViewModel,
                     path = path,
                     onFileClicked = { file ->
                         if (file.isDirectory) {

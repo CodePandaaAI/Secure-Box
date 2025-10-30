@@ -14,6 +14,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -22,6 +24,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -193,5 +196,40 @@ fun HomeScreen(
                 )
             }
         }
+    }
+
+    if (uiState.showDeleteDialog && uiState.selectedFile != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.toggleDeleteDialog() },
+            title = { Text("Delete ${uiState.selectedFile!!.name}?") },
+            text = {
+                Text(
+                    if (uiState.selectedFile!!.isDirectory) {
+                        "This folder and all its contents will be permanently deleted."
+                    } else {
+                        "This file will be permanently deleted."
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteFile(uiState.selectedFile!!.path)
+                        viewModel.toggleDeleteDialog()
+                        viewModel.selectedFileForBottomSheet(null)
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.toggleDeleteDialog() }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

@@ -80,4 +80,20 @@ class FileRepository @Inject constructor() {
             StorageHelper.formatSize(size)
         }
     }
+
+    suspend fun deleteFile(filePath: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val file = File(filePath)
+
+                if(!file.exists()) return@withContext false
+
+                if (file.isDirectory)
+                    file.deleteRecursively()
+                else file.delete()
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
 }

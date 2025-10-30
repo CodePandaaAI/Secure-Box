@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -25,6 +27,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,12 +49,12 @@ fun FileBrowserScreen(
     modifier: Modifier = Modifier,
     path: String,
     onFileClicked: (FileItem) -> Unit,
-    viewmodel: FileBrowserScreenViewModel
+    viewModel: FileBrowserScreenViewModel
 ) {
-    val uiState by viewmodel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(path) {
-        viewmodel.getDirFiles(path)
+        viewModel.getDirFiles(path)
     }
 
     when {
@@ -66,7 +69,7 @@ fun FileBrowserScreen(
                         file = file,
                         onFileClick = { file -> onFileClicked(file) },
                         onFileOperation = { fileItem ->
-                            viewmodel.selectedFileForBottomSheet(fileItem)
+                            viewModel.selectedFileForBottomSheet(fileItem)
                         }
                     )
                 }
@@ -94,7 +97,7 @@ fun FileBrowserScreen(
     }
     if (uiState.selectedFile != null) {
         ModalBottomSheet(onDismissRequest = {
-            viewmodel.selectedFileForBottomSheet(null)
+            viewModel.selectedFileForBottomSheet(null)
         }
         ) {
             Column(
@@ -114,7 +117,7 @@ fun FileBrowserScreen(
                     headlineContent = { Text("Rename") },
                     leadingContent = { Icon(Icons.Default.Edit, null) },
                     modifier = Modifier.clickable {
-                        viewmodel.selectedFileForBottomSheet(null)
+                        viewModel.selectedFileForBottomSheet(null)
                     }
                 )
 
@@ -122,10 +125,45 @@ fun FileBrowserScreen(
                     headlineContent = { Text("Delete") },
                     leadingContent = { Icon(Icons.Default.Delete, null) },
                     modifier = Modifier.clickable {
-                        viewmodel.selectedFileForBottomSheet(null)
+                        viewModel.deleteFile(uiState.selectedFile!!.path)
                     }
                 )
             }
         }
+    }
+
+    if (uiState.showDeleteDialog && uiState.selectedFile != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.toggleDeleteDialog() },
+            title = { Text("Delete ${uiState.selectedFile!!.name}?") },
+            text = {
+                Text(
+                    if (uiState.selectedFile!!.isDirectory) {
+                        "This folder and all its contents will be permanently deleted."
+                    } else {
+                        "This file will be permanently deleted."
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteFile(uiState.selectedFile!!.path)
+                        viewModel.toggleDeleteDialog()
+                        viewModel.selectedFileForBottomSheet(null)
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.toggleDeleteDialog() }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

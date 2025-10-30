@@ -72,6 +72,20 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
         }
     }
 
+    fun deleteFile(filePath: String) {
+        viewModelScope.launch {
+            try {
+                repository.deleteFile(filePath)
+            } catch (e: Exception) {
+
+            }
+        }
+    }
+
+    fun toggleDeleteDialog() {
+        _uiState.update { it.copy(showDeleteDialog = !uiState.value.showDeleteDialog) }
+    }
+
     fun selectedFileForBottomSheet(file: FileItem?) {
         _uiState.update { it.copy(selectedFile = file) }
     }
