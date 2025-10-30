@@ -19,6 +19,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,7 +34,7 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
     fun getDirFiles(path: String) {
         currentLoadJob?.cancel()
 
-        _uiState.update { it.copy(error = null, isLoading = true) }
+        _uiState.update { it.copy(currPath = path, error = null, isLoading = true) }
         currentLoadJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val files = repository.getDirFileItems(path)
@@ -74,11 +76,27 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
 
     fun deleteFile(filePath: String) {
         viewModelScope.launch {
-            try {
-                repository.deleteFile(filePath)
-            } catch (e: Exception) {
+            repository.deleteFile(filePath).fold(
+                onSuccess = { message ->
+                    _uiState.update {
+                        it.copy(successMessage = message, error = null)
+                    }
+                    getDirFiles(_uiState.value.currPath)
+                },
+                onFailure = { exception ->
+                    // Use repository message if available, otherwise create custom
+                    val errorMessage = exception.message ?: when (exception) {
+                        is FileNotFoundException -> "File not found"
+                        is SecurityException -> "Permission denied"
+                        is IOException -> "Cannot delete file"
+                        else -> "Failed to delete"
+                    }
 
-            }
+                    _uiState.update {
+                        it.copy(error = errorMessage, successMessage = null)
+                    }
+                }
+            )
         }
     }
 
@@ -88,5 +106,9 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
 
     fun selectedFileForBottomSheet(file: FileItem?) {
         _uiState.update { it.copy(selectedFile = file) }
+    }
+
+    fun clearMessages() {
+        _uiState.update { it.copy(error = null, successMessage = null) }
     }
 }

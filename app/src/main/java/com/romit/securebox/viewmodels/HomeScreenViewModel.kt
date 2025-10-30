@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.FileNotFoundException
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,11 +64,27 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
 
     fun deleteFile(filePath: String) {
         viewModelScope.launch {
-            try {
-                repository.deleteFile(filePath)
-            } catch (e: Exception) {
+            repository.deleteFile(filePath).fold(
+                onSuccess = { message ->
+                    _uiState.update {
+                        it.copy(successMessage = message, error = null)
+                    }
+                    getRecentFiles()
+                },
+                onFailure = { exception ->
+                    // Use repository message if available, otherwise create custom
+                    val errorMessage = exception.message ?: when (exception) {
+                        is FileNotFoundException -> "File not found"
+                        is SecurityException -> "Permission denied"
+                        is IOException -> "Cannot delete file"
+                        else -> "Failed to delete"
+                    }
 
-            }
+                    _uiState.update {
+                        it.copy(error = errorMessage, successMessage = null)
+                    }
+                }
+            )
         }
     }
 
@@ -76,5 +94,9 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
 
     fun selectedFileForBottomSheet(file: FileItem?) {
         _uiState.update { it.copy(selectedFile = file) }
+    }
+
+    fun clearMessages() {
+        _uiState.update { it.copy(error = null, successMessage = null) }
     }
 }

@@ -6,5 +6,6 @@ data class HomeUiState(
     val selectedFile: FileItem? = null,
     val showDeleteDialog: Boolean = false,
     val error: String? = null,
+    val successMessage: String? = null,
     val isLoading: Boolean = false
 )
