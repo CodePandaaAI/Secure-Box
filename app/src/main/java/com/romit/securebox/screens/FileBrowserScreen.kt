@@ -113,9 +113,8 @@ fun FileBrowserScreen(
         }
     }
     if (uiState.selectedFile != null) {
-        ModalBottomSheet(onDismissRequest = {
-            viewModel.selectedFileForBottomSheet(null)
-        }
+        ModalBottomSheet(
+            onDismissRequest = { viewModel.selectedFileForBottomSheet(null) }
         ) {
             Column(
                 modifier = Modifier
@@ -145,6 +144,47 @@ fun FileBrowserScreen(
                         viewModel.toggleDeleteDialog()
                     }
                 )
+            }
+        }
+    }
+    if (uiState.isRenameEnabled && uiState.selectedFile != null) {
+        Dialog(onDismissRequest = { viewModel.toggleRenameDialog() }) {
+            Column(
+                modifier = Modifier
+                    .background(
+                        MaterialTheme.colorScheme.surfaceContainer,
+                        RoundedCornerShape(20.dp)
+                    )
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Rename", style = MaterialTheme.typography.titleLarge)
+
+                OutlinedTextField(
+                    value = uiState.newFileName,
+                    onValueChange = { viewModel.onRenamingFile(it) },
+                    label = { Text("New name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    OutlinedButton(onClick = { viewModel.toggleRenameDialog() }) {
+                        Text("Cancel")
+                    }
+                    OutlinedButton(
+                        onClick = { viewModel.onRenameFileClicked() },  // ✅ Don't toggle here
+                        enabled = uiState.newFileName.isNotBlank() &&
+                                uiState.newFileName != uiState.selectedFile!!.name
+                    ) {
+                        Text("Save")
+                    }
+                }
             }
         }
     }
@@ -182,41 +222,5 @@ fun FileBrowserScreen(
                 }
             }
         )
-    }
-    if (uiState.isRenameEnabled && uiState.selectedFile != null) {
-        Dialog(onDismissRequest = { viewModel.toggleRenameDialog() }) {
-            Column(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
-                    .fillMaxWidth()
-                    .padding(24.dp)
-                    .clip(RoundedCornerShape(20.dp)),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Rename")
-                OutlinedTextField(
-                    value = uiState.newFileName,
-                    onValueChange = {
-                        viewModel.onRenamingFile(it)
-                    }
-                )
-                Row(
-                    Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    OutlinedButton(onClick = { viewModel.toggleRenameDialog() }) {
-                        Text("Cancel")
-                    }
-                    OutlinedButton(onClick = {
-                        viewModel.onRenameFileClicked()
-                        viewModel.toggleRenameDialog()
-                    }) {
-                        Text("Save")
-                    }
-                }
-            }
-        }
     }
 }

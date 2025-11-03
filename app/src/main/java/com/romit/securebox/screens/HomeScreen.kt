@@ -36,7 +36,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -182,9 +181,8 @@ fun HomeScreen(
         }
     }
     if (uiState.selectedFile != null) {
-        ModalBottomSheet(onDismissRequest = {
-            viewModel.selectedFileForBottomSheet(null)
-        }
+        ModalBottomSheet(
+            onDismissRequest = { viewModel.selectedFileForBottomSheet(null) }
         ) {
             Column(
                 modifier = Modifier
@@ -214,6 +212,47 @@ fun HomeScreen(
                         viewModel.toggleDeleteDialog()
                     }
                 )
+            }
+        }
+    }
+    if (uiState.isRenameEnabled && uiState.selectedFile != null) {
+        Dialog(onDismissRequest = { viewModel.toggleRenameDialog() }) {
+            Column(
+                modifier = Modifier
+                    .background(
+                        MaterialTheme.colorScheme.surfaceContainer,
+                        RoundedCornerShape(20.dp)
+                    )
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Rename", style = MaterialTheme.typography.titleLarge)
+
+                OutlinedTextField(
+                    value = uiState.newFileName,
+                    onValueChange = { viewModel.onRenamingFile(it) },
+                    label = { Text("New name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    OutlinedButton(onClick = { viewModel.toggleRenameDialog() }) {
+                        Text("Cancel")
+                    }
+                    OutlinedButton(
+                        onClick = { viewModel.onRenameFileClicked() },  // ✅ Don't toggle here
+                        enabled = uiState.newFileName.isNotBlank() &&
+                                uiState.newFileName != uiState.selectedFile!!.name
+                    ) {
+                        Text("Save")
+                    }
+                }
             }
         }
     }
@@ -251,41 +290,5 @@ fun HomeScreen(
                 }
             }
         )
-    }
-    if (uiState.isRenameEnabled && uiState.selectedFile != null) {
-        Dialog(onDismissRequest = { viewModel.toggleRenameDialog() }) {
-            Column(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
-                    .fillMaxWidth()
-                    .padding(24.dp)
-                    .clip(RoundedCornerShape(20.dp)),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Rename")
-                OutlinedTextField(
-                    value = uiState.newFileName,
-                    onValueChange = {
-                        viewModel.onRenamingFile(it)
-                    }
-                )
-                Row(
-                    Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    OutlinedButton(onClick = { viewModel.toggleRenameDialog() }) {
-                        Text("Cancel")
-                    }
-                    OutlinedButton(onClick = {
-                        viewModel.onRenameFileClicked()
-                        viewModel.toggleRenameDialog()
-                    }) {
-                        Text("Save")
-                    }
-                }
-            }
-        }
     }
 }

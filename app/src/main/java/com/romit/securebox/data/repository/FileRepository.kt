@@ -110,39 +110,54 @@ class FileRepository @Inject constructor() {
         }
     }
 
-    suspend fun onRenameFile(filePath: String, newFileName: String): Result<String> {
+    suspend fun renameFile(filePath: String, newName: String): Result<String> {  // ✅ Changed name
         return withContext(Dispatchers.IO) {
             try {
                 val oldFile = File(filePath)
 
                 if (!oldFile.exists()) {
-                    return@withContext Result.failure(FileNotFoundException())
+                    return@withContext Result.failure(
+                        FileNotFoundException("File not found")
+                    )
                 }
 
-                if (newFileName.isBlank()) {
-                    return@withContext Result.failure(IllegalArgumentException())
+                if (newName.isBlank()) {
+                    return@withContext Result.failure(
+                        IllegalArgumentException("Name cannot be empty")
+                    )
                 }
 
-                val parentPath = oldFile.parent ?: return@withContext Result.failure(
-                    IllegalStateException()
-                )
+                if (newName.contains("/") || newName.contains("\\")) {
+                    return@withContext Result.failure(
+                        IllegalArgumentException("Name cannot contain / or \\")
+                    )
+                }
 
-                val newFile = File(parentPath, newFileName)
+                val parentPath = oldFile.parent
+                    ?: return@withContext Result.failure(
+                        IllegalStateException("Cannot access parent directory")
+                    )
+
+                val newFile = File(parentPath, newName)
 
                 if (newFile.exists()) {
-                    return@withContext Result.failure(FileAlreadyExistsException(file = newFile))
+                    return@withContext Result.failure(
+                        FileAlreadyExistsException(
+                            file = newFile,
+                            reason = "A file with that name already exists"
+                        )
+                    )
                 }
 
                 val success = oldFile.renameTo(newFile)
 
                 if (success) {
-                    return@withContext Result.success("Renamed to $newFileName")
+                    Result.success("Renamed successfully")
                 } else {
-                    return@withContext Result.failure(IOException())
+                    Result.failure(IOException("Rename failed. Check permissions."))
                 }
+
             } catch (e: SecurityException) {
-                Result.failure(e)
-            } catch (e: IOException) {
                 Result.failure(e)
             } catch (e: Exception) {
                 Result.failure(e)
