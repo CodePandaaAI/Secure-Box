@@ -9,6 +9,8 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -102,6 +104,46 @@ class FileRepository @Inject constructor() {
                     Result.failure(IOException("Delete failed. Check permissions or storage."))
                 }
 
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun onRenameFile(filePath: String, newFileName: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val oldFile = File(filePath)
+
+                if (!oldFile.exists()) {
+                    return@withContext Result.failure(FileNotFoundException())
+                }
+
+                if (newFileName.isBlank()) {
+                    return@withContext Result.failure(IllegalArgumentException())
+                }
+
+                val parentPath = oldFile.parent ?: return@withContext Result.failure(
+                    IllegalStateException()
+                )
+
+                val newFile = File(parentPath, newFileName)
+
+                if (newFile.exists()) {
+                    return@withContext Result.failure(FileAlreadyExistsException(file = newFile))
+                }
+
+                val success = oldFile.renameTo(newFile)
+
+                if (success) {
+                    return@withContext Result.success("Renamed to $newFileName")
+                } else {
+                    return@withContext Result.failure(IOException())
+                }
+            } catch (e: SecurityException) {
+                Result.failure(e)
+            } catch (e: IOException) {
+                Result.failure(e)
             } catch (e: Exception) {
                 Result.failure(e)
             }

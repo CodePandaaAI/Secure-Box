@@ -88,6 +88,41 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
         }
     }
 
+    fun onRenamingFile(newName: String) {
+        _uiState.update { it.copy(newFileName = newName) }
+    }
+
+    fun onRenameFileClicked() {
+        viewModelScope.launch {
+            val selectedFile = uiState.value.selectedFile ?: return@launch
+            repository.onRenameFile(selectedFile.name, uiState.value.newFileName).fold(
+                onSuccess = { message ->
+                    _uiState.update { it.copy(successMessage = message, error = null) }
+                },
+                onFailure = { exception ->
+                    val errorMessage = exception.message ?: when (exception) {
+                        is FileNotFoundException -> "Original file not found."
+                        is IllegalArgumentException -> "Invalid new name provided."
+                        is FileAlreadyExistsException -> "A file with this name already exists."
+                        is IOException -> "An I/O error occurred during rename."
+                        is SecurityException -> "Permission denied to rename the file."
+                        else -> "An unknown error occurred."
+                    }
+                    _uiState.update {
+                        it.copy(
+                            error = errorMessage,
+                            successMessage = null
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    fun toggleRenameDialog() {
+        _uiState.update { it.copy(isRenameEnabled = !uiState.value.isRenameEnabled, newFileName = uiState.value.selectedFile?.name ?: "") }
+    }
+
     fun toggleDeleteDialog() {
         _uiState.update { it.copy(showDeleteDialog = !uiState.value.showDeleteDialog) }
     }
