@@ -135,7 +135,8 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
                             error = errorMessage,
                             successMessage = null,
                             isRenameEnabled = false,
-                            newFileName = ""
+                            newFileName = "",
+                            selectedFile = null
                         )
                     }
                 }

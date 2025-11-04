@@ -124,7 +124,8 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
                             error = errorMessage,
                             successMessage = null,
                             isRenameEnabled = false,
-                            newFileName = ""
+                            newFileName = "",
+                            selectedFile = null
                         )
                     }
                 }
