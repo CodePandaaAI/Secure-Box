@@ -127,9 +127,10 @@ class FileRepository @Inject constructor() {
                     )
                 }
 
-                if (newName.contains("/") || newName.contains("\\")) {
+                val invalidCharacters = setOf('/', '\\', ':', '*', '?', '"', '<', '>', '|')
+                if (newName.any { it in invalidCharacters }) {
                     return@withContext Result.failure(
-                        IllegalArgumentException("Name cannot contain / or \\")
+                        IllegalArgumentException("Name cannot contain invalid characters (e.g., /, \\, :, *, ?, \", <, >, |)")
                     )
                 }
 
