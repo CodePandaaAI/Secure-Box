@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -305,8 +306,8 @@ fun HomeScreen(
                     OutlinedButton(onClick = { viewModel.toggleRenameDialog() }) {
                         Text("Cancel")
                     }
-                    OutlinedButton(
-                        onClick = { viewModel.onRenameFileClicked() },  // ✅ Don't toggle here
+                    Button(
+                        onClick = { viewModel.onRenameFileClicked() },
                         enabled = uiState.newFileName.isNotBlank() &&
                                 uiState.newFileName != uiState.selectedFile!!.name
                     ) {
