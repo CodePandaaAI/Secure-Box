@@ -226,8 +226,8 @@ fun HomeScreen(
                                 imageVector = Icons.Filled.Folder,
                                 contentDescription = "Folder",
                                 modifier = Modifier
-                                    .padding(64.dp)
-                                    .size(192.dp)
+                                    .padding(16.dp)
+                                    .size(64.dp)
                             )
                         }
                     }
@@ -242,7 +242,7 @@ fun HomeScreen(
                                 contentDescription = "File",
                                 modifier = Modifier
                                     .padding(16.dp)
-                                    .size(128.dp)
+                                    .size(64.dp)
                             )
                         }
 

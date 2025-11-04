@@ -162,8 +162,8 @@ fun FileBrowserScreen(
                                 imageVector = Icons.Filled.Folder,
                                 contentDescription = "Folder",
                                 modifier = Modifier
-                                    .padding(64.dp)
-                                    .size(192.dp)
+                                    .padding(16.dp)
+                                    .size(64.dp)
                             )
                         }
                     }
@@ -177,8 +177,8 @@ fun FileBrowserScreen(
                                 imageVector = Icons.Default.Description,
                                 contentDescription = "File",
                                 modifier = Modifier
-                                    .padding(64.dp)
-                                    .size(192.dp)
+                                    .padding(16.dp)
+                                    .size(64.dp)
                             )
                         }
 
