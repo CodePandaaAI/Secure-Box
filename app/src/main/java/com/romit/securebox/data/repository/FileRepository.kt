@@ -28,6 +28,14 @@ class FileRepository @Inject constructor() {
 
                 val files = downloadDir.listFiles()?.filter { it.isFile }
                     ?.sortedByDescending { it.lastModified() }?.take(limit)?.map { file ->
+
+                        val extension = file.extension
+
+                        // Check if it's an image
+                        val isImage = extension.lowercase() in listOf(
+                            "jpg", "jpeg", "png", "webp", "bmp", "gif"
+                        )
+
                         FileItem(
                             path = file.absolutePath,
                             name = file.name,
@@ -35,7 +43,8 @@ class FileRepository @Inject constructor() {
                             size = StorageHelper.formatSize(file.length()),
                             lastModified = file.lastModified(),
                             mimeType = getMimeType(file),
-                            extension = file.extension
+                            extension = file.extension,
+                            isImage = isImage
                         )
                     } ?: emptyList()
 
@@ -58,6 +67,11 @@ class FileRepository @Inject constructor() {
                     } else {
                         0
                     }
+
+                    val extension = file.extension
+
+                    val isImage = extension.lowercase() in listOf("jpg", "jpeg", "png", "webp", "bmp", "gif")
+
                     FileItem(
                         path = file.absolutePath,
                         name = file.name,
@@ -65,7 +79,8 @@ class FileRepository @Inject constructor() {
                         size = StorageHelper.formatSize(size),
                         lastModified = file.lastModified(),
                         mimeType = if (file.isDirectory) null else getMimeType(file),
-                        extension = file.extension
+                        extension = file.extension,
+                        isImage = isImage
                     )
                 }
             } catch (e: Exception) {

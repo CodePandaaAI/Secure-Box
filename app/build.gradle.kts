@@ -50,6 +50,11 @@ android {
 }
 
 dependencies {
+    // Coil
+    implementation(libs.coil.compose)
+    implementation(libs.coil)
+
+    // Serialization
     implementation(libs.kotlinx.serialization.json)
 
     // Navigation

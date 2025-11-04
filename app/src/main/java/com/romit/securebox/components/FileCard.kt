@@ -1,5 +1,6 @@
 package com.romit.securebox.components
 
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,35 +29,31 @@ import com.romit.securebox.util.StorageHelper.getFileIcon
 
 @Composable
 fun FileCard(
-    file: FileItem, onFileClick: (FileItem) -> Unit, onFileOperation: (FileItem) -> Unit
+    file: FileItem,
+    onFileClick: (FileItem) -> Unit,
+    onFileOperation: (FileItem) -> Unit,
+    onFileLongClick: (FileItem) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val icon = remember(file.mimeType, file.isDirectory) {  // Added keys!
+    val icon = remember(file.mimeType, file.isDirectory) {
         getFileIcon(file.mimeType, file.isDirectory)
     }
 
     Surface(
-        onClick = { onFileClick(file) },
         shape = RoundedCornerShape(24.dp),
-        modifier = Modifier
+        modifier = modifier
             .padding(vertical = 4.dp)
             .fillMaxWidth()
+            .combinedClickable(  // ✅ Replace Surface's onClick with this
+                onClick = { onFileClick(file) },
+                onLongClick = { onFileLongClick(file) }
+            )
     ) {
         Row(
             modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceContainer,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .size(32.dp)
-                )
-            }
+            FileThumbnail(file = file, icon = icon, Modifier.size(64.dp))
 
             Spacer(modifier = Modifier.width(12.dp))
 

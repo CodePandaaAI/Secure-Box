@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,6 +31,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,11 +40,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil3.compose.AsyncImage
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.StorageCategoryCard
 import com.romit.securebox.data.model.FileItem
@@ -93,6 +99,9 @@ fun HomeScreen(
                         file = file,
                         onFileClick = { file -> onFileClicked(file) },
                         onFileOperation = { fileItem ->
+                            viewModel.selectedFileForBottomSheet(fileItem)
+                        },
+                        onFileLongClick = { fileItem ->
                             viewModel.selectedFileForBottomSheet(fileItem)
                         }
                     )
@@ -187,8 +196,58 @@ fun HomeScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp)
+                    .padding(bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                when {
+                    uiState.selectedFile!!.isImage -> {
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            AsyncImage(
+                                model = uiState.selectedFile?.path ?: "",
+                                contentDescription = uiState.selectedFile?.name ?: "",
+                                modifier = modifier
+                                    .size(192.dp)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                contentScale = ContentScale.Crop,
+                                onLoading = {}
+                            )
+                        }
+                    }
+
+                    uiState.selectedFile!!.isDirectory -> {
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Folder,
+                                contentDescription = "Folder",
+                                modifier = Modifier
+                                    .padding(64.dp)
+                                    .size(192.dp)
+                            )
+                        }
+                    }
+
+                    else -> {
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Description,
+                                contentDescription = "File",
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .size(128.dp)
+                            )
+                        }
+
+                    }
+                }
                 Text(
                     text = uiState.selectedFile!!.name,
                     modifier = Modifier.padding(16.dp),
@@ -215,6 +274,7 @@ fun HomeScreen(
             }
         }
     }
+
     if (uiState.isRenameEnabled && uiState.selectedFile != null) {
         Dialog(onDismissRequest = { viewModel.toggleRenameDialog() }) {
             Column(
