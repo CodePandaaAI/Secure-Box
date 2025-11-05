@@ -121,7 +121,7 @@ fun AppTopBar(
         navigationIcon = {
             if (!isHomeScreen) {
                 IconButton(
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = onBackClick, colors = IconButtonDefaults.iconButtonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainer
                     ),
