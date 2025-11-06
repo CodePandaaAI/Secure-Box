@@ -32,7 +32,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -126,6 +125,7 @@ fun FileBrowserScreen(
             }
         }
     }
+    // Bottom Sheet
     if (uiState.selectedFile != null) {
         ModalBottomSheet(
             onDismissRequest = { viewModel.selectedFileForBottomSheet(null) }
@@ -134,8 +134,10 @@ fun FileBrowserScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Preview
                 when {
                     uiState.selectedFile!!.isImage -> {
                         Surface(
@@ -145,26 +147,26 @@ fun FileBrowserScreen(
                             AsyncImage(
                                 model = uiState.selectedFile?.path ?: "",
                                 contentDescription = uiState.selectedFile?.name ?: "",
-                                modifier = modifier
-                                    .size(192.dp)
+                                modifier = Modifier
+                                    .size(180.dp)
                                     .background(MaterialTheme.colorScheme.surfaceVariant),
-                                contentScale = ContentScale.Crop,
-                                onLoading = {}
+                                contentScale = ContentScale.Crop
                             )
                         }
                     }
 
                     uiState.selectedFile!!.isDirectory -> {
                         Surface(
-                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            color = MaterialTheme.colorScheme.primaryContainer,
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Folder,
                                 contentDescription = "Folder",
                                 modifier = Modifier
-                                    .padding(16.dp)
-                                    .size(64.dp)
+                                    .padding(24.dp)
+                                    .size(72.dp),
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -178,20 +180,20 @@ fun FileBrowserScreen(
                                 imageVector = Icons.Default.Description,
                                 contentDescription = "File",
                                 modifier = Modifier
-                                    .padding(16.dp)
-                                    .size(64.dp)
+                                    .padding(24.dp)
+                                    .size(72.dp)
                             )
                         }
-
                     }
                 }
+
                 Text(
                     text = uiState.selectedFile!!.name,
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                HorizontalDivider()
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
 
                 ListItem(
                     headlineContent = { Text("Rename") },
@@ -211,13 +213,15 @@ fun FileBrowserScreen(
             }
         }
     }
+
+    // Rename Dialog
     if (uiState.isRenameEnabled && uiState.selectedFile != null) {
         Dialog(onDismissRequest = { viewModel.toggleRenameDialog() }) {
             Column(
                 modifier = Modifier
                     .background(
                         MaterialTheme.colorScheme.surfaceContainer,
-                        RoundedCornerShape(20.dp)
+                        RoundedCornerShape(28.dp)
                     )
                     .fillMaxWidth()
                     .padding(24.dp),
@@ -238,7 +242,7 @@ fun FileBrowserScreen(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    OutlinedButton(onClick = { viewModel.toggleRenameDialog() }) {
+                    TextButton(onClick = { viewModel.toggleRenameDialog() }) {
                         Text("Cancel")
                     }
                     Button(
@@ -253,6 +257,7 @@ fun FileBrowserScreen(
         }
     }
 
+    // Delete Dialog
     if (uiState.showDeleteDialog && uiState.selectedFile != null) {
         AlertDialog(
             onDismissRequest = { viewModel.toggleDeleteDialog() },
