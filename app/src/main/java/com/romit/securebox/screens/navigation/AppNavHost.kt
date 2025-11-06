@@ -31,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.romit.securebox.screens.AllRecentsScreen
 import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.screens.HomeScreen
 import com.romit.securebox.util.openFile
@@ -87,6 +88,9 @@ fun AppNavHost(navController: NavHostController) {
                         } else {
                             openFile(context, file)
                         }
+                    },
+                    onShowAllRecents = {
+                        navController.navigate(Screen.AllRecents)
                     }
                 )
             }
@@ -105,6 +109,15 @@ fun AppNavHost(navController: NavHostController) {
                         }
                     }
                 )
+            }
+            composable<Screen.AllRecents> {
+                AllRecentsScreen(snackbarHostState = snackbarHostState, onFileClicked = { file ->
+                    if (file.isDirectory) {
+                        navController.navigate(Screen.FileBrowser(path = file.path))
+                    } else {
+                        openFile(context, file)
+                    }
+                })
             }
         }
     }

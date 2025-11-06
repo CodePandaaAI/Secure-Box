@@ -1,6 +1,9 @@
 package com.romit.securebox.data.repository
 
-import android.os.Environment
+import android.app.Application
+import android.content.ContentResolver
+import android.os.Bundle
+import android.provider.MediaStore
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.StorageHelper
 import com.romit.securebox.util.StorageHelper.getMimeType
@@ -9,49 +12,98 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FileRepository @Inject constructor() {
+class FileRepository @Inject constructor(application: Application) {
+
+    private val contentResolver = application.contentResolver
     suspend fun getRecentFiles(limit: Int): List<FileItem> {
+        return getRecentFiles(page = 1, pageSize = limit)
+    }
+
+    suspend fun getRecentFiles(page: Int, pageSize: Int): List<FileItem> {
         return withContext(Dispatchers.IO) {
-            try {
-                val downloadDir =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val files = mutableListOf<FileItem>()
 
-                if (!downloadDir.exists()) {
-                    return@withContext emptyList()
-                }
+            // 1. Define what columns we want to get
+            val projection = arrayOf(
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.DATA, // The file path
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.SIZE,
+                MediaStore.Files.FileColumns.DATE_MODIFIED,
+                MediaStore.Files.FileColumns.MIME_TYPE
+            )
 
-                val files = downloadDir.listFiles()?.filter { it.isFile }
-                    ?.sortedByDescending { it.lastModified() }?.take(limit)?.map { file ->
+            // 2. Define how to sort
+            val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
 
-                        val extension = file.extension
+            // 3. Define the query arguments for pagination
+            val queryArgs = Bundle().apply {
+                // Sort order
+                putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, sortOrder)
+                // Page size (LIMIT)
+                putInt(ContentResolver.QUERY_ARG_LIMIT, pageSize)
+                // Page offset
+                putInt(ContentResolver.QUERY_ARG_OFFSET, (page - 1) * pageSize)
+                // 4. Filter out directories (only get files)
+                putString(
+                    ContentResolver.QUERY_ARG_SQL_SELECTION,
+                    "${MediaStore.Files.FileColumns.MIME_TYPE} IS NOT NULL"
+                )
+            }
 
-                        // Check if it's an image
-                        val isImage = extension.lowercase() in listOf(
-                            "jpg", "jpeg", "png", "webp", "bmp", "gif"
-                        )
+            // 5. Execute the query
+            val cursor = contentResolver.query(
+                MediaStore.Files.getContentUri("external"), // The "table" to query
+                projection, // The columns to get
+                queryArgs,  // The pagination and filtering
+                null
+            )
 
+            // 6. Loop through the results (the cursor)
+            cursor?.use {
+                val pathColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)
+                val nameColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                val sizeColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
+                val modifiedColumn =
+                    it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+                val mimeTypeColumn =
+                    it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
+
+                while (it.moveToNext()) {
+                    val path = it.getString(pathColumn)
+                    val file = File(path)
+
+                    // MediaStore can be slow to update, skip if file was deleted
+                    if (!file.exists()) continue
+
+                    val name = it.getString(nameColumn)
+                    val size = it.getLong(sizeColumn)
+                    // MediaStore timestamp is in SECONDS, we need Milliseconds
+                    val modified = it.getLong(modifiedColumn) * 1000L
+                    val mimeType = it.getString(mimeTypeColumn)
+
+                    // Use the mimeType to check if it's an image
+                    val isImage = mimeType?.startsWith("image/") == true
+
+                    files.add(
                         FileItem(
-                            path = file.absolutePath,
-                            name = file.name,
-                            isDirectory = file.isDirectory,
-                            size = StorageHelper.formatSize(file.length()),
-                            lastModified = file.lastModified(),
-                            mimeType = getMimeType(file),
-                            extension = file.extension,
+                            path = path,
+                            name = name,
+                            isDirectory = false, // We filtered out directories
+                            size = StorageHelper.formatSize(size), // Use your helper
+                            lastModified = modified,
+                            mimeType = mimeType,
+                            extension = file.extension, // Get extension from file
                             isImage = isImage
                         )
-                    } ?: emptyList()
-
-                files
-            } catch (e: Exception) {
-                emptyList()
+                    )
+                }
             }
+            files // Return the list
         }
     }
 
@@ -65,12 +117,13 @@ class FileRepository @Inject constructor() {
                     val size = if (!file.isDirectory) {
                         file.length()
                     } else {
-                        0
+                        0L
                     }
 
                     val extension = file.extension
 
-                    val isImage = extension.lowercase() in listOf("jpg", "jpeg", "png", "webp", "bmp", "gif")
+                    val isImage =
+                        extension.lowercase() in listOf("jpg", "jpeg", "png", "webp", "bmp", "gif")
 
                     FileItem(
                         path = file.absolutePath,
