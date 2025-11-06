@@ -20,10 +20,10 @@ class FileRepository @Inject constructor(application: Application) {
 
     private val contentResolver = application.contentResolver
     suspend fun getRecentFiles(limit: Int): List<FileItem> {
-        return getRecentFiles(page = 1, pageSize = limit)
+        return getRecentFiles(null, pageSize = limit)
     }
 
-    suspend fun getRecentFiles(page: Int, pageSize: Int): List<FileItem> {
+    suspend fun getRecentFiles(lastTimestamp: Long?, pageSize: Int): List<FileItem> {
         return withContext(Dispatchers.IO) {
             val files = mutableListOf<FileItem>()
 
@@ -40,14 +40,23 @@ class FileRepository @Inject constructor(application: Application) {
             // 2. Define how to sort
             val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
 
+
+            val selection = if (lastTimestamp != null) {
+                // If we have a timestamp, find files OLDER than it
+                "${MediaStore.Files.FileColumns.MIME_TYPE} IS NOT NULL" +
+                        " AND ${MediaStore.Files.FileColumns.DATE_MODIFIED} * 1000 < $lastTimestamp"
+            } else {
+                // First load, just get the newest
+                "${MediaStore.Files.FileColumns.MIME_TYPE} IS NOT NULL"
+            }
+
             // 3. Define the query arguments for pagination
             val queryArgs = Bundle().apply {
+                putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
                 // Sort order
                 putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, sortOrder)
                 // Page size (LIMIT)
                 putInt(ContentResolver.QUERY_ARG_LIMIT, pageSize)
-                // Page offset
-                putInt(ContentResolver.QUERY_ARG_OFFSET, (page - 1) * pageSize)
                 // 4. Filter out directories (only get files)
                 putString(
                     ContentResolver.QUERY_ARG_SQL_SELECTION,

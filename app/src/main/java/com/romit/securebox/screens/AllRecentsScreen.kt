@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,6 +34,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -69,33 +71,40 @@ fun AllRecentsScreen(
         }
     }
 
-    LazyColumn(
-        state = lazyListState,
-        contentPadding = PaddingValues(8.dp)
+    // ✅ ONLY CHANGE: Wrap with PullToRefreshBox
+    PullToRefreshBox(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = { viewModel.refresh() },
+        modifier = Modifier.fillMaxSize()
     ) {
-        items(uiState.files, key = { file -> file.path }) { file ->
-            FileCard(
-                file = file,
-                onFileClick = { onFileClicked(file) },
-                onFileOperation = { fileItem ->
-                    viewModel.selectedFileForBottomSheet(fileItem)
-                },
-                onFileLongClick = { fileItem ->
-                    viewModel.selectedFileForBottomSheet(fileItem)
-                }
-            )
-        }
+        LazyColumn(
+            state = lazyListState,
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(uiState.files, key = { file -> file.path }) { file ->
+                FileCard(
+                    file = file,
+                    onFileClick = { onFileClicked(file) },
+                    onFileOperation = { fileItem ->
+                        viewModel.selectedFileForBottomSheet(fileItem)
+                    },
+                    onFileLongClick = { fileItem ->
+                        viewModel.selectedFileForBottomSheet(fileItem)
+                    }
+                )
+            }
 
-        // Show the spinner at the bottom when loading
-        if (uiState.isLoadingNextPage) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator()
+            // Show the spinner at the bottom when loading
+            if (uiState.isLoadingNextPage) {
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }

@@ -8,5 +8,6 @@ data class AllRecentsUiState(
     val newFileName: String = "",
     val showDeleteDialog: Boolean = false,
     val successMessage: String? = null,
+    val isRefreshing: Boolean = false,
     val error: String? = null
 )

@@ -20,31 +20,60 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
     ViewModel() {
     private val _uiState = MutableStateFlow(AllRecentsUiState())
     val uiState = _uiState.asStateFlow()
-
-    private var currentPage = 1
-    private val pageSize = 20
+    private val pageSize = 30
 
     init {
-        loadNextPage()
+        refresh()
     }
 
     fun loadNextPage() {
-        if (uiState.value.isLoadingNextPage) return
+        // 3. Check BOTH loading states
+        if (uiState.value.isLoadingNextPage || uiState.value.isRefreshing) return
+
+        val lastTimestamp = uiState.value.files.lastOrNull()?.lastModified
+
+        // 4. Safety check: If the list is empty, a 'loadNextPage' call
+        //    is actually a 'refresh'.
+        if (lastTimestamp == null) {
+            refresh()
+            return
+        }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingNextPage = true) }
-
             try {
-                val newFiles = repository.getRecentFiles(currentPage, pageSize)
+                val newFiles = repository.getRecentFiles(lastTimestamp, pageSize)
                 _uiState.update {
                     it.copy(
-                        files = it.files + newFiles,
+                        files = it.files + newFiles, // APPEND new files
                         isLoadingNextPage = false
                     )
                 }
-                currentPage++
+                // 5. DELETE currentPage++
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message, isLoadingNextPage = false) }
+            }
+        }
+    }
+
+    fun refresh() {
+        // Don't refresh if we're already loading a page
+        if (uiState.value.isLoadingNextPage) return
+
+        viewModelScope.launch {
+            // Use the main 'isLoading' state
+            _uiState.update { it.copy(isRefreshing = true) }
+            try {
+                // Call repository with null to get the "first page"
+                val newFiles = repository.getRecentFiles(lastTimestamp = null, pageSize = pageSize)
+                _uiState.update {
+                    it.copy(
+                        files = newFiles, // REPLACE the list
+                        isRefreshing = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message, isRefreshing = false) }
             }
         }
     }
