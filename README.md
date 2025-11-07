@@ -8,7 +8,7 @@ SecureBox is a modern, feature-rich Android file manager built with **Jetpack Co
 - **Smart File Browser:** Navigate through directories with smooth animations and modern UI
 - **Image Thumbnails:** Instant preview of images using Coil's efficient loading and caching
 - **Recent Files:** Unified recents showing recently downloaded, modified, and opened files
-- **Pagination:** Smooth infinite scroll with pull-to-refresh support (20 items per page)
+- **Pagination:** Smooth infinite scroll with pull-to-refresh support (30 items per page)
 - **Quick Actions:** Long-press or tap three-dot menu for file operations
 
 ### 🎨 User Interface
