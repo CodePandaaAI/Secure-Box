@@ -1,52 +1,42 @@
 package com.romit.securebox.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.romit.securebox.R
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.components.BottomFileInfoSheet
 import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
+import com.romit.securebox.viewmodels.AllRecentsScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FileBrowserScreen(
-    modifier: Modifier = Modifier,
-    path: String,
+fun AllRecentsScreen(
+    viewModel: AllRecentsScreenViewModel = hiltViewModel(),
     onFileClicked: (FileItem) -> Unit,
-    viewModel: FileBrowserScreenViewModel,
     snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val lazyListState = rememberLazyListState()
 
-    LaunchedEffect(path) {
-        viewModel.getDirFiles(path)
-    }
     LaunchedEffect(uiState.successMessage, uiState.error) {
         uiState.successMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
@@ -57,51 +47,53 @@ fun FileBrowserScreen(
             viewModel.clearMessages()
         }
     }
-    when {
-        uiState.isLoading -> {
-            Column(
-                Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator()
-            }
-        }
 
-        uiState.dirFiles.isNotEmpty() -> {
-            LazyColumn(contentPadding = PaddingValues(8.dp)) {
-                items(uiState.dirFiles, key = { file -> file.path }) { file ->
-                    FileCard(
-                        file = file,
-                        onFileClick = { file -> onFileClicked(file) },
-                        onFileOperation = { fileItem ->
-                            viewModel.selectedFileForBottomSheet(fileItem)
-                        },
-                        onFileLongClick = { fileItem ->
-                            viewModel.selectedFileForBottomSheet(fileItem)
-                        }
-                    )
+    // ✅ ONLY CHANGE: Wrap with PullToRefreshBox
+    PullToRefreshBox(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = { viewModel.refresh() },
+        modifier = Modifier.fillMaxSize()
+    ) {
+        LazyColumn(
+            state = lazyListState,
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(uiState.files, key = { file -> file.path }) { file ->
+                FileCard(
+                    file = file,
+                    onFileClick = { onFileClicked(file) },
+                    onFileOperation = { fileItem ->
+                        viewModel.selectedFileForBottomSheet(fileItem)
+                    },
+                    onFileLongClick = { fileItem ->
+                        viewModel.selectedFileForBottomSheet(fileItem)
+                    }
+                )
+            }
+
+            // Show the spinner at the bottom when loading
+            if (uiState.isLoadingNextPage) {
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }
+    }
 
-        else -> {
-            Column(
-                modifier = modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.empty),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(Modifier.height(8.dp))
-                Text("Empty")
-            }
+    // This is the "trigger"
+    val isScrolledToEnd =
+        lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == uiState.files.size - 1
+
+    LaunchedEffect(isScrolledToEnd) {
+        if (isScrolledToEnd && !uiState.isLoadingNextPage) {
+            viewModel.loadNextPage()
         }
     }
     // Bottom Sheet

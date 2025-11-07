@@ -9,4 +9,7 @@ sealed interface Screen {
 
     @Serializable
     data class FileBrowser(val path: String) : Screen
+
+    @Serializable
+    data object AllRecents: Screen
 }

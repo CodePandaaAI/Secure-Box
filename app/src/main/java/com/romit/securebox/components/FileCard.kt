@@ -1,5 +1,6 @@
 package com.romit.securebox.components
 
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -26,35 +30,32 @@ import com.romit.securebox.util.StorageHelper.getFileIcon
 
 @Composable
 fun FileCard(
-    file: FileItem, onFileClick: (FileItem) -> Unit
+    file: FileItem,
+    onFileClick: (FileItem) -> Unit,
+    onFileOperation: (FileItem) -> Unit,
+    onFileLongClick: (FileItem) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val iconAndColor = remember(file.mimeType, file.isDirectory) {  // Added keys!
+    val icon = remember(file.mimeType, file.isDirectory) {
         getFileIcon(file.mimeType, file.isDirectory)
     }
 
     Surface(
-        onClick = { onFileClick(file) },
         shape = RoundedCornerShape(24.dp),
-        modifier = Modifier
+        modifier = modifier
+            .clip(RoundedCornerShape(24.dp))
             .padding(vertical = 4.dp)
             .fillMaxWidth()
+            .combinedClickable(  // ✅ Replace Surface's onClick with this
+                onClick = { onFileClick(file) },
+                onLongClick = { onFileLongClick(file) }
+            )
     ) {
         Row(
-            modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
-                color = if (iconAndColor.second != 0) iconAndColor.second as Color
-                else MaterialTheme.colorScheme.surfaceContainer,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    imageVector = iconAndColor.first,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .size(32.dp)
-                )
-            }
+            FileThumbnail(file = file, icon = icon, Modifier.size(64.dp))
 
             Spacer(modifier = Modifier.width(12.dp))
 
@@ -71,6 +72,12 @@ fun FileCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+
+            IconButton(
+                onClick = { onFileOperation(file) }
+            ) {
+                Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
             }
         }
     }

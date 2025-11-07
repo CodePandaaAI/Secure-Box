@@ -2,7 +2,7 @@ package com.romit.securebox.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val primaryLight = Color(0xFFA33D1F)
+val primaryLight = Color(0xFFC23C1A)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFFF825E)
 val onPrimaryContainerLight = Color(0xFF731B00)

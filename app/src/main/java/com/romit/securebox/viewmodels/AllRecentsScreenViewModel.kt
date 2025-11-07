@@ -2,74 +2,77 @@ package com.romit.securebox.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.romit.securebox.data.model.FileBrowserUiState
+import com.romit.securebox.data.model.AllRecentsUiState
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.repository.FileRepository
-import com.romit.securebox.util.StorageHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
-class FileBrowserScreenViewModel @Inject constructor(private val repository: FileRepository) :
+class AllRecentsScreenViewModel @Inject constructor(private val repository: FileRepository) :
     ViewModel() {
-    private var _uiState = MutableStateFlow(FileBrowserUiState())
+    private val _uiState = MutableStateFlow(AllRecentsUiState())
     val uiState = _uiState.asStateFlow()
+    private val pageSize = 30
 
-    private var currentLoadJob: Job? = null
+    init {
+        refresh()
+    }
 
-    fun getDirFiles(path: String) {
-        currentLoadJob?.cancel()
+    fun loadNextPage() {
+        // 3. Check BOTH loading states
+        if (uiState.value.isLoadingNextPage || uiState.value.isRefreshing) return
 
-        _uiState.update { it.copy(currPath = path, error = null, isLoading = true) }
-        currentLoadJob = viewModelScope.launch(Dispatchers.IO) {
+        val lastTimestamp = uiState.value.files.lastOrNull()?.lastModified
+
+        // 4. Safety check: If the list is empty, a 'loadNextPage' call is actually a 'refresh'.
+        if (lastTimestamp == null) {
+            refresh()
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingNextPage = true) }
             try {
-                val files = repository.getDirFileItems(path)
-                withContext(Dispatchers.Main) {
-                    _uiState.update {
-                        it.copy(dirFiles = files, error = null, isLoading = false)
-                    }
+                val newFiles = repository.getRecentFiles(lastTimestamp, pageSize)
+                _uiState.update {
+                    it.copy(
+                        files = it.files + newFiles, // APPEND new files
+                        isLoadingNextPage = false
+                    )
                 }
-                val dirWithSize = files.map { file ->
-                    async {
-                        if (file.isDirectory) {
-                            val dirSize = StorageHelper.getDirectorySize(File(file.path))
-                            file.copy(size = StorageHelper.formatSize(dirSize))
-                        } else {
-                            file
-                        }
-                    }
-                }.awaitAll()
-
-                // Step 3: Update UI with sizes
-                // ✅ Check if still active before updating
-                if (isActive) {
-                    withContext(Dispatchers.Main) {
-                        _uiState.update {
-                            it.copy(dirFiles = dirWithSize, error = null, isLoading = false)
-                        }
-                    }
-                }
-
-            } catch (e: CancellationException) {
-
+                // 5. DELETE currentPage++
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(error = e.message, isLoading = false) }
+                _uiState.update { it.copy(error = e.message, isLoadingNextPage = false) }
+            }
+        }
+    }
+
+    fun refresh() {
+        // Don't refresh if we're already loading a page
+        if (uiState.value.isLoadingNextPage) return
+
+        viewModelScope.launch {
+            // Use the main 'isRefreshing' state
+            _uiState.update { it.copy(isRefreshing = true) }
+            try {
+                // Call repository with null to get the "first page"
+                val newFiles = repository.getRecentFiles(lastTimestamp = null, pageSize = pageSize)
+                _uiState.update {
+                    it.copy(
+                        files = newFiles, // REPLACE the list
+                        isRefreshing = false
+                    )
                 }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message, isRefreshing = false) }
             }
         }
     }
@@ -79,9 +82,12 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
             repository.deleteFile(filePath).fold(
                 onSuccess = { message ->
                     _uiState.update {
-                        it.copy(successMessage = message, error = null)
+                        it.copy(
+                            successMessage = message,
+                            error = null,
+                            files = it.files.filterNot { fileItem -> fileItem.path == filePath }
+                        )
                     }
-                    getDirFiles(_uiState.value.currPath)
                 },
                 onFailure = { exception ->
                     // Use repository message if available, otherwise create custom
@@ -107,19 +113,36 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
     fun onRenameFileClicked() {
         viewModelScope.launch {
             val selectedFile = uiState.value.selectedFile ?: return@launch
-            
+            val newName = uiState.value.newFileName
+
             repository.renameFile(selectedFile.path, uiState.value.newFileName).fold(
                 onSuccess = { message ->
+
+                    // Re-calculate the new path
+                    val newPath = File(selectedFile.path).parent!! + "/" + newName
+                    // Create an updated copy of the file item
+                    val updatedFile = selectedFile.copy(
+                        name = newName,
+                        path = newPath
+                    )
+
                     _uiState.update {
                         it.copy(
                             successMessage = message,
                             error = null,
                             isRenameEnabled = false,  // ✅ Close dialog
                             newFileName = "",
-                            selectedFile = null  // ✅ Clear selection
+                            selectedFile = null,  // ✅ Clear selection
+
+                            files = it.files.map { fileInList ->
+                                if (fileInList.path == selectedFile.path) {
+                                    updatedFile
+                                } else {
+                                    fileInList
+                                }
+                            }
                         )
                     }
-                    getDirFiles(_uiState.value.currPath)  // ✅ Refresh
                 },
                 onFailure = { exception ->
                     val errorMessage = exception.message ?: when (exception) {
@@ -145,7 +168,12 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
     }
 
     fun toggleRenameDialog() {
-        _uiState.update { it.copy(isRenameEnabled = !uiState.value.isRenameEnabled, newFileName = uiState.value.selectedFile?.name ?: "") }
+        _uiState.update {
+            it.copy(
+                isRenameEnabled = !uiState.value.isRenameEnabled,
+                newFileName = uiState.value.selectedFile?.name ?: ""
+            )
+        }
     }
 
     fun toggleDeleteDialog() {

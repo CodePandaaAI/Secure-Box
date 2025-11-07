@@ -4,18 +4,25 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -24,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.romit.securebox.screens.AllRecentsScreen
 import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.screens.HomeScreen
 import com.romit.securebox.util.openFile
@@ -43,6 +51,7 @@ fun AppNavHost(navController: NavHostController) {
 
     val isHomeScreen = currentBackStackEntry?.destination?.hasRoute<Screen.Home>() == true
     val sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -53,7 +62,8 @@ fun AppNavHost(navController: NavHostController) {
                     navController.popBackStack()
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         NavHost(
             modifier = Modifier.padding(innerPadding),
@@ -66,6 +76,7 @@ fun AppNavHost(navController: NavHostController) {
         ) {
             composable<Screen.Home> {
                 HomeScreen(
+                    snackbarHostState = snackbarHostState,
                     onCategoryClicked = { path ->
                         navController.navigate(Screen.FileBrowser(path)) {
                             launchSingleTop = true
@@ -77,6 +88,9 @@ fun AppNavHost(navController: NavHostController) {
                         } else {
                             openFile(context, file)
                         }
+                    },
+                    onShowAllRecents = {
+                        navController.navigate(Screen.AllRecents)
                     }
                 )
             }
@@ -84,7 +98,8 @@ fun AppNavHost(navController: NavHostController) {
             composable<Screen.FileBrowser> { backStackEntry ->
                 val path = backStackEntry.toRoute<Screen.FileBrowser>().path
                 FileBrowserScreen(
-                    viewmodel = sharedFileBrowserViewModel,
+                    snackbarHostState = snackbarHostState,
+                    viewModel = sharedFileBrowserViewModel,
                     path = path,
                     onFileClicked = { file ->
                         if (file.isDirectory) {
@@ -94,6 +109,15 @@ fun AppNavHost(navController: NavHostController) {
                         }
                     }
                 )
+            }
+            composable<Screen.AllRecents> {
+                AllRecentsScreen(snackbarHostState = snackbarHostState, onFileClicked = { file ->
+                    if (file.isDirectory) {
+                        navController.navigate(Screen.FileBrowser(path = file.path))
+                    } else {
+                        openFile(context, file)
+                    }
+                })
             }
         }
     }
@@ -105,11 +129,17 @@ fun AppTopBar(
     isHomeScreen: Boolean,
     onBackClick: () -> Unit
 ) {
-    CenterAlignedTopAppBar(
+    TopAppBar(
         title = { Text("Secure Box") },
         navigationIcon = {
             if (!isHomeScreen) {
-                IconButton(onClick = onBackClick) {
+                IconButton(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    onClick = onBackClick, colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    ),
+                    shape = CircleShape
+                ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Go back"
