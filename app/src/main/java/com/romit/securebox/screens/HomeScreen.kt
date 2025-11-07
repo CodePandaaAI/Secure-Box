@@ -29,6 +29,7 @@ import coil3.compose.AsyncImage
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.StorageCategoryCard
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.util.StorageHelper
 import com.romit.securebox.viewmodels.HomeScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -292,11 +293,14 @@ fun HomeScreen(
 
                     else -> {
                         Surface(
-                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            color = MaterialTheme.colorScheme.primaryContainer,
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Description,
+                                imageVector = StorageHelper.getFileIcon(
+                                    uiState.selectedFile!!.mimeType,
+                                    uiState.selectedFile!!.isDirectory
+                                ),
                                 contentDescription = "File",
                                 modifier = Modifier
                                     .padding(24.dp)

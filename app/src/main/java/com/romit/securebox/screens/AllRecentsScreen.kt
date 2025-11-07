@@ -167,7 +167,7 @@ fun AllRecentsScreen(
 
                     else -> {
                         Surface(
-                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            color = MaterialTheme.colorScheme.primaryContainer,
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Icon(

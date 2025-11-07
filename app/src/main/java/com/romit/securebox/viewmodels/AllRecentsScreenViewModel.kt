@@ -32,8 +32,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
 
         val lastTimestamp = uiState.value.files.lastOrNull()?.lastModified
 
-        // 4. Safety check: If the list is empty, a 'loadNextPage' call
-        //    is actually a 'refresh'.
+        // 4. Safety check: If the list is empty, a 'loadNextPage' call is actually a 'refresh'.
         if (lastTimestamp == null) {
             refresh()
             return
@@ -61,7 +60,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
         if (uiState.value.isLoadingNextPage) return
 
         viewModelScope.launch {
-            // Use the main 'isLoading' state
+            // Use the main 'isRefreshing' state
             _uiState.update { it.copy(isRefreshing = true) }
             try {
                 // Call repository with null to get the "first page"

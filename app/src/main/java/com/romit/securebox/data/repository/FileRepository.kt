@@ -40,7 +40,7 @@ class FileRepository @Inject constructor(application: Application) {
             // 2. Define how to sort
             val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
 
-
+            // 3. Define Selection
             val selection = if (lastTimestamp != null) {
                 // If we have a timestamp, find files OLDER than it
                 "${MediaStore.Files.FileColumns.MIME_TYPE} IS NOT NULL" +
@@ -50,18 +50,13 @@ class FileRepository @Inject constructor(application: Application) {
                 "${MediaStore.Files.FileColumns.MIME_TYPE} IS NOT NULL"
             }
 
-            // 3. Define the query arguments for pagination
+            // 4. Define the query arguments for pagination
             val queryArgs = Bundle().apply {
                 putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
                 // Sort order
                 putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, sortOrder)
                 // Page size (LIMIT)
                 putInt(ContentResolver.QUERY_ARG_LIMIT, pageSize)
-                // 4. Filter out directories (only get files)
-                putString(
-                    ContentResolver.QUERY_ARG_SQL_SELECTION,
-                    "${MediaStore.Files.FileColumns.MIME_TYPE} IS NOT NULL"
-                )
             }
 
             // 5. Execute the query

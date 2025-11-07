@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.AlertDialog
@@ -52,6 +51,7 @@ import coil3.compose.AsyncImage
 import com.romit.securebox.R
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.util.StorageHelper
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -173,11 +173,14 @@ fun FileBrowserScreen(
 
                     else -> {
                         Surface(
-                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            color = MaterialTheme.colorScheme.primaryContainer,
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Description,
+                                imageVector = StorageHelper.getFileIcon(
+                                    uiState.selectedFile!!.mimeType,
+                                    uiState.selectedFile!!.isDirectory
+                                ),
                                 contentDescription = "File",
                                 modifier = Modifier
                                     .padding(24.dp)
