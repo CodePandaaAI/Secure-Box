@@ -2,6 +2,7 @@ package com.romit.securebox.screens.navigation
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -56,12 +58,13 @@ fun AppNavHost(navController: NavHostController) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            AppTopBar(
-                isHomeScreen = isHomeScreen,
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
+            if (!isHomeScreen) {
+                AppTopBar(
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
@@ -126,26 +129,26 @@ fun AppNavHost(navController: NavHostController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
-    isHomeScreen: Boolean,
     onBackClick: () -> Unit
 ) {
     TopAppBar(
         title = { Text("Secure Box") },
         navigationIcon = {
-            if (!isHomeScreen) {
-                IconButton(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = onBackClick, colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer
-                    ),
-                    shape = CircleShape
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Go back"
+            IconButton(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                onClick = onBackClick, colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
+                        alpha = 0.1f
                     )
-                }
+                ),
+                shape = CircleShape
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Go back"
+                )
             }
+
         }
     )
 }
