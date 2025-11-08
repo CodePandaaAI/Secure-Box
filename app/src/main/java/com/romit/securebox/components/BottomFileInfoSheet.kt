@@ -171,7 +171,6 @@ fun BottomFileInfoSheet(
                 // Rename button
                 Surface(
                     onClick = {
-                        onDismiss(null)
                         onOpenRenameDialog()
                     },
                     shape = RoundedCornerShape(16.dp),
@@ -204,7 +203,6 @@ fun BottomFileInfoSheet(
                 // Delete button
                 Surface(
                     onClick = {
-                        onDismiss(null)
                         onOpenDeleteDialog()
                     },
                     shape = RoundedCornerShape(16.dp),
