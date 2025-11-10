@@ -39,7 +39,7 @@ fun StorageCategoryCard(
         shape = RoundedCornerShape(24.dp),
         modifier = modifier,
         color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-            alpha = 0.1f
+            alpha = 0.2f
         )
     ) {
         Row(

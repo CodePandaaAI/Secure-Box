@@ -1,5 +1,6 @@
 package com.romit.securebox.screens
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -103,7 +105,9 @@ fun HomeScreen(
 
                     Surface(
                         onClick = onShowAllRecents,
-                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
+                            alpha = 0.2f
+                        ),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.clip(RoundedCornerShape(16.dp))
                     ) {

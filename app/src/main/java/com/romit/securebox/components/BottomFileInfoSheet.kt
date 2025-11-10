@@ -84,7 +84,7 @@ fun BottomFileInfoSheet(
                         shape = RoundedCornerShape(20.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                                alpha = 0.1f
+                                alpha = 0.2f
                             )
                         ),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -110,7 +110,7 @@ fun BottomFileInfoSheet(
                         shape = RoundedCornerShape(20.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                                alpha = 0.1f
+                                alpha = 0.2f
                             )
                         ),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -175,7 +175,7 @@ fun BottomFileInfoSheet(
                     },
                     shape = RoundedCornerShape(16.dp),
                     color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                        alpha = 0.1f
+                        alpha = 0.2f
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -207,7 +207,7 @@ fun BottomFileInfoSheet(
                     },
                     shape = RoundedCornerShape(16.dp),
                     color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                        alpha = 0.1f
+                        alpha = 0.2f
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) {

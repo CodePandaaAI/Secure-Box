@@ -32,7 +32,7 @@ fun FileThumbnail(
         file.isImage -> {
             Surface(
                 color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                    alpha = 0.1f
+                    alpha = 0.2f
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -55,7 +55,9 @@ fun FileThumbnail(
         // If it's a folder, show folder icon
         file.isDirectory -> {
             Surface(
-                color = MaterialTheme.colorScheme.surfaceContainer,
+                color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
+                    alpha = 0.2f
+                ),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(
@@ -71,7 +73,9 @@ fun FileThumbnail(
         // For other files, show generic file icon
         else -> {
             Surface(
-                color = MaterialTheme.colorScheme.surfaceContainer,
+                color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
+                    alpha = 0.2f
+                ),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(

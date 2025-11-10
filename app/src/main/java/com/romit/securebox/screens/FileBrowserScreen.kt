@@ -95,7 +95,7 @@ fun FileBrowserScreen(
                     painter = painterResource(R.drawable.empty),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(128.dp)
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
