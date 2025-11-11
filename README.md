@@ -71,4 +71,7 @@ SecureBox is a modern, feature-rich Android file manager built with **Jetpack Co
 
 ## 📱 Screenshots
 
-*(Will Add Soon)*
+| | | |
+|:-:|:-:|:-:|
+| <img width="240" src="https://github.com/user-attachments/assets/434506c0-1387-4235-a3c5-4e107ce52b4b" /> | <img width="240" src="https://github.com/user-attachments/assets/8e6bac65-9923-4fda-92ad-f9bac2d6f9ec" /> | <img width="240" src="https://github.com/user-attachments/assets/022be59d-6026-44f1-9ef0-11bea6a332e0" /> |
+| <img width="240" src="https://github.com/user-attachments/assets/bc80357d-e678-4e3b-97de-29cd6fb01c1a" /> | <img width="240" src="https://github.com/user-attachments/assets/901177e3-dab7-4790-a765-80f19aa02fe4" /> | <img width="240" src="https://github.com/user-attachments/assets/28d5b5ab-29e2-4049-a06d-7e5b4a23d723" /> |
