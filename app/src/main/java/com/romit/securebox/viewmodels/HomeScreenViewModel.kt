@@ -42,12 +42,6 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
         }
     }
 
-    fun refreshRecentFiles() {
-        viewModelScope.launch {
-            getRecentFiles()
-        }
-    }
-
     fun getStorageCategories() {
         viewModelScope.launch {
             try {

@@ -111,6 +111,168 @@ class FileRepository @Inject constructor(application: Application) {
         }
     }
 
+    suspend fun copyFile(filePath: String, destPath: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val sourceFile = File(filePath)
+
+                if (!sourceFile.exists()) {
+                    return@withContext Result.failure(FileNotFoundException("File Not Found"))
+                }
+
+                val destFile = File(destPath, sourceFile.name)
+
+                if (destFile.exists()) {
+                    return@withContext Result.failure(
+                        FileAlreadyExistsException(
+                            file = destFile,
+                            reason = "File Already Exists"
+                        )
+                    )
+                }
+
+                if (sourceFile.isDirectory) {
+                    sourceFile.copyRecursively(destFile, false)
+                } else sourceFile.copyTo(destFile, false)
+
+                Result.success("File Copied Successfully!")
+            } catch (e: SecurityException) {
+                Result.failure(e)
+            } catch (e: IOException) {
+                Result.failure(e)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun moveTo(sourcePath: String, destinationPath: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val sourceFile = File(sourcePath)
+                val destDir = File(destinationPath)
+
+                // Validation
+                if (!sourceFile.exists()) {
+                    return@withContext Result.failure(
+                        FileNotFoundException("Source file not found")
+                    )
+                }
+
+                if (!destDir.exists() || !destDir.isDirectory) {
+                    return@withContext Result.failure(
+                        FileNotFoundException("Destination directory not found")
+                    )
+                }
+
+                val destFile = File(destDir, sourceFile.name)
+
+                if (destFile.exists()) {
+                    return@withContext Result.failure(
+                        FileAlreadyExistsException(
+                            file = destFile,
+                            reason = "File already exists at destination"
+                        )
+                    )
+                }
+
+                // Permission checks
+                val sourceParent = sourceFile.parentFile
+                if (sourceParent?.canWrite() == false) {
+                    return@withContext Result.failure(
+                        SecurityException("No write permission in source directory")
+                    )
+                }
+
+                if (!destDir.canWrite()) {
+                    return@withContext Result.failure(
+                        SecurityException("No write permission in destination directory")
+                    )
+                }
+
+                // Storage space check
+                val sourceSize = if (sourceFile.isDirectory) {
+                    sourceFile.walkTopDown()
+                        .filter { it.isFile }
+                        .sumOf { it.length() }
+                } else {
+                    sourceFile.length()
+                }
+
+                val availableSpace = destDir.usableSpace
+
+                if (sourceSize > availableSpace) {
+                    return@withContext Result.failure(
+                        IOException(
+                            "Insufficient storage space. " +
+                                    "Need ${sourceSize / 1_048_576}MB, " +
+                                    "available ${availableSpace / 1_048_576}MB"
+                        )
+                    )
+                }
+
+                // Try fast path first (same partition)
+                val renamed = sourceFile.renameTo(destFile)
+
+                if (renamed) {
+                    return@withContext Result.success("Moved successfully")
+                }
+
+                // Fallback: cross-partition move (copy + delete)
+                try {
+                    if (sourceFile.isDirectory) {
+                        sourceFile.copyRecursively(destFile, overwrite = false)
+                    } else {
+                        sourceFile.copyTo(destFile, overwrite = false)
+                    }
+                } catch (e: Exception) {
+                    // Copy failed - ensure no partial copy remains
+                    if (destFile.exists()) {
+                        try {
+                            if (destFile.isDirectory) {
+                                destFile.deleteRecursively()
+                            } else {
+                                destFile.delete()
+                            }
+                        } catch (cleanupException: Exception) {
+                        }
+                    }
+                    throw e
+                }
+
+                // Delete source after successful copy
+                val deleted = if (sourceFile.isDirectory) {
+                    sourceFile.deleteRecursively()
+                } else {
+                    sourceFile.delete()
+                }
+
+                if (deleted) {
+                    Result.success("Moved successfully")
+                } else {
+                    // Copy succeeded but delete failed - user needs to know
+                    Result.failure(
+                        IOException(
+                            "File copied to ${destFile.absolutePath} but failed to delete original at ${sourceFile.absolutePath}. " +
+                                    "You may need to manually delete the source file."
+                        )
+                    )
+                }
+
+            } catch (e: FileNotFoundException) {
+                Result.failure(e)
+            } catch (e: FileAlreadyExistsException) {
+                Result.failure(e)
+            } catch (e: SecurityException) {
+                Result.failure(e)
+            } catch (e: IOException) {
+                Result.failure(e)
+            } catch (e: Exception) {
+                Result.failure(IOException("Unexpected error during move: ${e.message}"))
+            }
+        }
+    }
+
     suspend fun getDirFileItems(path: String): List<FileItem> {
         return withContext(Dispatchers.IO) {
             if (!File(path).exists()) return@withContext emptyList()
