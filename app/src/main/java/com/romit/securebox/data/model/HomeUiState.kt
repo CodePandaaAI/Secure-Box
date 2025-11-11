@@ -9,5 +9,5 @@ data class HomeUiState(
     val showDeleteDialog: Boolean = false,
     val error: String? = null,
     val successMessage: String? = null,
-    val isLoading: Boolean = false
+    val isRefreshing: Boolean = false
 )

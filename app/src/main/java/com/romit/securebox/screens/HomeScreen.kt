@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -67,17 +68,136 @@ fun HomeScreen(
             viewModel.clearMessages()
         }
     }
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp)
-            .padding(top = 8.dp, bottom = 16.dp),
+    PullToRefreshBox(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = { viewModel.getRecentFiles() },
+        modifier = Modifier.fillMaxSize()
     ) {
-        // Recents Section
-        when {
-            uiState.isLoading -> {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
+                .padding(top = 8.dp, bottom = 16.dp),
+        ) {
+            // Recents Section
+            when {
+                uiState.isRefreshing -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                uiState.recentFiles.isNotEmpty() -> {
+                    // Section Header with "Show All" button
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Recents",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Surface(
+                            onClick = onShowAllRecents,
+                            color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
+                                alpha = 0.2f
+                            ),
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.clip(RoundedCornerShape(16.dp))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "Show all",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                    contentDescription = "Show all",
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+
+                    // Recent Files List
+                    uiState.recentFiles.forEach { file ->
+                        FileCard(
+                            file = file,
+                            onFileClick = { onFileClicked(it) },
+                            onFileOperation = { viewModel.selectedFileForBottomSheet(it) },
+                            onFileLongClick = { viewModel.selectedFileForBottomSheet(it) }
+                        )
+                    }
+                }
+
+                else -> {
+                    // Empty state
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Description,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "No recent files",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "Files you open will appear here",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            // Categories Section
+            Text(
+                text = "Categories",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            if (uiState.storageCategoriesList.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -86,175 +206,61 @@ fun HomeScreen(
                 ) {
                     CircularProgressIndicator()
                 }
-            }
-
-            uiState.recentFiles.isNotEmpty() -> {
-                // Section Header with "Show All" button
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+            } else {
+                // Category Grid (cleaner with Column for rows)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = "Recents",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Surface(
-                        onClick = onShowAllRecents,
-                        color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                            alpha = 0.2f
-                        ),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.clip(RoundedCornerShape(16.dp))
+                    // Row 1
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = "Show all",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Show all",
-                                modifier = Modifier.size(16.dp),
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                }
-
-                // Recent Files List
-                uiState.recentFiles.forEach { file ->
-                    FileCard(
-                        file = file,
-                        onFileClick = { onFileClicked(it) },
-                        onFileOperation = { viewModel.selectedFileForBottomSheet(it) },
-                        onFileLongClick = { viewModel.selectedFileForBottomSheet(it) }
-                    )
-                }
-            }
-
-            else -> {
-                // Empty state
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Description,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        StorageCategoryCard(
+                            uiState.storageCategoriesList[0],
+                            onCategoryClick = onCategoryClicked,
+                            modifier = Modifier.weight(1f)
                         )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = "No recent files",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Files you open will appear here",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        StorageCategoryCard(
+                            uiState.storageCategoriesList[1],
+                            onCategoryClick = onCategoryClicked,
+                            modifier = Modifier.weight(1f)
                         )
                     }
-                }
-            }
-        }
 
-        Spacer(Modifier.height(24.dp))
+                    // Row 2
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        StorageCategoryCard(
+                            uiState.storageCategoriesList[2],
+                            onCategoryClick = onCategoryClicked,
+                            modifier = Modifier.weight(1f)
+                        )
+                        StorageCategoryCard(
+                            uiState.storageCategoriesList[3],
+                            onCategoryClick = onCategoryClicked,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
 
-        // Categories Section
-        Text(
-            text = "Categories",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        if (uiState.storageCategoriesList.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            // Category Grid (cleaner with Column for rows)
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Row 1
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    StorageCategoryCard(
-                        uiState.storageCategoriesList[0],
-                        onCategoryClick = onCategoryClicked,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StorageCategoryCard(
-                        uiState.storageCategoriesList[1],
-                        onCategoryClick = onCategoryClicked,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                // Row 2
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    StorageCategoryCard(
-                        uiState.storageCategoriesList[2],
-                        onCategoryClick = onCategoryClicked,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StorageCategoryCard(
-                        uiState.storageCategoriesList[3],
-                        onCategoryClick = onCategoryClicked,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                // Row 3
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    StorageCategoryCard(
-                        uiState.storageCategoriesList[4],
-                        onCategoryClick = onCategoryClicked,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StorageCategoryCard(
-                        uiState.storageCategoriesList[5],
-                        onCategoryClick = onCategoryClicked,
-                        modifier = Modifier.weight(1f)
-                    )
+                    // Row 3
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        StorageCategoryCard(
+                            uiState.storageCategoriesList[4],
+                            onCategoryClick = onCategoryClicked,
+                            modifier = Modifier.weight(1f)
+                        )
+                        StorageCategoryCard(
+                            uiState.storageCategoriesList[5],
+                            onCategoryClick = onCategoryClicked,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }

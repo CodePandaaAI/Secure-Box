@@ -32,13 +32,19 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
 
     fun getRecentFiles() {
         viewModelScope.launch {
-            _uiState.update { it.copy(error = null, isLoading = true) }
+            _uiState.update { it.copy(error = null, isRefreshing = true) }
             try {
                 val recentFiles = repository.getRecentFiles(limit = 4)
-                _uiState.update { it.copy(recentFiles = recentFiles, isLoading = false) }
+                _uiState.update { it.copy(recentFiles = recentFiles, isRefreshing = false) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isLoading = false) }
+                _uiState.update { it.copy(error = e.message, isRefreshing = false) }
             }
+        }
+    }
+
+    fun refreshRecentFiles() {
+        viewModelScope.launch {
+            getRecentFiles()
         }
     }
 
