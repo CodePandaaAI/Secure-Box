@@ -58,7 +58,7 @@ fun RenameDialog(
                     Text("Cancel")
                 }
                 Button(
-                    onClick = { onRenameFileClicked },
+                    onClick = { onRenameFileClicked() },
                     enabled = newFileName().isNotBlank() &&
                             newFileName() != selectedFile().name
                 ) {
