@@ -32,11 +32,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.romit.securebox.screens.AllRecentsScreen
+import com.romit.securebox.screens.DestinationScreen
 import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.screens.HomeScreen
 import com.romit.securebox.util.openFile
+import com.romit.securebox.viewmodels.DestinationPickerViewModel
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 
 
@@ -53,6 +56,7 @@ fun AppNavHost(navController: NavHostController) {
 
     val isHomeScreen = currentBackStackEntry?.destination?.hasRoute<Screen.Home>() == true
     val sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
+    val destinationPickerViewModel: DestinationPickerViewModel = hiltViewModel()
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -121,6 +125,21 @@ fun AppNavHost(navController: NavHostController) {
                         openFile(context, file)
                     }
                 })
+            }
+
+            navigation<Screen.DestinationPicker>(startDestination = Screen.DestinationScreen) {
+                composable<Screen.DestinationScreen> { backStackEntry ->
+                    // Get the parent entry for the nested navigation graph
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(Screen.DestinationPicker::class)
+                    }
+
+                    // Extract the route arguments from the parent entry
+                    val destinationPickerArgs = parentEntry.toRoute<Screen.DestinationPicker>()
+                    val sourcePath = destinationPickerArgs.sourcePath
+
+                    DestinationScreen(sourceFile = sourcePath, destinationPickerViewModel)
+                }
             }
         }
     }

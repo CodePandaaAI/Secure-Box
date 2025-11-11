@@ -308,6 +308,34 @@ class FileRepository @Inject constructor(application: Application) {
         }
     }
 
+    suspend fun getDirs(path: String): List<FileItem> {
+        return withContext(Dispatchers.IO) {
+            val root = File(path)
+            if (!root.exists() || !root.isDirectory) return@withContext emptyList()
+            try {
+                val files = root.listFiles()
+                    ?.filter { it.isDirectory }
+                    ?.sortedByDescending { it.lastModified() }
+                    ?.map { file ->
+                        FileItem(
+                            path = file.absolutePath,
+                            name = file.name,
+                            isDirectory = file.isDirectory,
+                            size = "",
+                            lastModified = file.lastModified(),
+                            mimeType = null,
+                            extension = null,
+                            isImage = false
+                        )
+                    }
+
+                files ?: emptyList()
+            } catch (e: Exception) {
+                emptyList()
+            }
+        }
+    }
+
     suspend fun getDirectorySize(path: String): String {
         return withContext(Dispatchers.IO) {
             val size = StorageHelper.getDirectorySize(File(path))
