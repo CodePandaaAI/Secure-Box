@@ -98,7 +98,8 @@ fun AppNavHost(navController: NavHostController) {
                     },
                     onShowAllRecents = {
                         navController.navigate(Screen.AllRecents)
-                    }
+                    },
+                    onCopyTo = { navController.navigate(Screen.DestinationPicker(it.path)) }
                 )
             }
 
@@ -114,7 +115,8 @@ fun AppNavHost(navController: NavHostController) {
                         } else {
                             openFile(context, file)
                         }
-                    }
+                    },
+                    onCopyTo = { navController.navigate(Screen.DestinationPicker(it.path)) }
                 )
             }
             composable<Screen.AllRecents> {
@@ -124,7 +126,7 @@ fun AppNavHost(navController: NavHostController) {
                     } else {
                         openFile(context, file)
                     }
-                })
+                }, onCopyTo = { navController.navigate(Screen.DestinationPicker(it.path)) })
             }
 
             navigation<Screen.DestinationPicker>(startDestination = Screen.DestinationScreen) {

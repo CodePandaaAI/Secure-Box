@@ -38,7 +38,7 @@ fun DestinationScreen(sourceFile: String, viewModel: DestinationPickerViewModel)
 
     val uiState by viewModel.uiState.collectAsState()
     LaunchedEffect(sourceFile) {
-        viewModel.getDirs(path = sourceFile)
+        viewModel.getDirs()
     }
 
     when {

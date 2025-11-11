@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
@@ -43,7 +44,8 @@ fun BottomFileInfoSheet(
     onDismiss: (FileItem?) -> Unit,
     selectedFile: () -> FileItem,
     onOpenDeleteDialog: () -> Unit,
-    onOpenRenameDialog: () -> Unit
+    onOpenRenameDialog: () -> Unit,
+    onCopyTo: (FileItem) -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = { onDismiss(null) },
@@ -228,6 +230,36 @@ fun BottomFileInfoSheet(
                             text = "Delete",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+
+                // CopyTo
+                Surface(
+                    onClick = {
+                        onCopyTo(selectedFile())
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
+                        alpha = 0.2f
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Text(
+                            text = "CopyTo",
+                            style = MaterialTheme.typography.bodyLarge
                         )
                     }
                 }

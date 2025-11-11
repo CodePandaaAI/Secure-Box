@@ -1,9 +1,8 @@
 package com.romit.securebox.viewmodels
 
-import android.util.Log.e
+import android.R.attr.path
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.romit.securebox.data.model.DestinationPickerUiState
 import com.romit.securebox.data.repository.FileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,15 +18,14 @@ class DestinationPickerViewModel @Inject constructor(private val repository: Fil
     private var _uiState = MutableStateFlow(DestinationPickerUiState())
     val uiState = _uiState.asStateFlow()
 
-
-    suspend fun getDirs(path: String) {
+    fun getDirs() {
         viewModelScope.launch {
 
             _uiState.update { it.copy(error = null, success = null, isLoading = true) }
 
             try {
-                repository.getDirs(path = path)
-                _uiState.update { it.copy(error = null, success = null, isLoading = false) }
+                val files = repository.getDirs(path = uiState.value.currPath)
+                _uiState.update { it.copy(error = null, success = null, isLoading = false, directories = files) }
 
             } catch (e: Exception) {
 

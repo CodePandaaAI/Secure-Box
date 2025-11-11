@@ -32,7 +32,8 @@ import com.romit.securebox.viewmodels.AllRecentsScreenViewModel
 fun AllRecentsScreen(
     viewModel: AllRecentsScreenViewModel = hiltViewModel(),
     onFileClicked: (FileItem) -> Unit,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    onCopyTo: (FileItem) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val lazyListState = rememberLazyListState()
@@ -102,7 +103,8 @@ fun AllRecentsScreen(
             onDismiss = { viewModel.selectedFileForBottomSheet(null) },
             onOpenDeleteDialog = { viewModel.toggleDeleteDialog() },
             onOpenRenameDialog = { viewModel.toggleRenameDialog() },
-            selectedFile = { uiState.selectedFile!! }
+            selectedFile = { uiState.selectedFile!! },
+            onCopyTo = { onCopyTo(it) }
         )
     }
 
