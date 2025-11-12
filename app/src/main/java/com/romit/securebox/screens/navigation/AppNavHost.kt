@@ -3,16 +3,24 @@ package com.romit.securebox.screens.navigation
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CreateNewFolder
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -24,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -55,6 +64,8 @@ fun AppNavHost(navController: NavHostController) {
     val context = LocalContext.current
 
     val isHomeScreen = currentBackStackEntry?.destination?.hasRoute<Screen.Home>() == true
+    val isDestinationPickerScreen =
+        currentBackStackEntry?.destination?.parent?.hasRoute<Screen.DestinationPicker>() == true
     val sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
     val destinationPickerViewModel: DestinationPickerViewModel = hiltViewModel()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -68,6 +79,11 @@ fun AppNavHost(navController: NavHostController) {
                         navController.popBackStack()
                     }
                 )
+            }
+        },
+        bottomBar = {
+            if (isDestinationPickerScreen) {
+                BottomBar(onCreateFolder = {}, onPasteHere = {})
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -99,7 +115,10 @@ fun AppNavHost(navController: NavHostController) {
                     onShowAllRecents = {
                         navController.navigate(Screen.AllRecents)
                     },
-                    onCopyTo = { navController.navigate(Screen.DestinationPicker(it.path)) }
+                    onCopyTo = {
+                        sharedFileBrowserViewModel
+                        navController.navigate(Screen.DestinationPicker(it.path))
+                    }
                 )
             }
 
@@ -129,18 +148,22 @@ fun AppNavHost(navController: NavHostController) {
                 }, onCopyTo = { navController.navigate(Screen.DestinationPicker(it.path)) })
             }
 
-            navigation<Screen.DestinationPicker>(startDestination = Screen.DestinationScreen) {
+            navigation<Screen.DestinationPicker>(
+                startDestination = Screen.DestinationScreen(
+                    destinationPickerViewModel.uiState.value.currPath
+                )
+            ) {
                 composable<Screen.DestinationScreen> { backStackEntry ->
-                    // Get the parent entry for the nested navigation graph
-                    val parentEntry = remember(backStackEntry) {
-                        navController.getBackStackEntry(Screen.DestinationPicker::class)
-                    }
+                    val folderPath = backStackEntry.toRoute<Screen.DestinationScreen>().folderPath
 
-                    // Extract the route arguments from the parent entry
-                    val destinationPickerArgs = parentEntry.toRoute<Screen.DestinationPicker>()
-                    val sourcePath = destinationPickerArgs.sourcePath
-
-                    DestinationScreen(sourceFile = sourcePath, destinationPickerViewModel)
+                    DestinationScreen(
+                        folderPath = folderPath,
+                        destinationPickerViewModel,
+                        onFolderClicked = {
+                            destinationPickerViewModel.updateCurrentPath(it.path)
+                            navController.navigate(Screen.DestinationScreen(it.path))
+                        }
+                    )
                 }
             }
         }
@@ -172,4 +195,36 @@ fun AppTopBar(
 
         }
     )
+}
+
+@Composable
+fun BottomBar(onCreateFolder: () -> Unit, onPasteHere: () -> Unit) {
+    BottomAppBar {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            OutlinedButton(
+                onClick = { onCreateFolder() },
+            ) {
+                Icon(
+                    modifier = Modifier.padding(end = ButtonDefaults.IconSpacing),
+                    imageVector = Icons.Default.CreateNewFolder,
+                    contentDescription = null
+                )
+                Text("Create New Folder")
+            }
+            Button(onClick = { onPasteHere() }) {
+                Text("Paste Here")
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun FabPreview() {
+    BottomBar(onCreateFolder = {}, onPasteHere = {})
 }

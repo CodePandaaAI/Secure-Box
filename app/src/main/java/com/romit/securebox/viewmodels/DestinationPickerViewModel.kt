@@ -18,13 +18,13 @@ class DestinationPickerViewModel @Inject constructor(private val repository: Fil
     private var _uiState = MutableStateFlow(DestinationPickerUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun getDirs() {
+    fun getDirs(dirPath: String) {
         viewModelScope.launch {
 
             _uiState.update { it.copy(error = null, success = null, isLoading = true) }
 
             try {
-                val files = repository.getDirs(path = uiState.value.currPath)
+                val files = repository.getDirs(path = dirPath)
                 _uiState.update { it.copy(error = null, success = null, isLoading = false, directories = files) }
 
             } catch (e: Exception) {
@@ -33,5 +33,9 @@ class DestinationPickerViewModel @Inject constructor(private val repository: Fil
 
             }
         }
+    }
+
+    fun updateCurrentPath(newCurrPath: String) {
+        _uiState.update { it.copy(currPath = newCurrPath) }
     }
 }
