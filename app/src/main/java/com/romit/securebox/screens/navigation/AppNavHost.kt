@@ -29,6 +29,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +51,7 @@ import com.romit.securebox.screens.HomeScreen
 import com.romit.securebox.util.openFile
 import com.romit.securebox.viewmodels.DestinationPickerViewModel
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -62,6 +64,7 @@ fun SecureApp() {
 fun AppNavHost(navController: NavHostController) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val isHomeScreen = currentBackStackEntry?.destination?.hasRoute<Screen.Home>() == true
     val isDestinationPickerScreen =
@@ -83,7 +86,25 @@ fun AppNavHost(navController: NavHostController) {
         },
         bottomBar = {
             if (isDestinationPickerScreen) {
-                BottomBar(onCreateFolder = {}, onPasteHere = {})
+                BottomBar(
+                    onCreateFolder = {},
+                    onPasteHere = {
+                        val selectedFile = destinationPickerViewModel.uiState.value.sourcePath
+                        if (selectedFile.isNotBlank()) {
+                            destinationPickerViewModel.copyFile(
+                                selectedFile,
+                                destinationPickerViewModel.uiState.value.currPath
+                            )
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "No file selected to paste.",
+                                    withDismissAction = true
+                                )
+                            }
+                        }
+                    }
+                )
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -116,8 +137,8 @@ fun AppNavHost(navController: NavHostController) {
                         navController.navigate(Screen.AllRecents)
                     },
                     onCopyTo = {
-                        sharedFileBrowserViewModel
-                        navController.navigate(Screen.DestinationPicker(it.path))
+                        destinationPickerViewModel.addSourcePath(it.path)
+                        navController.navigate(Screen.DestinationPicker)
                     }
                 )
             }
@@ -135,7 +156,10 @@ fun AppNavHost(navController: NavHostController) {
                             openFile(context, file)
                         }
                     },
-                    onCopyTo = { navController.navigate(Screen.DestinationPicker(it.path)) }
+                    onCopyTo = {
+                        destinationPickerViewModel.addSourcePath(it.path)
+                        navController.navigate(Screen.DestinationPicker)
+                    }
                 )
             }
             composable<Screen.AllRecents> {
@@ -145,7 +169,10 @@ fun AppNavHost(navController: NavHostController) {
                     } else {
                         openFile(context, file)
                     }
-                }, onCopyTo = { navController.navigate(Screen.DestinationPicker(it.path)) })
+                }, onCopyTo = {
+                    destinationPickerViewModel.addSourcePath(it.path)
+                    navController.navigate(Screen.DestinationPicker)
+                })
             }
 
             navigation<Screen.DestinationPicker>(
@@ -162,6 +189,12 @@ fun AppNavHost(navController: NavHostController) {
                         onFolderClicked = {
                             destinationPickerViewModel.updateCurrentPath(it.path)
                             navController.navigate(Screen.DestinationScreen(it.path))
+                        },
+                        snackbarHostState = snackbarHostState,
+                        onNavigateBack = {
+                            navController.popBackStack(
+                                Screen.DestinationPicker, inclusive = true
+                            )
                         }
                     )
                 }
