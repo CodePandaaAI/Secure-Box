@@ -16,7 +16,9 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -33,7 +35,8 @@ fun AllRecentsScreen(
     viewModel: AllRecentsScreenViewModel = hiltViewModel(),
     onFileClicked: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState,
-    onCopyTo: (FileItem) -> Unit
+    onCopyTo: (FileItem) -> Unit,
+    onMoveTo: (FileItem) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val lazyListState = rememberLazyListState()
@@ -89,8 +92,11 @@ fun AllRecentsScreen(
     }
 
     // This is the "trigger"
-    val isScrolledToEnd =
-        lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == uiState.files.size - 1
+    val isScrolledToEnd by remember {
+        derivedStateOf {
+            lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == uiState.files.size - 1
+        }
+    }
 
     LaunchedEffect(isScrolledToEnd) {
         if (isScrolledToEnd && !uiState.isLoadingNextPage) {
@@ -104,7 +110,8 @@ fun AllRecentsScreen(
             onOpenDeleteDialog = { viewModel.toggleDeleteDialog() },
             onOpenRenameDialog = { viewModel.toggleRenameDialog() },
             selectedFile = { uiState.selectedFile!! },
-            onCopyTo = { onCopyTo(it) }
+            onCopyTo = { onCopyTo(it) },
+            onMoveTo = { onMoveTo(it) }
         )
     }
 

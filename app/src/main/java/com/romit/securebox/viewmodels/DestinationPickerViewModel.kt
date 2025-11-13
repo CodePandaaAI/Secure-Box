@@ -71,11 +71,38 @@ class DestinationPickerViewModel @Inject constructor(private val repository: Fil
             )
         }
     }
+
+    fun moveFile(filePath: String, destPath: String) {
+        viewModelScope.launch {
+            repository.moveTo(filePath, destPath).fold(
+                onSuccess = { message ->
+                    _uiState.update {
+                        it.copy(
+                            success = message,
+                            error = null
+                        )
+                    }
+                },
+                onFailure = { message ->
+                    _uiState.update { it.copy(error = message.message, success = null) }
+                }
+            )
+        }
+    }
+
     fun clearMessages() {
         _uiState.update { it.copy(error = null, success = null) }
     }
 
-    fun addSourcePath(path: String){
+    fun addSourcePath(path: String) {
         _uiState.update { it.copy(sourcePath = path) }
+    }
+
+    fun isCopyFile() {
+        _uiState.update { it.copy(isCopyFile = true, isMoveFile = false) }
+    }
+
+    fun isMoveFile() {
+        _uiState.update { it.copy(isCopyFile = false, isMoveFile = true) }
     }
 }

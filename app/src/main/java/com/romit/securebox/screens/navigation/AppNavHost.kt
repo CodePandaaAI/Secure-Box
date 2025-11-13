@@ -88,13 +88,20 @@ fun AppNavHost(navController: NavHostController) {
             if (isDestinationPickerScreen) {
                 BottomBar(
                     onCreateFolder = {},
-                    onPasteHere = {
+                    onConfirmLocation = {
                         val selectedFile = destinationPickerViewModel.uiState.value.sourcePath
                         if (selectedFile.isNotBlank()) {
-                            destinationPickerViewModel.copyFile(
-                                selectedFile,
-                                destinationPickerViewModel.uiState.value.currPath
-                            )
+                            if (destinationPickerViewModel.uiState.value.isCopyFile) {
+                                destinationPickerViewModel.copyFile(
+                                    selectedFile,
+                                    destinationPickerViewModel.uiState.value.currPath
+                                )
+                            } else {
+                                destinationPickerViewModel.moveFile(
+                                    selectedFile,
+                                    destinationPickerViewModel.uiState.value.currPath
+                                )
+                            }
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
@@ -103,7 +110,8 @@ fun AppNavHost(navController: NavHostController) {
                                 )
                             }
                         }
-                    }
+                    },
+                    buttonLabel = if (destinationPickerViewModel.uiState.value.isCopyFile) "Copy Here" else "Move Here"
                 )
             }
         },
@@ -138,6 +146,12 @@ fun AppNavHost(navController: NavHostController) {
                     },
                     onCopyTo = {
                         destinationPickerViewModel.addSourcePath(it.path)
+                        destinationPickerViewModel.isCopyFile()
+                        navController.navigate(Screen.DestinationPicker)
+                    },
+                    onMoveTo = {
+                        destinationPickerViewModel.addSourcePath(it.path)
+                        destinationPickerViewModel.isMoveFile()
                         navController.navigate(Screen.DestinationPicker)
                     }
                 )
@@ -158,21 +172,35 @@ fun AppNavHost(navController: NavHostController) {
                     },
                     onCopyTo = {
                         destinationPickerViewModel.addSourcePath(it.path)
+                        destinationPickerViewModel.isCopyFile()
+                        navController.navigate(Screen.DestinationPicker)
+                    },
+                    onMoveTo = {
+                        destinationPickerViewModel.addSourcePath(it.path)
+                        destinationPickerViewModel.isMoveFile()
                         navController.navigate(Screen.DestinationPicker)
                     }
                 )
             }
             composable<Screen.AllRecents> {
-                AllRecentsScreen(snackbarHostState = snackbarHostState, onFileClicked = { file ->
-                    if (file.isDirectory) {
-                        navController.navigate(Screen.FileBrowser(path = file.path))
-                    } else {
-                        openFile(context, file)
+                AllRecentsScreen(
+                    snackbarHostState = snackbarHostState, onFileClicked = { file ->
+                        if (file.isDirectory) {
+                            navController.navigate(Screen.FileBrowser(path = file.path))
+                        } else {
+                            openFile(context, file)
+                        }
+                    }, onCopyTo = {
+                        destinationPickerViewModel.addSourcePath(it.path)
+                        destinationPickerViewModel.isCopyFile()
+                        navController.navigate(Screen.DestinationPicker)
+                    },
+                    onMoveTo = {
+                        destinationPickerViewModel.addSourcePath(it.path)
+                        destinationPickerViewModel.isMoveFile()
+                        navController.navigate(Screen.DestinationPicker)
                     }
-                }, onCopyTo = {
-                    destinationPickerViewModel.addSourcePath(it.path)
-                    navController.navigate(Screen.DestinationPicker)
-                })
+                )
             }
 
             navigation<Screen.DestinationPicker>(
@@ -231,7 +259,11 @@ fun AppTopBar(
 }
 
 @Composable
-fun BottomBar(onCreateFolder: () -> Unit, onPasteHere: () -> Unit) {
+fun BottomBar(
+    onCreateFolder: () -> Unit,
+    buttonLabel: String,
+    onConfirmLocation: () -> Unit
+) {
     BottomAppBar {
         Row(
             Modifier
@@ -249,8 +281,8 @@ fun BottomBar(onCreateFolder: () -> Unit, onPasteHere: () -> Unit) {
                 )
                 Text("Create New Folder")
             }
-            Button(onClick = { onPasteHere() }) {
-                Text("Paste Here")
+            Button(onClick = { onConfirmLocation() }) {
+                Text(buttonLabel)
             }
         }
     }
@@ -259,5 +291,5 @@ fun BottomBar(onCreateFolder: () -> Unit, onPasteHere: () -> Unit) {
 @Preview
 @Composable
 fun FabPreview() {
-    BottomBar(onCreateFolder = {}, onPasteHere = {})
+    BottomBar(onCreateFolder = {}, onConfirmLocation = {}, buttonLabel = "Copy Here")
 }

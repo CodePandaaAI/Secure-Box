@@ -41,6 +41,7 @@ fun FileBrowserScreen(
     onFileClicked: (FileItem) -> Unit,
     viewModel: FileBrowserScreenViewModel,
     onCopyTo: (FileItem) -> Unit,
+    onMoveTo: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -112,6 +113,7 @@ fun FileBrowserScreen(
             onOpenDeleteDialog = { viewModel.toggleDeleteDialog() },
             onOpenRenameDialog = { viewModel.toggleRenameDialog() },
             onCopyTo = { onCopyTo(it) },
+            onMoveTo = { onMoveTo(it) },
             selectedFile = { uiState.selectedFile!! }
         )
     }

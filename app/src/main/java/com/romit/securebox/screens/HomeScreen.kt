@@ -55,6 +55,7 @@ fun HomeScreen(
     onFileClicked: (FileItem) -> Unit,
     viewModel: HomeScreenViewModel = hiltViewModel(),
     onCopyTo: (FileItem) -> Unit,
+    onMoveTo: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -274,7 +275,8 @@ fun HomeScreen(
             onOpenDeleteDialog = { viewModel.toggleDeleteDialog() },
             onOpenRenameDialog = { viewModel.toggleRenameDialog() },
             selectedFile = { uiState.selectedFile!! },
-            onCopyTo = { onCopyTo(it) }
+            onCopyTo = { onCopyTo(it) },
+            onMoveTo = { onMoveTo(it) }
         )
     }
 
