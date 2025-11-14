@@ -27,6 +27,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,14 +43,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.romit.securebox.screens.AllRecentsScreen
 import com.romit.securebox.screens.DestinationScreen
 import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.screens.HomeScreen
 import com.romit.securebox.util.openFile
-import com.romit.securebox.viewmodels.DestinationPickerViewModel
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 import kotlinx.coroutines.launch
 
@@ -67,11 +66,10 @@ fun AppNavHost(navController: NavHostController) {
     val scope = rememberCoroutineScope()
 
     val isHomeScreen = currentBackStackEntry?.destination?.hasRoute<Screen.Home>() == true
-    val isDestinationPickerScreen =
-        currentBackStackEntry?.destination?.parent?.hasRoute<Screen.DestinationPicker>() == true
+    val isDestinationScreen = currentBackStackEntry?.destination?.hasRoute<Screen.DestinationScreen>() == true
     val sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
-    val destinationPickerViewModel: DestinationPickerViewModel = hiltViewModel()
     val snackbarHostState = remember { SnackbarHostState() }
+    val uiState by sharedFileBrowserViewModel.uiState.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -85,21 +83,20 @@ fun AppNavHost(navController: NavHostController) {
             }
         },
         bottomBar = {
-            if (isDestinationPickerScreen) {
+            if (isDestinationScreen && uiState.selectedFile?.path != null) {
                 BottomBar(
-                    onCreateFolder = {},
+                    onCreateFolder = { sharedFileBrowserViewModel.toggleCreateFolderDialog() },
                     onConfirmLocation = {
-                        val selectedFile = destinationPickerViewModel.uiState.value.sourcePath
-                        if (selectedFile.isNotBlank()) {
-                            if (destinationPickerViewModel.uiState.value.isCopyFile) {
-                                destinationPickerViewModel.copyFile(
-                                    selectedFile,
-                                    destinationPickerViewModel.uiState.value.currPath
+                        if (uiState.selectedFile!!.path.isNotBlank()) {
+                            if (uiState.isCopyFile) {
+                                sharedFileBrowserViewModel.copyFile(
+                                    uiState.selectedFile!!.path,
+                                    uiState.operationTargetPath
                                 )
                             } else {
-                                destinationPickerViewModel.moveFile(
-                                    selectedFile,
-                                    destinationPickerViewModel.uiState.value.currPath
+                                sharedFileBrowserViewModel.moveFile(
+                                    uiState.selectedFile!!.path,
+                                    uiState.operationTargetPath
                                 )
                             }
                         } else {
@@ -111,7 +108,7 @@ fun AppNavHost(navController: NavHostController) {
                             }
                         }
                     },
-                    buttonLabel = if (destinationPickerViewModel.uiState.value.isCopyFile) "Copy Here" else "Move Here"
+                    buttonLabel = if (uiState.isCopyFile) "Copy Here" else "Move Here"
                 )
             }
         },
@@ -134,6 +131,7 @@ fun AppNavHost(navController: NavHostController) {
                             launchSingleTop = true
                         }
                     },
+                    viewModel = sharedFileBrowserViewModel,
                     onFileClicked = { file ->
                         if (file.isDirectory) {
                             navController.navigate(Screen.FileBrowser(path = file.path))
@@ -144,15 +142,17 @@ fun AppNavHost(navController: NavHostController) {
                     onShowAllRecents = {
                         navController.navigate(Screen.AllRecents)
                     },
-                    onCopyTo = {
-                        destinationPickerViewModel.addSourcePath(it.path)
-                        destinationPickerViewModel.isCopyFile()
-                        navController.navigate(Screen.DestinationPicker)
+                    onCopyTo = { // ✅ No parameter
+                        sharedFileBrowserViewModel.isCopyFile()
+                        navController.navigate(Screen.DestinationScreen(
+                            sharedFileBrowserViewModel.uiState.value.operationTargetPath
+                        ))
                     },
-                    onMoveTo = {
-                        destinationPickerViewModel.addSourcePath(it.path)
-                        destinationPickerViewModel.isMoveFile()
-                        navController.navigate(Screen.DestinationPicker)
+                    onMoveTo = { // ✅ No parameter
+                        sharedFileBrowserViewModel.isMoveFile()
+                        navController.navigate(Screen.DestinationScreen(
+                            sharedFileBrowserViewModel.uiState.value.operationTargetPath
+                        ))
                     }
                 )
             }
@@ -171,14 +171,12 @@ fun AppNavHost(navController: NavHostController) {
                         }
                     },
                     onCopyTo = {
-                        destinationPickerViewModel.addSourcePath(it.path)
-                        destinationPickerViewModel.isCopyFile()
-                        navController.navigate(Screen.DestinationPicker)
+                        sharedFileBrowserViewModel.isCopyFile()
+                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
                     },
                     onMoveTo = {
-                        destinationPickerViewModel.addSourcePath(it.path)
-                        destinationPickerViewModel.isMoveFile()
-                        navController.navigate(Screen.DestinationPicker)
+                        sharedFileBrowserViewModel.isMoveFile()
+                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
                     }
                 )
             }
@@ -191,42 +189,34 @@ fun AppNavHost(navController: NavHostController) {
                             openFile(context, file)
                         }
                     }, onCopyTo = {
-                        destinationPickerViewModel.addSourcePath(it.path)
-                        destinationPickerViewModel.isCopyFile()
-                        navController.navigate(Screen.DestinationPicker)
+                        sharedFileBrowserViewModel.isCopyFile()
+                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
                     },
                     onMoveTo = {
-                        destinationPickerViewModel.addSourcePath(it.path)
-                        destinationPickerViewModel.isMoveFile()
-                        navController.navigate(Screen.DestinationPicker)
+                        sharedFileBrowserViewModel.isMoveFile()
+                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
                     }
                 )
             }
 
-            navigation<Screen.DestinationPicker>(
-                startDestination = Screen.DestinationScreen(
-                    destinationPickerViewModel.uiState.value.currPath
-                )
-            ) {
-                composable<Screen.DestinationScreen> { backStackEntry ->
-                    val folderPath = backStackEntry.toRoute<Screen.DestinationScreen>().folderPath
 
-                    DestinationScreen(
-                        folderPath = folderPath,
-                        destinationPickerViewModel,
-                        onFolderClicked = {
-                            destinationPickerViewModel.updateCurrentPath(it.path)
-                            navController.navigate(Screen.DestinationScreen(it.path))
-                        },
-                        snackbarHostState = snackbarHostState,
-                        onNavigateBack = {
-                            navController.popBackStack(
-                                Screen.DestinationPicker, inclusive = true
-                            )
-                        }
-                    )
-                }
+            composable<Screen.DestinationScreen> { backStackEntry ->
+                val folderPath = backStackEntry.toRoute<Screen.DestinationScreen>().folderPath
+
+                DestinationScreen(
+                    folderPath = folderPath,
+                    sharedFileBrowserViewModel,
+                    onFolderClicked = {
+                        sharedFileBrowserViewModel.updateCurrentPath(it.path)
+                        navController.navigate(Screen.DestinationScreen(it.path))
+                    },
+                    snackbarHostState = snackbarHostState,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
             }
+
         }
     }
 }

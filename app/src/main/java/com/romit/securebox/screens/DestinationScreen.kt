@@ -1,7 +1,9 @@
 package com.romit.securebox.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,14 +26,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.romit.securebox.R
+import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.viewmodels.DestinationPickerViewModel
+import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 
 @Composable
 fun DestinationScreen(
     folderPath: String,
-    viewModel: DestinationPickerViewModel,
+    viewModel: FileBrowserScreenViewModel,
     onFolderClicked: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState,
     onNavigateBack: () -> Unit
@@ -42,13 +45,13 @@ fun DestinationScreen(
         viewModel.getDirs(folderPath)
     }
 
-    LaunchedEffect(uiState.success, uiState.error) {
-        uiState.success?.let { successMessage ->
+    LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
+        uiState.successMessage?.let { successMessage ->
             snackbarHostState.showSnackbar(message = successMessage)
             viewModel.clearMessages()
             onNavigateBack()
         }
-        uiState.error?.let { error ->
+        uiState.errorMessage?.let { error ->
             snackbarHostState.showSnackbar(message = error)
             viewModel.clearMessages()
             onNavigateBack()
@@ -62,9 +65,9 @@ fun DestinationScreen(
             }
         }
 
-        uiState.directories.isNotEmpty() -> {
+        uiState.operationTargetPathDirectories.isNotEmpty() -> {
             LazyColumn(contentPadding = PaddingValues(8.dp)) {
-                items(uiState.directories) { dir ->
+                items(uiState.operationTargetPathDirectories) { dir ->
                     FolderCard(
                         file = dir,
                         onFolderClick = { onFolderClicked(it) }
@@ -74,7 +77,11 @@ fun DestinationScreen(
         }
 
         else -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(
+                Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Image(
                     painter = painterResource(R.drawable.empty),
                     contentDescription = null,
@@ -83,9 +90,19 @@ fun DestinationScreen(
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(16.dp))
                 Text("Nothing Here")
             }
         }
+    }
+
+    if (uiState.showCreateFolderDialog) {
+        CreateFolderDialog(
+            folderName = uiState.newFolderName,
+            error = uiState.newFolderError,
+            onFolderNameChange = { viewModel.updateNewFolderName(it) },
+            onConfirm = { viewModel.createFolder() },
+            onDismiss = { viewModel.toggleCreateFolderDialog() }
+        )
     }
 }

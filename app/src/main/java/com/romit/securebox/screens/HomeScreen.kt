@@ -37,14 +37,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.components.BottomFileInfoSheet
 import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.components.StorageCategoryCard
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.viewmodels.HomeScreenViewModel
+import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,23 +52,24 @@ fun HomeScreen(
     onCategoryClicked: (String) -> Unit,
     onShowAllRecents: () -> Unit,
     onFileClicked: (FileItem) -> Unit,
-    viewModel: HomeScreenViewModel = hiltViewModel(),
-    onCopyTo: (FileItem) -> Unit,
-    onMoveTo: (FileItem) -> Unit,
+    viewModel: FileBrowserScreenViewModel, // ✅ Changed type
+    onCopyTo: () -> Unit, // ✅ Changed signature - no parameter needed
+    onMoveTo: () -> Unit, // ✅ Changed signature - no parameter needed
     snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.successMessage, uiState.error) {
+    LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
         uiState.successMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
             viewModel.clearMessages()
         }
-        uiState.error?.let { error ->
+        uiState.errorMessage?.let { error ->
             snackbarHostState.showSnackbar(error)
             viewModel.clearMessages()
         }
     }
+
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
         onRefresh = { viewModel.getRecentFiles() },
@@ -275,13 +275,13 @@ fun HomeScreen(
             onOpenDeleteDialog = { viewModel.toggleDeleteDialog() },
             onOpenRenameDialog = { viewModel.toggleRenameDialog() },
             selectedFile = { uiState.selectedFile!! },
-            onCopyTo = { onCopyTo(it) },
-            onMoveTo = { onMoveTo(it) }
+            onCopyTo = { onCopyTo() }, // ✅ Call without parameter
+            onMoveTo = { onMoveTo() }  // ✅ Call without parameter
         )
     }
 
     // Rename Dialog
-    if (uiState.isRenameEnabled && uiState.selectedFile != null) {
+    if (uiState.showRenameInput && uiState.selectedFile != null) {
         RenameDialog(
             onDismissRequest = { viewModel.toggleRenameDialog() },
             onCancel = { viewModel.toggleRenameDialog() },

@@ -111,6 +111,78 @@ class FileRepository @Inject constructor(application: Application) {
         }
     }
 
+    suspend fun createFolder(parentPath: String, folderName: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val parentDir = File(parentPath)
+
+                // Validation: Check if parent directory exists
+                if (!parentDir.exists() || !parentDir.isDirectory) {
+                    return@withContext Result.failure(
+                        FileNotFoundException("Parent directory not found")
+                    )
+                }
+
+                // Validation: Check write permission
+                if (!parentDir.canWrite()) {
+                    return@withContext Result.failure(
+                        SecurityException("No write permission in this directory")
+                    )
+                }
+
+                // Validation: Check folder name
+                if (folderName.isBlank()) {
+                    return@withContext Result.failure(
+                        IllegalArgumentException("Folder name cannot be empty")
+                    )
+                }
+
+                // Validation: Check for invalid characters
+                val invalidChars = setOf('/', '\\', ':', '*', '?', '"', '<', '>', '|')
+                if (folderName.any { it in invalidChars }) {
+                    return@withContext Result.failure(
+                        IllegalArgumentException("Folder name contains invalid characters")
+                    )
+                }
+
+                // Create the new folder File object
+                val newFolder = File(parentDir, folderName)
+
+                // Validation: Check if folder already exists
+                if (newFolder.exists()) {
+                    return@withContext Result.failure(
+                        FileAlreadyExistsException(
+                            file = newFolder,
+                            reason = "A file or folder with this name already exists"
+                        )
+                    )
+                }
+
+                // Create the directory
+                val created = newFolder.mkdir()
+
+                if (created) {
+                    Result.success("Folder created successfully")
+                } else {
+                    Result.failure(
+                        IOException("Failed to create folder. Check permissions.")
+                    )
+                }
+
+            } catch (e: FileNotFoundException) {
+                Result.failure(e)
+            } catch (e: SecurityException) {
+                Result.failure(e)
+            } catch (e: IllegalArgumentException) {
+                Result.failure(e)
+            } catch (e: FileAlreadyExistsException) {
+                Result.failure(e)
+            } catch (e: Exception) {
+                Result.failure(IOException("Unexpected errorMessage: ${e.message}"))
+            }
+        }
+    }
+
     suspend fun copyFile(filePath: String, destPath: String): Result<String> {
         return withContext(Dispatchers.IO) {
             try {
@@ -268,7 +340,7 @@ class FileRepository @Inject constructor(application: Application) {
             } catch (e: IOException) {
                 Result.failure(e)
             } catch (e: Exception) {
-                Result.failure(IOException("Unexpected error during move: ${e.message}"))
+                Result.failure(IOException("Unexpected errorMessage during move: ${e.message}"))
             }
         }
     }

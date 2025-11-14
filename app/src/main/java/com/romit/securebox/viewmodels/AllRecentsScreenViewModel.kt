@@ -14,6 +14,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @HiltViewModel
 class AllRecentsScreenViewModel @Inject constructor(private val repository: FileRepository) :
@@ -151,7 +152,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                         is FileAlreadyExistsException -> "Name already exists"
                         is IOException -> "Rename failed"
                         is SecurityException -> "Permission denied"
-                        else -> "Unknown error"
+                        else -> "Unknown errorMessage"
                     }
                     _uiState.update {
                         it.copy(

@@ -1,5 +1,6 @@
 package com.romit.securebox.viewmodels
 
+import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romit.securebox.data.model.FileBrowserUiState
@@ -31,16 +32,58 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
 
     private var currentLoadJob: Job? = null
 
+    // ✅ Initialize HomeScreen data when ViewModel is created
+    init {
+        getStorageCategories()
+        getRecentFiles()
+    }
+
+    // ========== HOME SCREEN FUNCTIONS (NEW) ==========
+
+    fun getRecentFiles() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(errorMessage = null, isRefreshing = true) }
+            try {
+                val recentFiles = repository.getRecentFiles(limit = 4)
+                _uiState.update { it.copy(recentFiles = recentFiles, isRefreshing = false) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = e.message, isRefreshing = false) }
+            }
+        }
+    }
+
+    fun getStorageCategories() {
+        viewModelScope.launch {
+            try {
+                val categories = StorageHelper.getStorageCategories()
+                _uiState.update { it.copy(storageCategoriesList = categories) }
+
+                val categoriesWithSizes = withContext(Dispatchers.IO) {
+                    categories.map { dir ->
+                        async {
+                            dir.copy(dirSize = repository.getDirectorySize(dir.path))
+                        }
+                    }.awaitAll()
+                }
+                _uiState.update { it.copy(storageCategoriesList = categoriesWithSizes) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = e.message) }
+            }
+        }
+    }
+
+    // ========== EXISTING FILE BROWSER FUNCTIONS ==========
+
     fun getDirFiles(path: String) {
         currentLoadJob?.cancel()
 
-        _uiState.update { it.copy(currPath = path, error = null, isLoading = true) }
+        _uiState.update { it.copy(browsingPath = path, errorMessage = null, isLoading = true) }
         currentLoadJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val files = repository.getDirFileItems(path)
                 withContext(Dispatchers.Main) {
                     _uiState.update {
-                        it.copy(dirFiles = files, error = null, isLoading = false)
+                        it.copy(browsingPathDirectories = files, errorMessage = null, isLoading = false)
                     }
                 }
                 val dirWithSize = files.map { file ->
@@ -54,21 +97,19 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
                     }
                 }.awaitAll()
 
-                // Step 3: Update UI with sizes
-                // ✅ Check if still active before updating
                 if (isActive) {
                     withContext(Dispatchers.Main) {
                         _uiState.update {
-                            it.copy(dirFiles = dirWithSize, error = null, isLoading = false)
+                            it.copy(browsingPathDirectories = dirWithSize, errorMessage = null, isLoading = false)
                         }
                     }
                 }
 
             } catch (e: CancellationException) {
-
+                // Ignore cancellation
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(error = e.message, isLoading = false) }
+                    _uiState.update { it.copy(errorMessage = e.message, isLoading = false) }
                 }
             }
         }
@@ -79,12 +120,15 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
             repository.deleteFile(filePath).fold(
                 onSuccess = { message ->
                     _uiState.update {
-                        it.copy(successMessage = message, error = null)
+                        it.copy(successMessage = message, errorMessage = null)
                     }
-                    getDirFiles(_uiState.value.currPath)
+                    // ✅ Refresh both browsing path and recent files
+                    if (_uiState.value.browsingPath.isNotEmpty()) {
+                        getDirFiles(_uiState.value.browsingPath)
+                    }
+                    getRecentFiles()
                 },
                 onFailure = { exception ->
-                    // Use repository message if available, otherwise create custom
                     val errorMessage = exception.message ?: when (exception) {
                         is FileNotFoundException -> "File not found"
                         is SecurityException -> "Permission denied"
@@ -93,7 +137,7 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
                     }
 
                     _uiState.update {
-                        it.copy(error = errorMessage, successMessage = null)
+                        it.copy(errorMessage = errorMessage, successMessage = null)
                     }
                 }
             )
@@ -107,19 +151,23 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
     fun onRenameFileClicked() {
         viewModelScope.launch {
             val selectedFile = uiState.value.selectedFile ?: return@launch
-            
+
             repository.renameFile(selectedFile.path, uiState.value.newFileName).fold(
                 onSuccess = { message ->
                     _uiState.update {
                         it.copy(
                             successMessage = message,
-                            error = null,
-                            isRenameEnabled = false,  // ✅ Close dialog
+                            errorMessage = null,
+                            showRenameInput = false,
                             newFileName = "",
-                            selectedFile = null  // ✅ Clear selection
+                            selectedFile = null
                         )
                     }
-                    getDirFiles(_uiState.value.currPath)  // ✅ Refresh
+                    // ✅ Refresh both browsing path and recent files
+                    if (_uiState.value.browsingPath.isNotEmpty()) {
+                        getDirFiles(_uiState.value.browsingPath)
+                    }
+                    getRecentFiles()
                 },
                 onFailure = { exception ->
                     val errorMessage = exception.message ?: when (exception) {
@@ -128,13 +176,13 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
                         is FileAlreadyExistsException -> "Name already exists"
                         is IOException -> "Rename failed"
                         is SecurityException -> "Permission denied"
-                        else -> "Unknown error"
+                        else -> "Unknown errorMessage"
                     }
                     _uiState.update {
                         it.copy(
-                            error = errorMessage,
+                            errorMessage = errorMessage,
                             successMessage = null,
-                            isRenameEnabled = false,
+                            showRenameInput = false,
                             newFileName = "",
                             selectedFile = null
                         )
@@ -144,8 +192,143 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
         }
     }
 
+    fun getDirs(dirPath: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(errorMessage = null, successMessage = null, isLoading = true) }
+
+            try {
+                val files = repository.getDirs(path = dirPath)
+                _uiState.update {
+                    it.copy(
+                        errorMessage = null,
+                        successMessage = null,
+                        isLoading = false,
+                        operationTargetPathDirectories = files
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = e.message, successMessage = null, isLoading = false) }
+            }
+        }
+    }
+
+    fun updateCurrentPath(newCurrPath: String) {
+        _uiState.update { it.copy(operationTargetPath = newCurrPath) }
+    }
+
+    fun copyFile(filePath: String, destPath: String) {
+        viewModelScope.launch {
+            repository.copyFile(filePath, destPath).fold(
+                onSuccess = { message ->
+                    _uiState.update {
+                        it.copy(
+                            successMessage = message,
+                            errorMessage = null
+                        )
+                    }
+                    resetOperationState()
+                },
+                onFailure = { message ->
+                    val error = message.message ?: when (message) {
+                        is FileNotFoundException -> "File not found"
+                        is FileAlreadyExistsException -> "File already exists"
+                        is SecurityException -> "Permission denied"
+                        is IOException -> "Copy failed"
+                        else -> "Unknown errorMessage"
+                    }
+                    _uiState.update { it.copy(errorMessage = error, successMessage = null) }
+                    resetOperationState()
+                }
+            )
+        }
+    }
+
+    fun moveFile(filePath: String, destPath: String) {
+        viewModelScope.launch {
+            repository.moveTo(filePath, destPath).fold(
+                onSuccess = { message ->
+                    _uiState.update {
+                        it.copy(
+                            successMessage = message,
+                            errorMessage = null
+                        )
+                    }
+                    resetOperationState()
+                },
+                onFailure = { message ->
+                    _uiState.update { it.copy(errorMessage = message.message, successMessage = null) }
+                    resetOperationState()
+                }
+            )
+        }
+    }
+
+    fun createFolder() {
+        val currentPath = _uiState.value.operationTargetPath // ✅ Fixed: use operationTargetPath
+        val folderName = _uiState.value.newFolderName.trim()
+
+        if (folderName.isBlank()) {
+            _uiState.update { it.copy(newFolderError = "Folder name cannot be empty") }
+            return
+        }
+
+        viewModelScope.launch {
+            repository.createFolder(currentPath, folderName).fold(
+                onSuccess = { message ->
+                    _uiState.update {
+                        it.copy(
+                            successMessage = message,
+                            showCreateFolderDialog = false,
+                            newFolderName = ""
+                        )
+                    }
+                    getDirs(currentPath)
+                },
+                onFailure = { exception ->
+                    val errorMessage = when (exception) {
+                        is FileNotFoundException -> "Parent directory not found"
+                        is SecurityException -> "Permission denied"
+                        is IllegalArgumentException -> exception.message ?: "Invalid folder name"
+                        is FileAlreadyExistsException -> "Folder already exists"
+                        else -> "Failed to create folder: ${exception.message}"
+                    }
+                    _uiState.update { it.copy(newFolderError = errorMessage) }
+                }
+            )
+        }
+    }
+
+    // ========== TOGGLE FUNCTIONS ==========
+
+    fun toggleCreateFolderDialog() {
+        _uiState.update {
+            it.copy(
+                showCreateFolderDialog = !it.showCreateFolderDialog,
+                newFolderName = "",
+                newFolderError = null
+            )
+        }
+    }
+
+    fun updateNewFolderName(name: String) {
+        _uiState.update { it.copy(newFolderName = name, newFolderError = null) }
+    }
+
+    fun isCopyFile() {
+        _uiState.update { it.copy(isCopyFile = true, isMoveFile = false) }
+    }
+
+    fun isMoveFile() {
+        _uiState.update { it.copy(isCopyFile = false, isMoveFile = true) }
+    }
+
     fun toggleRenameDialog() {
-        _uiState.update { it.copy(isRenameEnabled = !uiState.value.isRenameEnabled, newFileName = uiState.value.selectedFile?.name ?: "") }
+        _uiState.update {
+            it.copy(
+                showRenameInput = !uiState.value.showRenameInput,
+                newFileName = uiState.value.selectedFile?.name ?: ""
+            )
+        }
     }
 
     fun toggleDeleteDialog() {
@@ -157,6 +340,17 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
     }
 
     fun clearMessages() {
-        _uiState.update { it.copy(error = null, successMessage = null) }
+        _uiState.update { it.copy(errorMessage = null, successMessage = null) }
+    }
+
+    fun resetOperationState() {
+        _uiState.update {
+            it.copy(
+                operationTargetPath = Environment.getExternalStorageDirectory().absolutePath,
+                operationTargetPathDirectories = emptyList(),
+                isMoveFile = false,
+                isCopyFile = false
+            )
+        }
     }
 }

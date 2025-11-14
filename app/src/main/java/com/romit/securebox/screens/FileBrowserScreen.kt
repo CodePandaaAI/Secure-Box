@@ -49,12 +49,12 @@ fun FileBrowserScreen(
     LaunchedEffect(path) {
         viewModel.getDirFiles(path)
     }
-    LaunchedEffect(uiState.successMessage, uiState.error) {
+    LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
         uiState.successMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
             viewModel.clearMessages()
         }
-        uiState.error?.let { error ->
+        uiState.errorMessage?.let { error ->
             snackbarHostState.showSnackbar(error)
             viewModel.clearMessages()
         }
@@ -70,9 +70,9 @@ fun FileBrowserScreen(
             }
         }
 
-        uiState.dirFiles.isNotEmpty() -> {
+        uiState.browsingPathDirectories.isNotEmpty() -> {
             LazyColumn(contentPadding = PaddingValues(8.dp)) {
-                items(uiState.dirFiles, key = { file -> file.path }) { file ->
+                items(uiState.browsingPathDirectories, key = { file -> file.path }) { file ->
                     FileCard(
                         file = file,
                         onFileClick = { file -> onFileClicked(file) },
@@ -119,7 +119,7 @@ fun FileBrowserScreen(
     }
 
     // Rename Dialog
-    if (uiState.isRenameEnabled && uiState.selectedFile != null) {
+    if (uiState.showRenameInput && uiState.selectedFile != null) {
         RenameDialog(
             onDismissRequest = { viewModel.toggleRenameDialog() },
             onCancel = { viewModel.toggleRenameDialog() },
