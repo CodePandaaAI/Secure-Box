@@ -242,11 +242,7 @@ fun AppTopBar(
             IconButton(
                 modifier = Modifier.padding(horizontal = 8.dp),
                 onClick = onBackClick, colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = if (isSystemInDarkTheme()) Color.Gray.copy(alpha = 0.1f) else Color(
-                        red = 255,
-                        green = 255,
-                        blue = 255
-                    )
+                    containerColor = if (isSystemInDarkTheme()) Color.Gray.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
                 ),
                 shape = CircleShape
             ) {

@@ -44,11 +44,7 @@ fun FileCard(
     }
 
     Surface(
-        color = if (isSystemInDarkTheme()) Color.Gray.copy(alpha = 0.1f) else Color(
-            red = 255,
-            green = 255,
-            blue = 255
-        ),
+        color = if (isSystemInDarkTheme()) Color.Gray.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface,
         shape = shape,
         modifier = modifier
             .clip(shape = shape)

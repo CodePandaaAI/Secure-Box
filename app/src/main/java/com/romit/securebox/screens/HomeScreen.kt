@@ -113,7 +113,7 @@ fun HomeScreen(
 
                         Surface(
                             onClick = onShowAllRecents,
-                            color = if (!isSystemInDarkTheme()) Color(red = 255, green = 255, blue = 255) else Color.Gray.copy(
+                            color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(
                                 alpha = 0.1f
                             ),
                             shape = RoundedCornerShape(16.dp),

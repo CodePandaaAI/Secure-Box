@@ -38,11 +38,7 @@ fun StorageCategoryCard(
         onClick = { onCategoryClick(category.path) },
         shape = RoundedCornerShape(24.dp),
         modifier = modifier,
-        color = if (!isSystemInDarkTheme()) Color(
-            red = 255,
-            green = 255,
-            blue = 255
-        ) else Color.Gray.copy(alpha = 0.1f)
+        color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(alpha = 0.1f)
     ) {
         Row(
             modifier = Modifier

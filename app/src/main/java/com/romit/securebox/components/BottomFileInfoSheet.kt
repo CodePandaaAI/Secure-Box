@@ -182,11 +182,7 @@ fun BottomFileInfoSheet(
                         bottomEnd = 4.dp,
                         bottomStart = 4.dp
                     ),
-                    color = if (!isSystemInDarkTheme()) Color(
-                        red = 255,
-                        blue = 255,
-                        green = 255
-                    ) else Color.Gray.copy(
+                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(
                         alpha = 0.2f
                     ),
                     modifier = Modifier.fillMaxWidth()
@@ -223,11 +219,7 @@ fun BottomFileInfoSheet(
                         bottomEnd = 4.dp,
                         bottomStart = 4.dp
                     ),
-                    color = if (!isSystemInDarkTheme()) Color(
-                        red = 255,
-                        blue = 255,
-                        green = 255
-                    ) else Color.Gray.copy(alpha = 0.2f),
+                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(alpha = 0.2f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -262,11 +254,7 @@ fun BottomFileInfoSheet(
                         bottomEnd = 4.dp,
                         bottomStart = 4.dp
                     ),
-                    color = if (!isSystemInDarkTheme()) Color(
-                        red = 255,
-                        blue = 255,
-                        green = 255
-                    ) else Color.Gray.copy(alpha = 0.2f),
+                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(alpha = 0.2f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -299,11 +287,7 @@ fun BottomFileInfoSheet(
                         bottomEnd = 12.dp,
                         bottomStart = 12.dp
                     ),
-                    color = if (!isSystemInDarkTheme()) Color(
-                        red = 255,
-                        blue = 255,
-                        green = 255
-                    ) else Color.Gray.copy(alpha = 0.2f),
+                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(alpha = 0.2f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
