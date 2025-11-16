@@ -196,7 +196,9 @@ fun AppNavHost(navController: NavHostController) {
                         } else {
                             openFile(context, file)
                         }
-                    }, onCopyTo = {
+                    },
+                    fileBrowserViewModel = sharedFileBrowserViewModel,
+                    onCopyTo = {
                         sharedFileBrowserViewModel.isCopyFile()
                         navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
                     },
@@ -279,7 +281,10 @@ fun BottomBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             OutlinedButton(
-                modifier = Modifier.weight(1f).height(60.dp).widthIn(max = 220.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(60.dp)
+                    .widthIn(max = 220.dp),
                 onClick = { onCreateFolder() },
             ) {
                 Icon(
@@ -289,7 +294,12 @@ fun BottomBar(
                 )
                 Text("Create New Folder")
             }
-            Button(modifier = Modifier.weight(1f).height(60.dp).widthIn(max = 220.dp).padding(start = 8.dp), onClick = { onConfirmLocation() }) {
+            Button(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(60.dp)
+                    .widthIn(max = 220.dp)
+                    .padding(start = 8.dp), onClick = { onConfirmLocation() }) {
                 Text(buttonLabel)
             }
         }
