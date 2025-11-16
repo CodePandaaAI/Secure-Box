@@ -123,9 +123,9 @@ fun AllRecentsScreen(
     // Bottom Sheet
     if (fileBrowserUiState.selectedFile != null) {
         BottomFileInfoSheet(
-            onDismiss = { viewModel.selectedFileForBottomSheet(null) },
-            onOpenDeleteDialog = { viewModel.toggleDeleteDialog() },
-            onOpenRenameDialog = { viewModel.toggleRenameDialog() },
+            onDismiss = { fileBrowserViewModel.selectedFileForBottomSheet(null) },
+            onOpenDeleteDialog = { fileBrowserViewModel.toggleDeleteDialog() },
+            onOpenRenameDialog = { fileBrowserViewModel.toggleRenameDialog() },
             selectedFile = { fileBrowserUiState.selectedFile!! },
             onCopyTo = { onCopyTo(it) },
             onMoveTo = { onMoveTo(it) }
@@ -135,10 +135,10 @@ fun AllRecentsScreen(
     // Rename Dialog
     if (fileBrowserUiState.showRenameInput && fileBrowserUiState.selectedFile != null) {
         RenameDialog(
-            onDismissRequest = { viewModel.toggleRenameDialog() },
-            onCancel = { viewModel.toggleRenameDialog() },
-            onRenamingFile = { viewModel.onRenamingFile(it) },
-            onRenameFileClicked = { viewModel.onRenameFileClicked() },
+            onDismissRequest = { fileBrowserViewModel.toggleRenameDialog() },
+            onCancel = { fileBrowserViewModel.toggleRenameDialog() },
+            onRenamingFile = { fileBrowserViewModel.onRenamingFile(it) },
+            onRenameFileClicked = { fileBrowserViewModel.onRenameFileClicked() },
             newFileName = { fileBrowserUiState.newFileName },
             selectedFile = { fileBrowserUiState.selectedFile!! }
         )
@@ -147,11 +147,11 @@ fun AllRecentsScreen(
     // Delete Dialog
     if (fileBrowserUiState.showDeleteDialog && fileBrowserUiState.selectedFile != null) {
         DeleteDialog(
-            onDismissRequest = { viewModel.toggleDeleteDialog() },
+            onDismissRequest = {fileBrowserViewModel.toggleDeleteDialog() },
             onConfirmDelete = {
                 viewModel.deleteFile(fileBrowserUiState.selectedFile!!.path)
-                viewModel.toggleDeleteDialog()
-                viewModel.selectedFileForBottomSheet(null)
+                fileBrowserViewModel.toggleDeleteDialog()
+                fileBrowserViewModel.selectedFileForBottomSheet(null)
             },
             selectedFile = { fileBrowserUiState.selectedFile!! }
         )
