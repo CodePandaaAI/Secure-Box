@@ -48,7 +48,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                 }
                 // 5. DELETE currentPage++
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isLoadingNextPage = false) }
+                _uiState.update { it.copy(errorMessage = e.message, isLoadingNextPage = false) }
             }
         }
     }
@@ -70,7 +70,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                     )
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isRefreshing = false) }
+                _uiState.update { it.copy(errorMessage = e.message, isRefreshing = false) }
             }
         }
     }
@@ -82,7 +82,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                     _uiState.update {
                         it.copy(
                             successMessage = message,
-                            error = null,
+                            errorMessage = null,
                             files = it.files.filterNot { fileItem -> fileItem.path == filePath }
                         )
                     }
@@ -97,7 +97,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                     }
 
                     _uiState.update {
-                        it.copy(error = errorMessage, successMessage = null)
+                        it.copy(errorMessage = errorMessage, successMessage = null)
                     }
                 }
             )
@@ -105,6 +105,6 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
     }
 
     fun clearMessages() {
-        _uiState.update { it.copy(error = null, successMessage = null) }
+        _uiState.update { it.copy(errorMessage = null, successMessage = null) }
     }
 }

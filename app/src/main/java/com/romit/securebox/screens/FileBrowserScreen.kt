@@ -34,33 +34,37 @@ import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FileBrowserScreen(
     modifier: Modifier = Modifier,
+    sharedFileOperationsUiState: SharedFileOperationsUiState,
     path: String,
     onFileClicked: (FileItem) -> Unit,
-    viewModel: FileBrowserScreenViewModel,
+    fileBrowserScreenViewModel: FileBrowserScreenViewModel,
+    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onCopyTo: (FileItem) -> Unit,
     onMoveTo: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by fileBrowserScreenViewModel.uiState.collectAsState()
 
     LaunchedEffect(path) {
-        viewModel.getDirFiles(path)
+        fileBrowserScreenViewModel.getDirFiles(path)
     }
     LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
         uiState.successMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
-            viewModel.clearMessages()
+            fileBrowserScreenViewModel.clearMessages()
         }
         uiState.errorMessage?.let { error ->
             snackbarHostState.showSnackbar(error)
-            viewModel.clearMessages()
+            fileBrowserScreenViewModel.clearMessages()
         }
     }
     when {
@@ -80,7 +84,8 @@ fun FileBrowserScreen(
             LazyColumn(
                 Modifier
                     .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.surfaceContainer), contentPadding = PaddingValues(16.dp)
+                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
+                contentPadding = PaddingValues(16.dp)
             ) {
                 itemsIndexed(
                     items = uiState.browsingPathDirectories,
@@ -91,10 +96,10 @@ fun FileBrowserScreen(
                         file = file,
                         onFileClick = { onFileClicked(it) },
                         onFileOperation = { fileItem ->
-                            viewModel.selectedFileForBottomSheet(fileItem)
+                            sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
                         },
                         onFileLongClick = { fileItem ->
-                            viewModel.selectedFileForBottomSheet(fileItem)
+                            sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
                         },
                         shape = getListItemShape(
                             index = index,
@@ -127,39 +132,39 @@ fun FileBrowserScreen(
         }
     }
     // Bottom Sheet
-    if (uiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.selectedFile != null) {
         BottomFileInfoSheet(
-            onDismiss = { viewModel.selectedFileForBottomSheet(null) },
-            onOpenDeleteDialog = { viewModel.toggleDeleteDialog() },
-            onOpenRenameDialog = { viewModel.toggleRenameDialog() },
+            onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
+            onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
+            onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
             onCopyTo = { onCopyTo(it) },
             onMoveTo = { onMoveTo(it) },
-            selectedFile = { uiState.selectedFile!! }
+            selectedFile = { sharedFileOperationsUiState.selectedFile }
         )
     }
 
     // Rename Dialog
-    if (uiState.showRenameInput && uiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.showRenameInput && sharedFileOperationsUiState.selectedFile != null) {
         RenameDialog(
-            onDismissRequest = { viewModel.toggleRenameDialog() },
-            onCancel = { viewModel.toggleRenameDialog() },
-            onRenamingFile = { viewModel.onRenamingFile(it) },
-            onRenameFileClicked = { viewModel.onRenameFileClicked() },
-            newFileName = { uiState.newFileName },
-            selectedFile = { uiState.selectedFile!! }
+            onDismissRequest = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            onCancel = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            onRenamingFile = { sharedFileOperationsViewModel.onRenamingFile(it) },
+            onRenameFileClicked = { sharedFileOperationsViewModel.onRenameFileClicked() },
+            newFileName = { sharedFileOperationsUiState.newFileName },
+            selectedFile = { sharedFileOperationsUiState.selectedFile }
         )
     }
 
     // Delete Dialog
-    if (uiState.showDeleteDialog && uiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.showDeleteDialog && sharedFileOperationsUiState.selectedFile != null) {
         DeleteDialog(
-            onDismissRequest = { viewModel.toggleDeleteDialog() },
+            onDismissRequest = { sharedFileOperationsViewModel.toggleDeleteDialog() },
             onConfirmDelete = {
-                viewModel.deleteFile(uiState.selectedFile!!.path)
-                viewModel.toggleDeleteDialog()
-                viewModel.selectedFileForBottomSheet(null)
+                sharedFileOperationsViewModel.deleteFile(sharedFileOperationsUiState.selectedFile.path)
+                sharedFileOperationsViewModel.toggleDeleteDialog()
+                sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
             },
-            selectedFile = { uiState.selectedFile!! }
+            selectedFile = { sharedFileOperationsUiState.selectedFile }
         )
     }
 }

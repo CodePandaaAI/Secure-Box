@@ -29,38 +29,39 @@ import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.AllRecentsScreenViewModel
-import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllRecentsScreen(
-    viewModel: AllRecentsScreenViewModel = hiltViewModel(),
-    fileBrowserViewModel: FileBrowserScreenViewModel,
+    sharedFileOperationsUiState: SharedFileOperationsUiState,
+    recentsScreenViewModel: AllRecentsScreenViewModel = hiltViewModel(),
+    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onFileClicked: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState,
     onCopyTo: (FileItem) -> Unit,
     onMoveTo: (FileItem) -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val fileBrowserUiState by fileBrowserViewModel.uiState.collectAsState()
+    val uiState by recentsScreenViewModel.uiState.collectAsState()
     val lazyListState = rememberLazyListState()
 
-    LaunchedEffect(fileBrowserUiState.successMessage, fileBrowserUiState.errorMessage) {
-        fileBrowserUiState.successMessage?.let { message ->
+    LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
+        uiState.successMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
-            viewModel.clearMessages()
+            recentsScreenViewModel.clearMessages()
         }
-        fileBrowserUiState.errorMessage?.let { error ->
+        uiState.errorMessage?.let { error ->
             snackbarHostState.showSnackbar(error)
-            viewModel.clearMessages()
+            recentsScreenViewModel.clearMessages()
         }
     }
 
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
-        onRefresh = { viewModel.refresh() },
+        onRefresh = { recentsScreenViewModel.refresh() },
         modifier = Modifier.fillMaxSize()
     ) {
         LazyColumn(
@@ -79,10 +80,10 @@ fun AllRecentsScreen(
                     file = file,
                     onFileClick = { onFileClicked(it) },
                     onFileOperation = { fileItem ->
-                        fileBrowserViewModel.selectedFileForBottomSheet(fileItem)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
                     },
                     onFileLongClick = { fileItem ->
-                        fileBrowserViewModel.selectedFileForBottomSheet(fileItem)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
                     },
                     // ✅ Add shape based on position
                     shape = getListItemShape(
@@ -117,43 +118,43 @@ fun AllRecentsScreen(
 
     LaunchedEffect(isScrolledToEnd) {
         if (isScrolledToEnd && !uiState.isLoadingNextPage) {
-            viewModel.loadNextPage()
+            recentsScreenViewModel.loadNextPage()
         }
     }
     // Bottom Sheet
-    if (fileBrowserUiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.selectedFile != null) {
         BottomFileInfoSheet(
-            onDismiss = { fileBrowserViewModel.selectedFileForBottomSheet(null) },
-            onOpenDeleteDialog = { fileBrowserViewModel.toggleDeleteDialog() },
-            onOpenRenameDialog = { fileBrowserViewModel.toggleRenameDialog() },
-            selectedFile = { fileBrowserUiState.selectedFile!! },
+            onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
+            onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
+            onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            selectedFile = { sharedFileOperationsUiState.selectedFile },
             onCopyTo = { onCopyTo(it) },
             onMoveTo = { onMoveTo(it) }
         )
     }
 
     // Rename Dialog
-    if (fileBrowserUiState.showRenameInput && fileBrowserUiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.showRenameInput && sharedFileOperationsUiState.selectedFile != null) {
         RenameDialog(
-            onDismissRequest = { fileBrowserViewModel.toggleRenameDialog() },
-            onCancel = { fileBrowserViewModel.toggleRenameDialog() },
-            onRenamingFile = { fileBrowserViewModel.onRenamingFile(it) },
-            onRenameFileClicked = { fileBrowserViewModel.onRenameFileClicked() },
-            newFileName = { fileBrowserUiState.newFileName },
-            selectedFile = { fileBrowserUiState.selectedFile!! }
+            onDismissRequest = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            onCancel = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            onRenamingFile = { sharedFileOperationsViewModel.onRenamingFile(it) },
+            onRenameFileClicked = { sharedFileOperationsViewModel.onRenameFileClicked() },
+            newFileName = { sharedFileOperationsUiState.newFileName },
+            selectedFile = { sharedFileOperationsUiState.selectedFile }
         )
     }
 
     // Delete Dialog
-    if (fileBrowserUiState.showDeleteDialog && fileBrowserUiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.showDeleteDialog && sharedFileOperationsUiState.selectedFile != null) {
         DeleteDialog(
-            onDismissRequest = {fileBrowserViewModel.toggleDeleteDialog() },
+            onDismissRequest = { sharedFileOperationsViewModel.toggleDeleteDialog() },
             onConfirmDelete = {
-                viewModel.deleteFile(fileBrowserUiState.selectedFile!!.path)
-                fileBrowserViewModel.toggleDeleteDialog()
-                fileBrowserViewModel.selectedFileForBottomSheet(null)
+                recentsScreenViewModel.deleteFile(sharedFileOperationsUiState.selectedFile.path)
+                sharedFileOperationsViewModel.toggleDeleteDialog()
+                sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
             },
-            selectedFile = { fileBrowserUiState.selectedFile!! }
+            selectedFile = { sharedFileOperationsUiState.selectedFile }
         )
     }
 }

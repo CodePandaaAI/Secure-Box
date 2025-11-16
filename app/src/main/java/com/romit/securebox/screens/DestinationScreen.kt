@@ -33,37 +33,37 @@ import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.getListItemShape
-import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @Composable
 fun DestinationScreen(
     folderPath: String,
-    viewModel: FileBrowserScreenViewModel,
+    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onFolderClicked: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState,
     onNavigateBack: () -> Unit
 ) {
 
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
     LaunchedEffect(folderPath) {
-        viewModel.getDirs(folderPath)
+        sharedFileOperationsViewModel.getDirs(folderPath)
     }
 
     LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
         uiState.successMessage?.let { successMessage ->
             snackbarHostState.showSnackbar(message = successMessage)
-            viewModel.clearMessages()
+            sharedFileOperationsViewModel.clearMessages()
             onNavigateBack()
         }
         uiState.errorMessage?.let { error ->
             snackbarHostState.showSnackbar(message = error)
-            viewModel.clearMessages()
+            sharedFileOperationsViewModel.clearMessages()
             onNavigateBack()
         }
     }
 
     when {
-        uiState.isLoading -> {
+        uiState.isDestinationScreenLoading -> {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -86,7 +86,7 @@ fun DestinationScreen(
                         onFolderClick = { onFolderClicked(it) },
                         shape = getListItemShape(
                             index = index,
-                            totalItems = uiState.recentFiles.size
+                            totalItems = uiState.operationTargetPathDirectories.size
                         )
                     )
                 }
@@ -117,9 +117,9 @@ fun DestinationScreen(
         CreateFolderDialog(
             folderName = uiState.newFolderName,
             error = uiState.newFolderError,
-            onFolderNameChange = { viewModel.updateNewFolderName(it) },
-            onConfirm = { viewModel.createFolder() },
-            onDismiss = { viewModel.toggleCreateFolderDialog() }
+            onFolderNameChange = { sharedFileOperationsViewModel.updateNewFolderName(it) },
+            onConfirm = { sharedFileOperationsViewModel.createFolder(operationTargetPath = sharedFileOperationsViewModel.uiState.value.operationTargetPath) },
+            onDismiss = { sharedFileOperationsViewModel.toggleCreateFolderDialog() }
         )
     }
 }

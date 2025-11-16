@@ -53,6 +53,7 @@ import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.screens.HomeScreen
 import com.romit.securebox.util.openFile
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 import kotlinx.coroutines.launch
 
 
@@ -72,8 +73,9 @@ fun AppNavHost(navController: NavHostController) {
     val isDestinationScreen =
         currentBackStackEntry?.destination?.hasRoute<Screen.DestinationScreen>() == true
     val sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
+    val sharedFileOperationsViewModel: SharedFileOperationsViewModel = hiltViewModel()
     val snackbarHostState = remember { SnackbarHostState() }
-    val uiState by sharedFileBrowserViewModel.uiState.collectAsState()
+    val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -89,16 +91,16 @@ fun AppNavHost(navController: NavHostController) {
         bottomBar = {
             if (isDestinationScreen && uiState.selectedFile?.path != null) {
                 BottomBar(
-                    onCreateFolder = { sharedFileBrowserViewModel.toggleCreateFolderDialog() },
+                    onCreateFolder = { sharedFileOperationsViewModel.toggleCreateFolderDialog() },
                     onConfirmLocation = {
                         if (uiState.selectedFile!!.path.isNotBlank()) {
                             if (uiState.isCopyFile) {
-                                sharedFileBrowserViewModel.copyFile(
+                                sharedFileOperationsViewModel.copyFile(
                                     uiState.selectedFile!!.path,
                                     uiState.operationTargetPath
                                 )
                             } else {
-                                sharedFileBrowserViewModel.moveFile(
+                                sharedFileOperationsViewModel.moveFile(
                                     uiState.selectedFile!!.path,
                                     uiState.operationTargetPath
                                 )
@@ -129,13 +131,14 @@ fun AppNavHost(navController: NavHostController) {
         ) {
             composable<Screen.Home> {
                 HomeScreen(
+                    sharedFileOperationsUiState = uiState,
                     snackbarHostState = snackbarHostState,
                     onCategoryClicked = { path ->
                         navController.navigate(Screen.FileBrowser(path)) {
                             launchSingleTop = true
                         }
                     },
-                    viewModel = sharedFileBrowserViewModel,
+                    sharedFileOperationsViewModel = sharedFileOperationsViewModel,
                     onFileClicked = { file ->
                         if (file.isDirectory) {
                             navController.navigate(Screen.FileBrowser(path = file.path))
@@ -147,18 +150,18 @@ fun AppNavHost(navController: NavHostController) {
                         navController.navigate(Screen.AllRecents)
                     },
                     onCopyTo = { // ✅ No parameter
-                        sharedFileBrowserViewModel.isCopyFile()
+                        sharedFileOperationsViewModel.isCopyFile()
                         navController.navigate(
                             Screen.DestinationScreen(
-                                sharedFileBrowserViewModel.uiState.value.operationTargetPath
+                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
                             )
                         )
                     },
                     onMoveTo = { // ✅ No parameter
-                        sharedFileBrowserViewModel.isMoveFile()
+                        sharedFileOperationsViewModel.isMoveFile()
                         navController.navigate(
                             Screen.DestinationScreen(
-                                sharedFileBrowserViewModel.uiState.value.operationTargetPath
+                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
                             )
                         )
                     }
@@ -168,8 +171,10 @@ fun AppNavHost(navController: NavHostController) {
             composable<Screen.FileBrowser> { backStackEntry ->
                 val path = backStackEntry.toRoute<Screen.FileBrowser>().path
                 FileBrowserScreen(
+                    sharedFileOperationsUiState = uiState,
                     snackbarHostState = snackbarHostState,
-                    viewModel = sharedFileBrowserViewModel,
+                    sharedFileOperationsViewModel = sharedFileOperationsViewModel,
+                    fileBrowserScreenViewModel = sharedFileBrowserViewModel,
                     path = path,
                     onFileClicked = { file ->
                         if (file.isDirectory) {
@@ -179,17 +184,26 @@ fun AppNavHost(navController: NavHostController) {
                         }
                     },
                     onCopyTo = {
-                        sharedFileBrowserViewModel.isCopyFile()
-                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
+                        sharedFileOperationsViewModel.isCopyFile()
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
+                            )
+                        )
                     },
                     onMoveTo = {
-                        sharedFileBrowserViewModel.isMoveFile()
-                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
+                        sharedFileOperationsViewModel.isMoveFile()
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
+                            )
+                        )
                     }
                 )
             }
             composable<Screen.AllRecents> {
                 AllRecentsScreen(
+                    sharedFileOperationsUiState = uiState,
                     snackbarHostState = snackbarHostState, onFileClicked = { file ->
                         if (file.isDirectory) {
                             navController.navigate(Screen.FileBrowser(path = file.path))
@@ -197,14 +211,22 @@ fun AppNavHost(navController: NavHostController) {
                             openFile(context, file)
                         }
                     },
-                    fileBrowserViewModel = sharedFileBrowserViewModel,
+                    sharedFileOperationsViewModel = sharedFileOperationsViewModel,
                     onCopyTo = {
-                        sharedFileBrowserViewModel.isCopyFile()
-                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
+                        sharedFileOperationsViewModel.isCopyFile()
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
+                            )
+                        )
                     },
                     onMoveTo = {
-                        sharedFileBrowserViewModel.isMoveFile()
-                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
+                        sharedFileOperationsViewModel.isMoveFile()
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
+                            )
+                        )
                     }
                 )
             }
@@ -215,9 +237,9 @@ fun AppNavHost(navController: NavHostController) {
 
                 DestinationScreen(
                     folderPath = folderPath,
-                    sharedFileBrowserViewModel,
+                    sharedFileOperationsViewModel,
                     onFolderClicked = {
-                        sharedFileBrowserViewModel.updateCurrentPath(it.path)
+                        sharedFileOperationsViewModel.updateCurrentPath(it.path)
                         navController.navigate(Screen.DestinationScreen(it.path))
                     },
                     snackbarHostState = snackbarHostState,

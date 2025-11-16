@@ -38,43 +38,48 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.components.BottomFileInfoSheet
 import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.components.StorageCategoryCard
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
-import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
+import com.romit.securebox.viewmodels.HomeScreenViewModel
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    sharedFileOperationsUiState: SharedFileOperationsUiState,
     modifier: Modifier = Modifier,
     onCategoryClicked: (String) -> Unit,
     onShowAllRecents: () -> Unit,
     onFileClicked: (FileItem) -> Unit,
-    viewModel: FileBrowserScreenViewModel,
+    homeScreenViewModel: HomeScreenViewModel = hiltViewModel(),
+    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onCopyTo: () -> Unit,
     onMoveTo: () -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by homeScreenViewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
         uiState.successMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
-            viewModel.clearMessages()
+            homeScreenViewModel.clearMessages()
         }
         uiState.errorMessage?.let { error ->
             snackbarHostState.showSnackbar(error)
-            viewModel.clearMessages()
+            homeScreenViewModel.clearMessages()
         }
     }
 
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
-        onRefresh = { viewModel.getRecentFiles() },
+        onRefresh = { homeScreenViewModel.getRecentFiles() },
         modifier = Modifier.fillMaxSize()
     ) {
         Column(
@@ -82,7 +87,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.surfaceContainer)
                 .verticalScroll(rememberScrollState())
-                .padding(vertical = 16.dp,horizontal = 16.dp)
+                .padding(vertical = 16.dp, horizontal = 16.dp)
         ) {
             // Recents Section
             when {
@@ -97,7 +102,7 @@ fun HomeScreen(
                     }
                 }
 
-                uiState.recentFiles.isNotEmpty() -> {
+                uiState.recentFilesList.isNotEmpty() -> {
                     // Section Header with "Show All" button
                     Row(
                         modifier = Modifier
@@ -142,16 +147,24 @@ fun HomeScreen(
                     Spacer(Modifier.height(8.dp))
 
                     // Recent Files List
-                    uiState.recentFiles.forEachIndexed { index, file ->
+                    uiState.recentFilesList.forEachIndexed { index, file ->
                         FileCard(
                             modifier = Modifier.padding(vertical = 1.dp),
                             file = file,
                             onFileClick = { onFileClicked(it) },
-                            onFileOperation = { viewModel.selectedFileForBottomSheet(it) },
-                            onFileLongClick = { viewModel.selectedFileForBottomSheet(it) },
+                            onFileOperation = {
+                                sharedFileOperationsViewModel.selectedFileForBottomSheet(
+                                    it
+                                )
+                            },
+                            onFileLongClick = {
+                                sharedFileOperationsViewModel.selectedFileForBottomSheet(
+                                    it
+                                )
+                            },
                             shape = getListItemShape(
                                 index = index,
-                                totalItems = uiState.recentFiles.size
+                                totalItems = uiState.recentFilesList.size
                             )
                         )
                     }
@@ -207,7 +220,7 @@ fun HomeScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            if (uiState.storageCategoriesList.isEmpty()) {
+            if (uiState.storageCategories.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -227,12 +240,12 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         StorageCategoryCard(
-                            uiState.storageCategoriesList[0],
+                            uiState.storageCategories[0],
                             onCategoryClick = onCategoryClicked,
                             modifier = Modifier.weight(1f)
                         )
                         StorageCategoryCard(
-                            uiState.storageCategoriesList[1],
+                            uiState.storageCategories[1],
                             onCategoryClick = onCategoryClicked,
                             modifier = Modifier.weight(1f)
                         )
@@ -244,12 +257,12 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         StorageCategoryCard(
-                            uiState.storageCategoriesList[2],
+                            uiState.storageCategories[2],
                             onCategoryClick = onCategoryClicked,
                             modifier = Modifier.weight(1f)
                         )
                         StorageCategoryCard(
-                            uiState.storageCategoriesList[3],
+                            uiState.storageCategories[3],
                             onCategoryClick = onCategoryClicked,
                             modifier = Modifier.weight(1f)
                         )
@@ -261,12 +274,12 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         StorageCategoryCard(
-                            uiState.storageCategoriesList[4],
+                            uiState.storageCategories[4],
                             onCategoryClick = onCategoryClicked,
                             modifier = Modifier.weight(1f)
                         )
                         StorageCategoryCard(
-                            uiState.storageCategoriesList[5],
+                            uiState.storageCategories[5],
                             onCategoryClick = onCategoryClicked,
                             modifier = Modifier.weight(1f)
                         )
@@ -277,39 +290,39 @@ fun HomeScreen(
     }
 
     // Bottom Sheet
-    if (uiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.selectedFile != null) {
         BottomFileInfoSheet(
-            onDismiss = { viewModel.selectedFileForBottomSheet(null) },
-            onOpenDeleteDialog = { viewModel.toggleDeleteDialog() },
-            onOpenRenameDialog = { viewModel.toggleRenameDialog() },
-            selectedFile = { uiState.selectedFile!! },
+            onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
+            onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
+            onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            selectedFile = { sharedFileOperationsViewModel.uiState.value.selectedFile!! },
             onCopyTo = { onCopyTo() }, // ✅ Call without parameter
             onMoveTo = { onMoveTo() }  // ✅ Call without parameter
         )
     }
 
     // Rename Dialog
-    if (uiState.showRenameInput && uiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.showRenameInput && sharedFileOperationsUiState.selectedFile != null) {
         RenameDialog(
-            onDismissRequest = { viewModel.toggleRenameDialog() },
-            onCancel = { viewModel.toggleRenameDialog() },
-            onRenamingFile = { viewModel.onRenamingFile(it) },
-            onRenameFileClicked = { viewModel.onRenameFileClicked() },
-            newFileName = { uiState.newFileName },
-            selectedFile = { uiState.selectedFile!! }
+            onDismissRequest = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            onCancel = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            onRenamingFile = { sharedFileOperationsViewModel.onRenamingFile(it) },
+            onRenameFileClicked = { sharedFileOperationsViewModel.onRenameFileClicked() },
+            newFileName = { sharedFileOperationsUiState.newFileName },
+            selectedFile = { sharedFileOperationsUiState.selectedFile }
         )
     }
 
     // Delete Dialog
-    if (uiState.showDeleteDialog && uiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.showDeleteDialog && sharedFileOperationsUiState.selectedFile != null) {
         DeleteDialog(
-            onDismissRequest = { viewModel.toggleDeleteDialog() },
+            onDismissRequest = { sharedFileOperationsViewModel.toggleDeleteDialog() },
             onConfirmDelete = {
-                viewModel.deleteFile(uiState.selectedFile!!.path)
-                viewModel.toggleDeleteDialog()
-                viewModel.selectedFileForBottomSheet(null)
+                sharedFileOperationsViewModel.deleteFile(sharedFileOperationsUiState.selectedFile.path)
+                sharedFileOperationsViewModel.toggleDeleteDialog()
+                sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
             },
-            selectedFile = { uiState.selectedFile!! }
+            selectedFile = { sharedFileOperationsUiState.selectedFile }
         )
     }
 }
