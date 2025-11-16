@@ -1,18 +1,22 @@
 package com.romit.securebox.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -31,6 +36,7 @@ import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +68,15 @@ fun FileBrowserScreen(
     when {
         uiState.isLoading -> {
             Column(
-                Modifier.fillMaxSize(),
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
+                            red = 242,
+                            green = 242,
+                            blue = 247
+                        )
+                    ),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -71,17 +85,35 @@ fun FileBrowserScreen(
         }
 
         uiState.browsingPathDirectories.isNotEmpty() -> {
-            LazyColumn(contentPadding = PaddingValues(8.dp)) {
-                items(uiState.browsingPathDirectories, key = { file -> file.path }) { file ->
+            LazyColumn(
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
+                            red = 242,
+                            green = 242,
+                            blue = 247
+                        )
+                    ), contentPadding = PaddingValues(8.dp)
+            ) {
+                itemsIndexed(
+                    items = uiState.browsingPathDirectories,
+                    key = { _, file -> file.path }
+                ) { index, file ->
                     FileCard(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp),
                         file = file,
-                        onFileClick = { file -> onFileClicked(file) },
+                        onFileClick = { onFileClicked(it) },
                         onFileOperation = { fileItem ->
                             viewModel.selectedFileForBottomSheet(fileItem)
                         },
                         onFileLongClick = { fileItem ->
                             viewModel.selectedFileForBottomSheet(fileItem)
-                        }
+                        },
+                        shape = getListItemShape(
+                            index = index,
+                            totalItems = uiState.browsingPathDirectories.size
+                        )
                     )
                 }
             }
@@ -89,7 +121,15 @@ fun FileBrowserScreen(
 
         else -> {
             Column(
-                modifier = modifier.fillMaxSize(),
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(
+                        color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
+                            red = 242,
+                            green = 242,
+                            blue = 247
+                        )
+                    ),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

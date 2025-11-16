@@ -31,7 +31,7 @@ private val lightScheme = lightColorScheme(
     onErrorContainer = onErrorContainerLight,
     background = backgroundLight,
     onBackground = onBackgroundLight,
-    surface = surfaceLight,
+    surface = LightCustomBackground,
     onSurface = onSurfaceLight,
     surfaceVariant = surfaceVariantLight,
     onSurfaceVariant = onSurfaceVariantLight,
@@ -257,12 +257,19 @@ fun SecureBoxTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+
+            if (!darkTheme) {
+                dynamicLightColorScheme(context).copy(
+                    // ✅ Override surface with your custom color in light mode
+                    surface = LightCustomBackground
+                )
+            } else dynamicDarkColorScheme(context)
         }
 
         darkTheme -> darkScheme

@@ -178,7 +178,7 @@ fun BottomFileInfoSheet(
                         onOpenRenameDialog()
                     },
                     shape = RoundedCornerShape(16.dp),
-                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
+                    color = if (!isSystemInDarkTheme()) Color(red = 255, blue = 255, green = 255) else Color.Gray.copy(
                         alpha = 0.2f
                     ),
                     modifier = Modifier.fillMaxWidth()
@@ -210,9 +210,7 @@ fun BottomFileInfoSheet(
                         onOpenDeleteDialog()
                     },
                     shape = RoundedCornerShape(16.dp),
-                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                        alpha = 0.2f
-                    ),
+                    color = if (!isSystemInDarkTheme()) Color(red = 255, blue = 255, green = 255) else Color.Gray.copy(alpha = 0.2f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -242,9 +240,7 @@ fun BottomFileInfoSheet(
                         onCopyTo(selectedFile())
                     },
                     shape = RoundedCornerShape(16.dp),
-                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                        alpha = 0.2f
-                    ),
+                    color = if (!isSystemInDarkTheme()) Color(red = 255, blue = 255, green = 255) else Color.Gray.copy(alpha = 0.2f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -272,9 +268,7 @@ fun BottomFileInfoSheet(
                         onMoveTo(selectedFile())
                     },
                     shape = RoundedCornerShape(16.dp),
-                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                        alpha = 0.2f
-                    ),
+                    color = if (!isSystemInDarkTheme()) Color(red = 255, blue = 255, green = 255) else Color.Gray.copy(alpha = 0.2f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(

@@ -1,5 +1,6 @@
 package com.romit.securebox.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,6 +44,7 @@ import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.components.StorageCategoryCard
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,9 +54,9 @@ fun HomeScreen(
     onCategoryClicked: (String) -> Unit,
     onShowAllRecents: () -> Unit,
     onFileClicked: (FileItem) -> Unit,
-    viewModel: FileBrowserScreenViewModel, // ✅ Changed type
-    onCopyTo: () -> Unit, // ✅ Changed signature - no parameter needed
-    onMoveTo: () -> Unit, // ✅ Changed signature - no parameter needed
+    viewModel: FileBrowserScreenViewModel,
+    onCopyTo: () -> Unit,
+    onMoveTo: () -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -78,6 +80,7 @@ fun HomeScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
+                .background(color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(red = 242, green = 242, blue = 247))
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
                 .padding(top = 8.dp, bottom = 16.dp),
@@ -99,8 +102,7 @@ fun HomeScreen(
                     // Section Header with "Show All" button
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -112,8 +114,8 @@ fun HomeScreen(
 
                         Surface(
                             onClick = onShowAllRecents,
-                            color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                                alpha = 0.2f
+                            color = if (!isSystemInDarkTheme()) Color(red = 255, green = 255, blue = 255) else Color.Gray.copy(
+                                alpha = 0.1f
                             ),
                             shape = RoundedCornerShape(16.dp),
                             modifier = Modifier.clip(RoundedCornerShape(16.dp))
@@ -139,12 +141,17 @@ fun HomeScreen(
                     }
 
                     // Recent Files List
-                    uiState.recentFiles.forEach { file ->
+                    uiState.recentFiles.forEachIndexed { index, file ->
                         FileCard(
+                            modifier = Modifier.padding(vertical = 1.dp),
                             file = file,
                             onFileClick = { onFileClicked(it) },
                             onFileOperation = { viewModel.selectedFileForBottomSheet(it) },
-                            onFileLongClick = { viewModel.selectedFileForBottomSheet(it) }
+                            onFileLongClick = { viewModel.selectedFileForBottomSheet(it) },
+                            shape = getListItemShape(
+                                index = index,
+                                totalItems = uiState.recentFiles.size
+                            )
                         )
                     }
                 }

@@ -66,7 +66,8 @@ fun AppNavHost(navController: NavHostController) {
     val scope = rememberCoroutineScope()
 
     val isHomeScreen = currentBackStackEntry?.destination?.hasRoute<Screen.Home>() == true
-    val isDestinationScreen = currentBackStackEntry?.destination?.hasRoute<Screen.DestinationScreen>() == true
+    val isDestinationScreen =
+        currentBackStackEntry?.destination?.hasRoute<Screen.DestinationScreen>() == true
     val sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by sharedFileBrowserViewModel.uiState.collectAsState()
@@ -144,15 +145,19 @@ fun AppNavHost(navController: NavHostController) {
                     },
                     onCopyTo = { // ✅ No parameter
                         sharedFileBrowserViewModel.isCopyFile()
-                        navController.navigate(Screen.DestinationScreen(
-                            sharedFileBrowserViewModel.uiState.value.operationTargetPath
-                        ))
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                sharedFileBrowserViewModel.uiState.value.operationTargetPath
+                            )
+                        )
                     },
                     onMoveTo = { // ✅ No parameter
                         sharedFileBrowserViewModel.isMoveFile()
-                        navController.navigate(Screen.DestinationScreen(
-                            sharedFileBrowserViewModel.uiState.value.operationTargetPath
-                        ))
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                sharedFileBrowserViewModel.uiState.value.operationTargetPath
+                            )
+                        )
                     }
                 )
             }
@@ -232,8 +237,10 @@ fun AppTopBar(
             IconButton(
                 modifier = Modifier.padding(horizontal = 8.dp),
                 onClick = onBackClick, colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                        alpha = 0.1f
+                    containerColor = if (isSystemInDarkTheme()) Color.Gray.copy(alpha = 0.1f) else Color(
+                        red = 255,
+                        green = 255,
+                        blue = 255
                     )
                 ),
                 shape = CircleShape
@@ -254,7 +261,13 @@ fun BottomBar(
     buttonLabel: String,
     onConfirmLocation: () -> Unit
 ) {
-    BottomAppBar {
+    BottomAppBar(
+        containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
+            red = 242,
+            green = 242,
+            blue = 247
+        )
+    ) {
         Row(
             Modifier
                 .fillMaxWidth()

@@ -31,8 +31,8 @@ fun FileThumbnail(
 
         file.isImage -> {
             Surface(
-                color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                    alpha = 0.2f
+                color = if (!isSystemInDarkTheme())  Color(red = 242, green = 242, blue = 247) else Color.Gray.copy(
+                    alpha = 0.1f
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -55,8 +55,8 @@ fun FileThumbnail(
         // If it's a folder, show folder icon
         file.isDirectory -> {
             Surface(
-                color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                    alpha = 0.2f
+                color = if (!isSystemInDarkTheme()) Color(red = 242, green = 242, blue = 247) else Color.Gray.copy(
+                    alpha = 0.1f
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -64,8 +64,8 @@ fun FileThumbnail(
                     imageVector = Icons.Filled.Folder,
                     contentDescription = "Folder",
                     modifier = Modifier
-                        .padding(16.dp)
-                        .size(32.dp)
+                        .padding(8.dp)
+                        .size(40.dp)
                 )
             }
         }
@@ -73,8 +73,8 @@ fun FileThumbnail(
         // For other files, show generic file icon
         else -> {
             Surface(
-                color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                    alpha = 0.2f
+                color = if (!isSystemInDarkTheme())  Color(red = 242, green = 242, blue = 247) else Color.Gray.copy(
+                    alpha = 0.1f
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -82,8 +82,8 @@ fun FileThumbnail(
                     imageVector = icon,
                     contentDescription = "File",
                     modifier = Modifier
-                        .padding(16.dp)
-                        .size(32.dp)
+                        .padding(8.dp)
+                        .size(40.dp)
                 )
             }
         }

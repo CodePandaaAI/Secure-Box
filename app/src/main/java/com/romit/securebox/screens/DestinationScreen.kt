@@ -1,6 +1,8 @@
 package com.romit.securebox.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,11 +10,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -29,6 +34,7 @@ import com.romit.securebox.R
 import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 
 @Composable
@@ -60,17 +66,40 @@ fun DestinationScreen(
 
     when {
         uiState.isLoading -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
+                            red = 242,
+                            green = 242,
+                            blue = 247
+                        )
+                    ), contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator()
             }
         }
 
         uiState.operationTargetPathDirectories.isNotEmpty() -> {
-            LazyColumn(contentPadding = PaddingValues(8.dp)) {
-                items(uiState.operationTargetPathDirectories) { dir ->
+            LazyColumn(
+                Modifier.background(
+                    color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
+                        red = 242,
+                        green = 242,
+                        blue = 247
+                    )
+                ), contentPadding = PaddingValues(8.dp)
+            ) {
+                itemsIndexed(uiState.operationTargetPathDirectories) { index ,dir ->
                     FolderCard(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp),
                         file = dir,
-                        onFolderClick = { onFolderClicked(it) }
+                        onFolderClick = { onFolderClicked(it) },
+                        shape = getListItemShape(
+                            index = index,
+                            totalItems = uiState.recentFiles.size
+                        )
                     )
                 }
             }
@@ -78,7 +107,7 @@ fun DestinationScreen(
 
         else -> {
             Column(
-                Modifier.fillMaxSize(),
+                Modifier.fillMaxSize().background(color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(red = 242, green = 242, blue = 247)),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
