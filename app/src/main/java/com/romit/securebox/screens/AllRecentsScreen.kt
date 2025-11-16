@@ -1,7 +1,6 @@
 package com.romit.securebox.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -23,7 +22,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.components.BottomFileInfoSheet
@@ -63,16 +61,16 @@ fun AllRecentsScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         LazyColumn(
-            Modifier.background(color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(red = 242, green = 242, blue = 247)),
+            Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.surfaceContainer),
             state = lazyListState,
-            contentPadding = PaddingValues(8.dp)
+            contentPadding = PaddingValues(16.dp)
         ) {
             itemsIndexed(
                 items = uiState.files,
                 key = { _, file -> file.path }
             ) { index, file ->
                 FileCard(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp),
+                    modifier = Modifier.padding(vertical = 1.dp),
                     file = file,
                     onFileClick = { onFileClicked(it) },
                     onFileOperation = { fileItem ->

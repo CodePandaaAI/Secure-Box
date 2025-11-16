@@ -38,11 +38,15 @@ fun StorageCategoryCard(
         onClick = { onCategoryClick(category.path) },
         shape = RoundedCornerShape(24.dp),
         modifier = modifier,
-        color = if (!isSystemInDarkTheme()) Color(red = 255, green = 255, blue = 255) else Color.Gray.copy(alpha = 0.1f)
+        color = if (!isSystemInDarkTheme()) Color(
+            red = 255,
+            green = 255,
+            blue = 255
+        ) else Color.Gray.copy(alpha = 0.1f)
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(20.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -73,7 +77,7 @@ fun StorageCategoryCard(
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(if(isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color(red = 242, green = 242, blue = 247))
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
                     .padding(4.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -125,14 +129,14 @@ fun StorageCategoryCardPrev(
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface),
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
 
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(32.dp)
                 )
             }
         }

@@ -2,7 +2,6 @@ package com.romit.securebox.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -70,13 +68,7 @@ fun FileBrowserScreen(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .background(
-                        color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
-                            red = 242,
-                            green = 242,
-                            blue = 247
-                        )
-                    ),
+                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -88,20 +80,14 @@ fun FileBrowserScreen(
             LazyColumn(
                 Modifier
                     .fillMaxSize()
-                    .background(
-                        color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
-                            red = 242,
-                            green = 242,
-                            blue = 247
-                        )
-                    ), contentPadding = PaddingValues(8.dp)
+                    .background(color = MaterialTheme.colorScheme.surfaceContainer), contentPadding = PaddingValues(16.dp)
             ) {
                 itemsIndexed(
                     items = uiState.browsingPathDirectories,
                     key = { _, file -> file.path }
                 ) { index, file ->
                     FileCard(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp),
+                        modifier = Modifier.padding(vertical = 1.dp),
                         file = file,
                         onFileClick = { onFileClicked(it) },
                         onFileOperation = { fileItem ->
@@ -123,13 +109,7 @@ fun FileBrowserScreen(
             Column(
                 modifier = modifier
                     .fillMaxSize()
-                    .background(
-                        color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
-                            red = 242,
-                            green = 242,
-                            blue = 247
-                        )
-                    ),
+                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

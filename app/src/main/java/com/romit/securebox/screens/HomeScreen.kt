@@ -80,10 +80,9 @@ fun HomeScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .background(color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(red = 242, green = 242, blue = 247))
+                .background(color = MaterialTheme.colorScheme.surfaceContainer)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
-                .padding(top = 8.dp, bottom = 16.dp),
+                .padding(vertical = 16.dp,horizontal = 16.dp)
         ) {
             // Recents Section
             when {
@@ -121,7 +120,7 @@ fun HomeScreen(
                             modifier = Modifier.clip(RoundedCornerShape(16.dp))
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
@@ -139,6 +138,8 @@ fun HomeScreen(
                             }
                         }
                     }
+
+                    Spacer(Modifier.height(8.dp))
 
                     // Recent Files List
                     uiState.recentFiles.forEachIndexed { index, file ->

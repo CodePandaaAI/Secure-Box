@@ -32,12 +32,12 @@ import com.romit.securebox.util.StorageHelper.getFileIcon
 
 @Composable
 fun FileCard(
+    modifier: Modifier = Modifier,
     file: FileItem,
     onFileClick: (FileItem) -> Unit,
     onFileOperation: (FileItem) -> Unit,
     onFileLongClick: (FileItem) -> Unit,
-    shape: RoundedCornerShape = RoundedCornerShape(24.dp),
-    modifier: Modifier = Modifier
+    shape: RoundedCornerShape,
 ) {
     val icon = remember(file.mimeType, file.isDirectory) {
         getFileIcon(file.mimeType, file.isDirectory)

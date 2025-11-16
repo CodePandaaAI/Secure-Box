@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -26,6 +28,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -251,7 +254,8 @@ fun AppTopBar(
                 )
             }
 
-        }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     )
 }
 
@@ -275,6 +279,7 @@ fun BottomBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             OutlinedButton(
+                modifier = Modifier.weight(1f).height(60.dp).widthIn(max = 220.dp),
                 onClick = { onCreateFolder() },
             ) {
                 Icon(
@@ -284,7 +289,7 @@ fun BottomBar(
                 )
                 Text("Create New Folder")
             }
-            Button(onClick = { onConfirmLocation() }) {
+            Button(modifier = Modifier.weight(1f).height(60.dp).widthIn(max = 220.dp).padding(start = 8.dp), onClick = { onConfirmLocation() }) {
                 Text(buttonLabel)
             }
         }

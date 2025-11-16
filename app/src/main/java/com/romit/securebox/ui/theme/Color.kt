@@ -19,8 +19,6 @@ val onErrorLight = Color(0xFFFFFFFF)
 val errorContainerLight = Color(0xFFFFDAD6)
 val onErrorContainerLight = Color(0xFF93000A)
 val backgroundLight = Color(0xFFFFF8F6)
-
-val LightCustomBackground = Color(red = 242, green = 242, blue = 247)  // iOS-style light gray
 val onBackgroundLight = Color(0xFF241916)
 val surfaceLight = Color(0xFFFFF8F6)
 val onSurfaceLight = Color(0xFF241916)

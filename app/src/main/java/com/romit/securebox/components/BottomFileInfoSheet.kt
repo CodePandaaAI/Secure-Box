@@ -51,8 +51,7 @@ fun BottomFileInfoSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = { onDismiss(null) },
-        containerColor = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Column(
             modifier = Modifier
@@ -170,15 +169,24 @@ fun BottomFileInfoSheet(
             // ✅ Action buttons with better styling
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 // Rename button
                 Surface(
                     onClick = {
                         onOpenRenameDialog()
                     },
-                    shape = RoundedCornerShape(16.dp),
-                    color = if (!isSystemInDarkTheme()) Color(red = 255, blue = 255, green = 255) else Color.Gray.copy(
+                    shape = RoundedCornerShape(
+                        topStart = 12.dp,
+                        topEnd = 12.dp,
+                        bottomEnd = 4.dp,
+                        bottomStart = 4.dp
+                    ),
+                    color = if (!isSystemInDarkTheme()) Color(
+                        red = 255,
+                        blue = 255,
+                        green = 255
+                    ) else Color.Gray.copy(
                         alpha = 0.2f
                     ),
                     modifier = Modifier.fillMaxWidth()
@@ -186,7 +194,7 @@ fun BottomFileInfoSheet(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                            .padding(horizontal = 16.dp, vertical = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
@@ -209,14 +217,23 @@ fun BottomFileInfoSheet(
                     onClick = {
                         onOpenDeleteDialog()
                     },
-                    shape = RoundedCornerShape(16.dp),
-                    color = if (!isSystemInDarkTheme()) Color(red = 255, blue = 255, green = 255) else Color.Gray.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(
+                        topStart = 4.dp,
+                        topEnd = 4.dp,
+                        bottomEnd = 4.dp,
+                        bottomStart = 4.dp
+                    ),
+                    color = if (!isSystemInDarkTheme()) Color(
+                        red = 255,
+                        blue = 255,
+                        green = 255
+                    ) else Color.Gray.copy(alpha = 0.2f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                            .padding(horizontal = 16.dp, vertical = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
@@ -239,14 +256,23 @@ fun BottomFileInfoSheet(
                     onClick = {
                         onCopyTo(selectedFile())
                     },
-                    shape = RoundedCornerShape(16.dp),
-                    color = if (!isSystemInDarkTheme()) Color(red = 255, blue = 255, green = 255) else Color.Gray.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(
+                        topStart = 4.dp,
+                        topEnd = 4.dp,
+                        bottomEnd = 4.dp,
+                        bottomStart = 4.dp
+                    ),
+                    color = if (!isSystemInDarkTheme()) Color(
+                        red = 255,
+                        blue = 255,
+                        green = 255
+                    ) else Color.Gray.copy(alpha = 0.2f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                            .padding(horizontal = 16.dp, vertical = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
@@ -267,14 +293,23 @@ fun BottomFileInfoSheet(
                     onClick = {
                         onMoveTo(selectedFile())
                     },
-                    shape = RoundedCornerShape(16.dp),
-                    color = if (!isSystemInDarkTheme()) Color(red = 255, blue = 255, green = 255) else Color.Gray.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(
+                        topStart = 4.dp,
+                        topEnd = 4.dp,
+                        bottomEnd = 12.dp,
+                        bottomStart = 12.dp
+                    ),
+                    color = if (!isSystemInDarkTheme()) Color(
+                        red = 255,
+                        blue = 255,
+                        green = 255
+                    ) else Color.Gray.copy(alpha = 0.2f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                            .padding(horizontal = 16.dp, vertical = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
