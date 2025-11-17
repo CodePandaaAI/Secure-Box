@@ -1,5 +1,6 @@
 package com.romit.securebox.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +19,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,20 +31,25 @@ import com.romit.securebox.R
 import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @Composable
 fun DestinationScreen(
-    sharedFileOperationsUiState: SharedFileOperationsUiState,
     sharedFileOperationsViewModel: SharedFileOperationsViewModel,
-    onFolderClicked: (FileItem) -> Unit
+    onFolderClicked: (FileItem) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
 
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
-    LaunchedEffect(sharedFileOperationsUiState.operationTargetPath) {
-        sharedFileOperationsViewModel.getDirs(sharedFileOperationsUiState.operationTargetPath)
+
+    // ✅ Handle back press
+    BackHandler(enabled = true) {
+        val handledInternally = sharedFileOperationsViewModel.navigateBack()
+        if (!handledInternally) {
+            // We're at root, exit DestinationScreen
+            onNavigateBack()
+        }
     }
 
     when {

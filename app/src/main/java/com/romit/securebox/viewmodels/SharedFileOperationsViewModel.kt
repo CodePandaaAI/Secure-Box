@@ -22,6 +22,9 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
     private val _uiState = MutableStateFlow(SharedFileOperationsUiState())
     val uiState = _uiState.asStateFlow()
 
+    // ✅ NEW: Track folder navigation history
+    private val folderHistory = mutableListOf<String>()
+
     fun deleteFile(filePath: String) {
         viewModelScope.launch {
             repository.deleteFile(filePath).fold(
@@ -242,6 +245,37 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
         _uiState.update { it.copy(operationSourceFile = file) }
     }
 
+    fun navigateToFolder(folderPath: String) {
+        // ✅ Add current path to history before navigating
+        val currentPath = _uiState.value.operationTargetPath
+        if (currentPath.isNotEmpty() && folderHistory.lastOrNull() != currentPath) {
+            folderHistory.add(currentPath)
+        }
+
+        updateCurrentPath(folderPath)
+        getDirs(folderPath)
+    }
+
+    fun navigateBack(): Boolean {
+        // ✅ Return true if we handled the back press, false if we should exit
+        return if (folderHistory.isNotEmpty()) {
+            val previousPath = folderHistory.removeAt(folderHistory.lastIndex)
+            updateCurrentPath(previousPath)
+            getDirs(previousPath)
+            true
+        } else {
+            // We're at the root, let the system handle back press (exit DestinationScreen)
+            false
+        }
+    }
+
+    fun initializeDestinationScreen(startPath: String) {
+        // ✅ Clear history when entering DestinationScreen
+        folderHistory.clear()
+        updateCurrentPath(startPath)
+        getDirs(startPath)
+    }
+
     fun clearAllOperationsState() {
         _uiState.update {
             it.copy(
@@ -251,7 +285,10 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                 operationTargetPathDirectories = emptyList()
             )
         }
+        // ✅ Clear folder history too
+        folderHistory.clear()
     }
+
 
     fun toggleRenameDialog() {
         _uiState.update {

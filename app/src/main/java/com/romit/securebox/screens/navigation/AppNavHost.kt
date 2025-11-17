@@ -1,5 +1,6 @@
 package com.romit.securebox.screens.navigation
 
+import android.os.Environment
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -153,14 +155,22 @@ fun AppNavHost(navController: NavHostController) {
                         sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
                         sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
-                        navController.navigate(Screen.DestinationScreen)
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     },
                     onMoveTo = { file -> // ✅ Receives the file from bottom sheet
                         sharedFileOperationsViewModel.clearAllOperationsState()
                         sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
                         sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
-                        navController.navigate(Screen.DestinationScreen)
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     }
                 )
             }
@@ -185,14 +195,22 @@ fun AppNavHost(navController: NavHostController) {
                         sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
                         sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
-                        navController.navigate(Screen.DestinationScreen)
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     },
                     onMoveTo = { file -> // ✅ Receives the file from bottom sheet
                         sharedFileOperationsViewModel.clearAllOperationsState()
                         sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
                         sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
-                        navController.navigate(Screen.DestinationScreen)
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     }
                 )
             }
@@ -212,30 +230,46 @@ fun AppNavHost(navController: NavHostController) {
                         sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
                         sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
-                        navController.navigate(Screen.DestinationScreen)
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     },
                     onMoveTo = { file -> // ✅ Receives the file from bottom sheet
                         sharedFileOperationsViewModel.clearAllOperationsState()
                         sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
                         sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
-                        navController.navigate(Screen.DestinationScreen)
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     }
                 )
             }
 
+            composable<Screen.DestinationScreen> {backStackEntry ->
+                val initialFolderPath = backStackEntry.toRoute<Screen.DestinationScreen>().folderPath
 
-            composable<Screen.DestinationScreen> {
+                // ✅ Initialize DestinationScreen with starting path
+                LaunchedEffect(Unit) {
+                    sharedFileOperationsViewModel.initializeDestinationScreen(initialFolderPath)
+                }
+
                 DestinationScreen(
-                    sharedFileOperationsUiState = uiState,
-                    sharedFileOperationsViewModel,
-                    onFolderClicked = {
-                        sharedFileOperationsViewModel.updateCurrentPath(it.path)
-                        navController.navigate(Screen.DestinationScreen)
+                    sharedFileOperationsViewModel = sharedFileOperationsViewModel,
+                    onFolderClicked = { folder ->
+                        // ✅ Use navigateToFolder instead of direct updateCurrentPath
+                        sharedFileOperationsViewModel.navigateToFolder(folder.path)
+                    },
+                    onNavigateBack = {
+                        // ✅ Exit DestinationScreen completely
+                        navController.popBackStack()
                     }
                 )
             }
-
         }
     }
 }
