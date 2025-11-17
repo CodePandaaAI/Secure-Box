@@ -70,7 +70,7 @@ fun FileThumbnail(
             }
         }
 
-        // For other files, show generic file icon
+        // For other allRecents, show generic file icon
         else -> {
             Surface(
                 color = if (!isSystemInDarkTheme())  MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(

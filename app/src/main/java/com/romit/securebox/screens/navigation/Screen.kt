@@ -13,5 +13,5 @@ sealed interface Screen {
     @Serializable
     data object AllRecents: Screen
     @Serializable
-    data class DestinationScreen(val folderPath: String): Screen
+    data object DestinationScreen: Screen
 }

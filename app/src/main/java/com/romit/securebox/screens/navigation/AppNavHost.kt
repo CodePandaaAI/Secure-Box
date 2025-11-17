@@ -3,26 +3,16 @@ package com.romit.securebox.screens.navigation
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CreateNewFolder
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -37,7 +27,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -47,10 +36,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.romit.securebox.components.FileOperationBottomAppBar
 import com.romit.securebox.screens.AllRecentsScreen
 import com.romit.securebox.screens.DestinationScreen
 import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.screens.HomeScreen
+import com.romit.securebox.util.FileOperations
 import com.romit.securebox.util.openFile
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
@@ -90,16 +81,17 @@ fun AppNavHost(navController: NavHostController) {
         },
         bottomBar = {
             if (isDestinationScreen && uiState.selectedFile?.path != null) {
-                BottomBar(
+                FileOperationBottomAppBar(
                     onCreateFolder = { sharedFileOperationsViewModel.toggleCreateFolderDialog() },
                     onConfirmLocation = {
                         if (uiState.selectedFile!!.path.isNotBlank()) {
-                            if (uiState.isCopyFile) {
+                            if (uiState.selectedOperation == FileOperations.COPY) {
                                 sharedFileOperationsViewModel.copyFile(
                                     uiState.selectedFile!!.path,
                                     uiState.operationTargetPath
                                 )
-                            } else {
+                            }
+                            if (uiState.selectedOperation == FileOperations.MOVE) {
                                 sharedFileOperationsViewModel.moveFile(
                                     uiState.selectedFile!!.path,
                                     uiState.operationTargetPath
@@ -114,7 +106,7 @@ fun AppNavHost(navController: NavHostController) {
                             }
                         }
                     },
-                    buttonLabel = if (uiState.isCopyFile) "Copy Here" else "Move Here"
+                    buttonLabel = if (uiState.selectedOperation == FileOperations.COPY) "Copy Here" else if (uiState.selectedOperation == FileOperations.MOVE) "Move Here" else ""
                 )
             }
         },
@@ -149,21 +141,15 @@ fun AppNavHost(navController: NavHostController) {
                     onShowAllRecents = {
                         navController.navigate(Screen.AllRecents)
                     },
-                    onCopyTo = { // ✅ No parameter
-                        sharedFileOperationsViewModel.isCopyFile()
-                        navController.navigate(
-                            Screen.DestinationScreen(
-                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
-                            )
-                        )
+                    onCopyTo = {
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
+                        navController.navigate(Screen.DestinationScreen)
                     },
-                    onMoveTo = { // ✅ No parameter
-                        sharedFileOperationsViewModel.isMoveFile()
-                        navController.navigate(
-                            Screen.DestinationScreen(
-                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
-                            )
-                        )
+                    onMoveTo = {
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
+                        navController.navigate(Screen.DestinationScreen)
                     }
                 )
             }
@@ -184,20 +170,14 @@ fun AppNavHost(navController: NavHostController) {
                         }
                     },
                     onCopyTo = {
-                        sharedFileOperationsViewModel.isCopyFile()
-                        navController.navigate(
-                            Screen.DestinationScreen(
-                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
-                            )
-                        )
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
+                        navController.navigate(Screen.DestinationScreen)
                     },
                     onMoveTo = {
-                        sharedFileOperationsViewModel.isMoveFile()
-                        navController.navigate(
-                            Screen.DestinationScreen(
-                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
-                            )
-                        )
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
+                        navController.navigate(Screen.DestinationScreen)
                     }
                 )
             }
@@ -213,34 +193,26 @@ fun AppNavHost(navController: NavHostController) {
                     },
                     sharedFileOperationsViewModel = sharedFileOperationsViewModel,
                     onCopyTo = {
-                        sharedFileOperationsViewModel.isCopyFile()
-                        navController.navigate(
-                            Screen.DestinationScreen(
-                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
-                            )
-                        )
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
+                        navController.navigate(Screen.DestinationScreen)
                     },
                     onMoveTo = {
-                        sharedFileOperationsViewModel.isMoveFile()
-                        navController.navigate(
-                            Screen.DestinationScreen(
-                                sharedFileOperationsViewModel.uiState.value.operationTargetPath
-                            )
-                        )
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
+                        navController.navigate(Screen.DestinationScreen)
                     }
                 )
             }
 
 
-            composable<Screen.DestinationScreen> { backStackEntry ->
-                val folderPath = backStackEntry.toRoute<Screen.DestinationScreen>().folderPath
-
+            composable<Screen.DestinationScreen> {
                 DestinationScreen(
-                    folderPath = folderPath,
+                    sharedFileOperationsUiState = uiState,
                     sharedFileOperationsViewModel,
                     onFolderClicked = {
                         sharedFileOperationsViewModel.updateCurrentPath(it.path)
-                        navController.navigate(Screen.DestinationScreen(it.path))
+                        navController.navigate(Screen.DestinationScreen)
                     },
                     snackbarHostState = snackbarHostState,
                     onNavigateBack = {
@@ -277,55 +249,4 @@ fun AppTopBar(
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     )
-}
-
-@Composable
-fun BottomBar(
-    onCreateFolder: () -> Unit,
-    buttonLabel: String,
-    onConfirmLocation: () -> Unit
-) {
-    BottomAppBar(
-        containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
-            red = 242,
-            green = 242,
-            blue = 247
-        )
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            OutlinedButton(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(60.dp)
-                    .widthIn(max = 220.dp),
-                onClick = { onCreateFolder() },
-            ) {
-                Icon(
-                    modifier = Modifier.padding(end = ButtonDefaults.IconSpacing),
-                    imageVector = Icons.Default.CreateNewFolder,
-                    contentDescription = null
-                )
-                Text("Create New Folder")
-            }
-            Button(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(60.dp)
-                    .widthIn(max = 220.dp)
-                    .padding(start = 8.dp), onClick = { onConfirmLocation() }) {
-                Text(buttonLabel)
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun FabPreview() {
-    BottomBar(onCreateFolder = {}, onConfirmLocation = {}, buttonLabel = "Copy Here")
 }

@@ -28,7 +28,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
         // 3. Check BOTH loading states
         if (uiState.value.isLoadingNextPage || uiState.value.isRefreshing) return
 
-        val lastTimestamp = uiState.value.files.lastOrNull()?.lastModified
+        val lastTimestamp = uiState.value.allRecents.lastOrNull()?.lastModified
 
         // 4. Safety check: If the list is empty, a 'loadNextPage' call is actually a 'refresh'.
         if (lastTimestamp == null) {
@@ -42,7 +42,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                 val newFiles = repository.getRecentFiles(lastTimestamp, pageSize)
                 _uiState.update {
                     it.copy(
-                        files = it.files + newFiles, // APPEND new files
+                        allRecents = it.allRecents + newFiles, // APPEND new allRecents
                         isLoadingNextPage = false
                     )
                 }
@@ -65,7 +65,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                 val newFiles = repository.getRecentFiles(lastTimestamp = null, pageSize = pageSize)
                 _uiState.update {
                     it.copy(
-                        files = newFiles, // REPLACE the list
+                        allRecents = newFiles, // REPLACE the list
                         isRefreshing = false
                     )
                 }
@@ -83,7 +83,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                         it.copy(
                             successMessage = message,
                             errorMessage = null,
-                            files = it.files.filterNot { fileItem -> fileItem.path == filePath }
+                            allRecents = it.allRecents.filterNot { fileItem -> fileItem.path == filePath }
                         )
                     }
                 },

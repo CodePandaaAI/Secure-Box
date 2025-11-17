@@ -32,12 +32,13 @@ import com.romit.securebox.R
 import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @Composable
 fun DestinationScreen(
-    folderPath: String,
+    sharedFileOperationsUiState: SharedFileOperationsUiState,
     sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onFolderClicked: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -45,8 +46,8 @@ fun DestinationScreen(
 ) {
 
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
-    LaunchedEffect(folderPath) {
-        sharedFileOperationsViewModel.getDirs(folderPath)
+    LaunchedEffect(sharedFileOperationsUiState.operationTargetPath) {
+        sharedFileOperationsViewModel.getDirs(sharedFileOperationsUiState.operationTargetPath)
     }
 
     LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
@@ -118,7 +119,7 @@ fun DestinationScreen(
             folderName = uiState.newFolderName,
             error = uiState.newFolderError,
             onFolderNameChange = { sharedFileOperationsViewModel.updateNewFolderName(it) },
-            onConfirm = { sharedFileOperationsViewModel.createFolder(operationTargetPath = sharedFileOperationsViewModel.uiState.value.operationTargetPath) },
+            onConfirm = { sharedFileOperationsViewModel.createFolder() },
             onDismiss = { sharedFileOperationsViewModel.toggleCreateFolderDialog() }
         )
     }

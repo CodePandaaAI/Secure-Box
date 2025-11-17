@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.data.repository.FileRepository
+import com.romit.securebox.util.FileOperations
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,9 +45,16 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
             )
         }
     }
+
     fun getDirs(dirPath: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(errorMessage = null, successMessage = null, isDestinationScreenLoading = true) }
+            _uiState.update {
+                it.copy(
+                    errorMessage = null,
+                    successMessage = null,
+                    isDestinationScreenLoading = true
+                )
+            }
 
             try {
                 val files = repository.getDirs(path = dirPath)
@@ -59,7 +67,13 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                     )
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(errorMessage = e.message, successMessage = null, isDestinationScreenLoading = false) }
+                _uiState.update {
+                    it.copy(
+                        errorMessage = e.message,
+                        successMessage = null,
+                        isDestinationScreenLoading = false
+                    )
+                }
             }
         }
     }
@@ -117,7 +131,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                             errorMessage = null
                         )
                     }
-                    resetOperationState()
+                    clearAllOperationsState()
                 },
                 onFailure = { message ->
                     val error = message.message ?: when (message) {
@@ -128,7 +142,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                         else -> "Unknown errorMessage"
                     }
                     _uiState.update { it.copy(errorMessage = error, successMessage = null) }
-                    resetOperationState()
+                    clearAllOperationsState()
                 }
             )
         }
@@ -144,17 +158,22 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                             errorMessage = null
                         )
                     }
-                    resetOperationState()
+                    clearAllOperationsState()
                 },
                 onFailure = { message ->
-                    _uiState.update { it.copy(errorMessage = message.message, successMessage = null) }
-                    resetOperationState()
+                    _uiState.update {
+                        it.copy(
+                            errorMessage = message.message,
+                            successMessage = null
+                        )
+                    }
+                    clearAllOperationsState()
                 }
             )
         }
     }
 
-    fun createFolder(operationTargetPath: String) {
+    fun createFolder() {
         val folderName = _uiState.value.newFolderName.trim()
 
         if (folderName.isBlank()) {
@@ -163,7 +182,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
         }
 
         viewModelScope.launch {
-            repository.createFolder(operationTargetPath, folderName).fold(
+            repository.createFolder(uiState.value.operationTargetPath, folderName).fold(
                 onSuccess = { message ->
                     _uiState.update {
                         it.copy(
@@ -190,7 +209,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
     fun toggleCreateFolderDialog() {
         _uiState.update {
             it.copy(
-                showCreateFolderDialog = !it.showCreateFolderDialog,
+                showCreateFolderDialog = !uiState.value.showCreateFolderDialog,
                 newFolderName = "",
                 newFolderError = null
             )
@@ -201,12 +220,28 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
         _uiState.update { it.copy(newFolderName = name, newFolderError = null) }
     }
 
-    fun isCopyFile() {
-        _uiState.update { it.copy(isCopyFile = true, isMoveFile = false) }
+    fun chooseOperation(fileOperation: FileOperations) {
+        when (fileOperation) {
+            FileOperations.NONE -> return
+
+            FileOperations.COPY -> _uiState.update {
+                it.copy(selectedOperation = fileOperation)
+            }
+
+            FileOperations.MOVE -> _uiState.update {
+                it.copy(selectedOperation = fileOperation)
+            }
+        }
     }
 
-    fun isMoveFile() {
-        _uiState.update { it.copy(isCopyFile = false, isMoveFile = true) }
+    fun clearAllOperationsState() {
+        _uiState.update {
+            it.copy(
+                selectedOperation = FileOperations.NONE,
+                operationTargetPath = Environment.getExternalStorageDirectory().absolutePath,
+                operationTargetPathDirectories = emptyList()
+            )
+        }
     }
 
     fun toggleRenameDialog() {
@@ -230,53 +265,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
         _uiState.update { it.copy(selectedFile = file) }
     }
 
-    fun resetOperationState() {
-        _uiState.update {
-            it.copy(
-                operationTargetPath = Environment.getExternalStorageDirectory().absolutePath,
-                operationTargetPathDirectories = emptyList(),
-                isMoveFile = false,
-                isCopyFile = false
-            )
-        }
-    }
-
     fun updateCurrentPath(newCurrPath: String) {
         _uiState.update { it.copy(operationTargetPath = newCurrPath) }
-    }
-
-    fun createFolder() {
-        val currentPath = _uiState.value.operationTargetPath
-        val folderName = _uiState.value.newFolderName.trim()
-
-        if (folderName.isBlank()) {
-            _uiState.update { it.copy(newFolderError = "Folder name cannot be empty") }
-            return
-        }
-
-        viewModelScope.launch {
-            repository.createFolder(currentPath, folderName).fold(
-                onSuccess = { message ->
-                    _uiState.update {
-                        it.copy(
-                            successMessage = message,
-                            showCreateFolderDialog = false,
-                            newFolderName = ""
-                        )
-                    }
-                    getDirs(currentPath)
-                },
-                onFailure = { exception ->
-                    val errorMessage = when (exception) {
-                        is FileNotFoundException -> "Parent directory not found"
-                        is SecurityException -> "Permission denied"
-                        is IllegalArgumentException -> exception.message ?: "Invalid folder name"
-                        is FileAlreadyExistsException -> "Folder already exists"
-                        else -> "Failed to create folder: ${exception.message}"
-                    }
-                    _uiState.update { it.copy(newFolderError = errorMessage) }
-                }
-            )
-        }
     }
 }

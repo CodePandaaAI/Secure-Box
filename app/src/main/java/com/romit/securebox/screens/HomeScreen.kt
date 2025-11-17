@@ -194,7 +194,7 @@ fun HomeScreen(
                             )
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                text = "No recent files",
+                                text = "No recent allRecents",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -296,8 +296,8 @@ fun HomeScreen(
             onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
             onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
             selectedFile = { sharedFileOperationsViewModel.uiState.value.selectedFile!! },
-            onCopyTo = { onCopyTo() }, // ✅ Call without parameter
-            onMoveTo = { onMoveTo() }  // ✅ Call without parameter
+            onCopyTo = { onCopyTo() },
+            onMoveTo = { onMoveTo() }
         )
     }
 

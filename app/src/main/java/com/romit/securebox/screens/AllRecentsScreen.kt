@@ -48,6 +48,13 @@ fun AllRecentsScreen(
     val uiState by recentsScreenViewModel.uiState.collectAsState()
     val lazyListState = rememberLazyListState()
 
+    // This is the "trigger"
+    val isScrolledToEnd by remember {
+        derivedStateOf {
+            lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == uiState.allRecents.size - 1
+        }
+    }
+
     LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
         uiState.successMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
@@ -72,7 +79,7 @@ fun AllRecentsScreen(
             contentPadding = PaddingValues(16.dp)
         ) {
             itemsIndexed(
-                items = uiState.files,
+                items = uiState.allRecents,
                 key = { _, file -> file.path }
             ) { index, file ->
                 FileCard(
@@ -85,10 +92,9 @@ fun AllRecentsScreen(
                     onFileLongClick = { fileItem ->
                         sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
                     },
-                    // ✅ Add shape based on position
                     shape = getListItemShape(
                         index = index,
-                        totalItems = uiState.files.size
+                        totalItems = uiState.allRecents.size
                     )
                 )
             }
@@ -109,18 +115,12 @@ fun AllRecentsScreen(
         }
     }
 
-    // This is the "trigger"
-    val isScrolledToEnd by remember {
-        derivedStateOf {
-            lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == uiState.files.size - 1
-        }
-    }
-
     LaunchedEffect(isScrolledToEnd) {
         if (isScrolledToEnd && !uiState.isLoadingNextPage) {
             recentsScreenViewModel.loadNextPage()
         }
     }
+
     // Bottom Sheet
     if (sharedFileOperationsUiState.selectedFile != null) {
         BottomFileInfoSheet(
