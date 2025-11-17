@@ -1,5 +1,6 @@
 package com.romit.securebox.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,15 +46,25 @@ import com.romit.securebox.util.StorageHelper
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomFileInfoSheet(
-    onDismiss: (FileItem?) -> Unit,
+    onDismiss: () -> Unit,
     selectedFile: () -> FileItem,
     onOpenDeleteDialog: () -> Unit,
     onOpenRenameDialog: () -> Unit,
     onCopyTo: (FileItem) -> Unit,
     onMoveTo: (FileItem) -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true // ✅ This makes it open fully
+    )
+
+    // ✅ Handle back press to dismiss directly
+    BackHandler(enabled = true) {
+        onDismiss()
+    }
+
     ModalBottomSheet(
-        onDismissRequest = { onDismiss(null) },
+        onDismissRequest = { onDismiss() },
+        sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Column(

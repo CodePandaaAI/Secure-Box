@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,27 +39,12 @@ import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 fun DestinationScreen(
     sharedFileOperationsUiState: SharedFileOperationsUiState,
     sharedFileOperationsViewModel: SharedFileOperationsViewModel,
-    onFolderClicked: (FileItem) -> Unit,
-    snackbarHostState: SnackbarHostState,
-    onNavigateBack: () -> Unit
+    onFolderClicked: (FileItem) -> Unit
 ) {
 
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
     LaunchedEffect(sharedFileOperationsUiState.operationTargetPath) {
         sharedFileOperationsViewModel.getDirs(sharedFileOperationsUiState.operationTargetPath)
-    }
-
-    LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
-        uiState.successMessage?.let { successMessage ->
-            snackbarHostState.showSnackbar(message = successMessage)
-            sharedFileOperationsViewModel.clearMessages()
-            onNavigateBack()
-        }
-        uiState.errorMessage?.let { error ->
-            snackbarHostState.showSnackbar(message = error)
-            sharedFileOperationsViewModel.clearMessages()
-            onNavigateBack()
-        }
     }
 
     when {

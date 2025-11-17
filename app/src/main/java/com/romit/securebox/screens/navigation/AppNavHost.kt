@@ -80,22 +80,25 @@ fun AppNavHost(navController: NavHostController) {
             }
         },
         bottomBar = {
-            if (isDestinationScreen && uiState.selectedFile?.path != null) {
+            if (isDestinationScreen && uiState.operationSourceFile != null) {
                 FileOperationBottomAppBar(
                     onCreateFolder = { sharedFileOperationsViewModel.toggleCreateFolderDialog() },
                     onConfirmLocation = {
-                        if (uiState.selectedFile!!.path.isNotBlank()) {
-                            if (uiState.selectedOperation == FileOperations.COPY) {
-                                sharedFileOperationsViewModel.copyFile(
-                                    uiState.selectedFile!!.path,
-                                    uiState.operationTargetPath
-                                )
-                            }
-                            if (uiState.selectedOperation == FileOperations.MOVE) {
-                                sharedFileOperationsViewModel.moveFile(
-                                    uiState.selectedFile!!.path,
-                                    uiState.operationTargetPath
-                                )
+                        if (uiState.operationSourceFile!!.path.isNotBlank()) {
+                            scope.launch {
+                                if (uiState.selectedOperation == FileOperations.COPY) {
+                                    sharedFileOperationsViewModel.copyFile(
+                                        uiState.operationSourceFile!!.path,
+                                        uiState.operationTargetPath
+                                    )
+                                }
+                                if (uiState.selectedOperation == FileOperations.MOVE) {
+                                    sharedFileOperationsViewModel.moveFile(
+                                        uiState.operationSourceFile!!.path,
+                                        uiState.operationTargetPath
+                                    )
+                                }
+                                navController.popBackStack()
                             }
                         } else {
                             scope.launch {
@@ -106,7 +109,11 @@ fun AppNavHost(navController: NavHostController) {
                             }
                         }
                     },
-                    buttonLabel = if (uiState.selectedOperation == FileOperations.COPY) "Copy Here" else if (uiState.selectedOperation == FileOperations.MOVE) "Move Here" else ""
+                    buttonLabel = when (uiState.selectedOperation) {
+                        FileOperations.COPY -> "Copy Here"
+                        FileOperations.MOVE -> "Move Here"
+                        else -> ""
+                    }
                 )
             }
         },
@@ -141,14 +148,18 @@ fun AppNavHost(navController: NavHostController) {
                     onShowAllRecents = {
                         navController.navigate(Screen.AllRecents)
                     },
-                    onCopyTo = {
+                    onCopyTo = { file -> // ✅ Receives the file from bottom sheet
                         sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
                         navController.navigate(Screen.DestinationScreen)
                     },
-                    onMoveTo = {
+                    onMoveTo = { file -> // ✅ Receives the file from bottom sheet
                         sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
                         navController.navigate(Screen.DestinationScreen)
                     }
                 )
@@ -169,14 +180,18 @@ fun AppNavHost(navController: NavHostController) {
                             openFile(context, file)
                         }
                     },
-                    onCopyTo = {
+                    onCopyTo = { file -> // ✅ Receives the file from bottom sheet
                         sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
                         navController.navigate(Screen.DestinationScreen)
                     },
-                    onMoveTo = {
+                    onMoveTo = { file -> // ✅ Receives the file from bottom sheet
                         sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
                         navController.navigate(Screen.DestinationScreen)
                     }
                 )
@@ -192,14 +207,18 @@ fun AppNavHost(navController: NavHostController) {
                         }
                     },
                     sharedFileOperationsViewModel = sharedFileOperationsViewModel,
-                    onCopyTo = {
+                    onCopyTo = { file -> // ✅ Receives the file from bottom sheet
                         sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
                         navController.navigate(Screen.DestinationScreen)
                     },
-                    onMoveTo = {
+                    onMoveTo = { file -> // ✅ Receives the file from bottom sheet
                         sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
                         sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
                         navController.navigate(Screen.DestinationScreen)
                     }
                 )
@@ -213,10 +232,6 @@ fun AppNavHost(navController: NavHostController) {
                     onFolderClicked = {
                         sharedFileOperationsViewModel.updateCurrentPath(it.path)
                         navController.navigate(Screen.DestinationScreen)
-                    },
-                    snackbarHostState = snackbarHostState,
-                    onNavigateBack = {
-                        navController.popBackStack()
                     }
                 )
             }

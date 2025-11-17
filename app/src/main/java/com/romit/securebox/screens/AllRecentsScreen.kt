@@ -66,6 +66,19 @@ fun AllRecentsScreen(
         }
     }
 
+    // ✅ Observe SHARED OPERATIONS messages
+    LaunchedEffect(sharedFileOperationsUiState.successMessage, sharedFileOperationsUiState.errorMessage) {
+        sharedFileOperationsUiState.successMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            sharedFileOperationsViewModel.clearMessages()
+            recentsScreenViewModel.refresh()
+        }
+        sharedFileOperationsUiState.errorMessage?.let { error ->
+            snackbarHostState.showSnackbar(error)
+            sharedFileOperationsViewModel.clearMessages()
+        }
+    }
+
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
         onRefresh = { recentsScreenViewModel.refresh() },

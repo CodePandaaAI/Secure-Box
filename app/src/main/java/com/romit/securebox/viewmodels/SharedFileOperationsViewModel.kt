@@ -131,6 +131,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                             errorMessage = null
                         )
                     }
+
                     clearAllOperationsState()
                 },
                 onFailure = { message ->
@@ -142,6 +143,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                         else -> "Unknown errorMessage"
                     }
                     _uiState.update { it.copy(errorMessage = error, successMessage = null) }
+
                     clearAllOperationsState()
                 }
             )
@@ -158,6 +160,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                             errorMessage = null
                         )
                     }
+
                     clearAllOperationsState()
                 },
                 onFailure = { message ->
@@ -167,6 +170,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                             successMessage = null
                         )
                     }
+
                     clearAllOperationsState()
                 }
             )
@@ -234,10 +238,15 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
         }
     }
 
+    fun setOperationSourceFile(file: FileItem) {
+        _uiState.update { it.copy(operationSourceFile = file) }
+    }
+
     fun clearAllOperationsState() {
         _uiState.update {
             it.copy(
                 selectedOperation = FileOperations.NONE,
+                operationSourceFile = null,
                 operationTargetPath = Environment.getExternalStorageDirectory().absolutePath,
                 operationTargetPathDirectories = emptyList()
             )

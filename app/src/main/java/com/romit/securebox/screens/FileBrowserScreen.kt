@@ -67,6 +67,19 @@ fun FileBrowserScreen(
             fileBrowserScreenViewModel.clearMessages()
         }
     }
+
+    // ✅ Observe SHARED OPERATIONS messages
+    LaunchedEffect(sharedFileOperationsUiState.successMessage, sharedFileOperationsUiState.errorMessage) {
+        sharedFileOperationsUiState.successMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            sharedFileOperationsViewModel.clearMessages()
+            fileBrowserScreenViewModel.getDirFiles(path)
+        }
+        sharedFileOperationsUiState.errorMessage?.let { error ->
+            snackbarHostState.showSnackbar(error)
+            sharedFileOperationsViewModel.clearMessages()
+        }
+    }
     when {
         uiState.isLoading -> {
             Column(
@@ -137,9 +150,9 @@ fun FileBrowserScreen(
             onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
             onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
             onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            selectedFile = { sharedFileOperationsUiState.selectedFile },
             onCopyTo = { onCopyTo(it) },
-            onMoveTo = { onMoveTo(it) },
-            selectedFile = { sharedFileOperationsUiState.selectedFile }
+            onMoveTo = { onMoveTo(it) }
         )
     }
 

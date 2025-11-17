@@ -60,8 +60,8 @@ fun HomeScreen(
     onFileClicked: (FileItem) -> Unit,
     homeScreenViewModel: HomeScreenViewModel = hiltViewModel(),
     sharedFileOperationsViewModel: SharedFileOperationsViewModel,
-    onCopyTo: () -> Unit,
-    onMoveTo: () -> Unit,
+    onCopyTo: (FileItem) -> Unit,
+    onMoveTo: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     val uiState by homeScreenViewModel.uiState.collectAsState()
@@ -74,6 +74,19 @@ fun HomeScreen(
         uiState.errorMessage?.let { error ->
             snackbarHostState.showSnackbar(error)
             homeScreenViewModel.clearMessages()
+        }
+    }
+
+    // ✅ Observe SHARED OPERATIONS messages (delete, rename, copy, move)
+    LaunchedEffect(sharedFileOperationsUiState.successMessage, sharedFileOperationsUiState.errorMessage) {
+        sharedFileOperationsUiState.successMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            sharedFileOperationsViewModel.clearMessages()
+            homeScreenViewModel.getRecentFiles()
+        }
+        sharedFileOperationsUiState.errorMessage?.let { error ->
+            snackbarHostState.showSnackbar(error)
+            sharedFileOperationsViewModel.clearMessages()
         }
     }
 
@@ -295,9 +308,9 @@ fun HomeScreen(
             onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
             onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
             onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
-            selectedFile = { sharedFileOperationsViewModel.uiState.value.selectedFile!! },
-            onCopyTo = { onCopyTo() },
-            onMoveTo = { onMoveTo() }
+            selectedFile = { sharedFileOperationsUiState.selectedFile },
+            onCopyTo = { onCopyTo(it) },
+            onMoveTo = { onMoveTo(it) }
         )
     }
 
