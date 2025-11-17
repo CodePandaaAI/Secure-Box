@@ -117,7 +117,7 @@ object StorageHelper {
             // Android APK
             mimeType == "application/vnd.android.package-archive" -> Icons.Default.Android
 
-            // Code files
+            // Code allRecents
             mimeType == "application/json" ||
                     mimeType == "application/javascript" ||
                     mimeType == "application/xml" ||

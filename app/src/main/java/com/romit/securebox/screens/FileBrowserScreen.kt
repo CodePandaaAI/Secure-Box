@@ -1,18 +1,21 @@
 package com.romit.securebox.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,38 +34,58 @@ import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.data.model.SharedFileOperationsUiState
+import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FileBrowserScreen(
     modifier: Modifier = Modifier,
+    sharedFileOperationsUiState: SharedFileOperationsUiState,
     path: String,
     onFileClicked: (FileItem) -> Unit,
-    viewModel: FileBrowserScreenViewModel,
+    fileBrowserScreenViewModel: FileBrowserScreenViewModel,
+    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onCopyTo: (FileItem) -> Unit,
     onMoveTo: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by fileBrowserScreenViewModel.uiState.collectAsState()
 
     LaunchedEffect(path) {
-        viewModel.getDirFiles(path)
+        fileBrowserScreenViewModel.getDirFiles(path)
     }
     LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
         uiState.successMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
-            viewModel.clearMessages()
+            fileBrowserScreenViewModel.clearMessages()
         }
         uiState.errorMessage?.let { error ->
             snackbarHostState.showSnackbar(error)
-            viewModel.clearMessages()
+            fileBrowserScreenViewModel.clearMessages()
+        }
+    }
+
+    // ✅ Observe SHARED OPERATIONS messages
+    LaunchedEffect(sharedFileOperationsUiState.successMessage, sharedFileOperationsUiState.errorMessage) {
+        sharedFileOperationsUiState.successMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            sharedFileOperationsViewModel.clearMessages()
+            fileBrowserScreenViewModel.getDirFiles(path)
+        }
+        sharedFileOperationsUiState.errorMessage?.let { error ->
+            snackbarHostState.showSnackbar(error)
+            sharedFileOperationsViewModel.clearMessages()
         }
     }
     when {
         uiState.isLoading -> {
             Column(
-                Modifier.fillMaxSize(),
+                Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -71,17 +94,30 @@ fun FileBrowserScreen(
         }
 
         uiState.browsingPathDirectories.isNotEmpty() -> {
-            LazyColumn(contentPadding = PaddingValues(8.dp)) {
-                items(uiState.browsingPathDirectories, key = { file -> file.path }) { file ->
+            LazyColumn(
+                Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                itemsIndexed(
+                    items = uiState.browsingPathDirectories,
+                    key = { _, file -> file.path }
+                ) { index, file ->
                     FileCard(
+                        modifier = Modifier.padding(vertical = 1.dp),
                         file = file,
-                        onFileClick = { file -> onFileClicked(file) },
+                        onFileClick = { onFileClicked(it) },
                         onFileOperation = { fileItem ->
-                            viewModel.selectedFileForBottomSheet(fileItem)
+                            sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
                         },
                         onFileLongClick = { fileItem ->
-                            viewModel.selectedFileForBottomSheet(fileItem)
-                        }
+                            sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
+                        },
+                        shape = getListItemShape(
+                            index = index,
+                            totalItems = uiState.browsingPathDirectories.size
+                        )
                     )
                 }
             }
@@ -89,7 +125,9 @@ fun FileBrowserScreen(
 
         else -> {
             Column(
-                modifier = modifier.fillMaxSize(),
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -107,39 +145,39 @@ fun FileBrowserScreen(
         }
     }
     // Bottom Sheet
-    if (uiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.selectedFile != null) {
         BottomFileInfoSheet(
-            onDismiss = { viewModel.selectedFileForBottomSheet(null) },
-            onOpenDeleteDialog = { viewModel.toggleDeleteDialog() },
-            onOpenRenameDialog = { viewModel.toggleRenameDialog() },
+            onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
+            onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
+            onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            selectedFile = { sharedFileOperationsUiState.selectedFile },
             onCopyTo = { onCopyTo(it) },
-            onMoveTo = { onMoveTo(it) },
-            selectedFile = { uiState.selectedFile!! }
+            onMoveTo = { onMoveTo(it) }
         )
     }
 
     // Rename Dialog
-    if (uiState.showRenameInput && uiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.showRenameInput && sharedFileOperationsUiState.selectedFile != null) {
         RenameDialog(
-            onDismissRequest = { viewModel.toggleRenameDialog() },
-            onCancel = { viewModel.toggleRenameDialog() },
-            onRenamingFile = { viewModel.onRenamingFile(it) },
-            onRenameFileClicked = { viewModel.onRenameFileClicked() },
-            newFileName = { uiState.newFileName },
-            selectedFile = { uiState.selectedFile!! }
+            onDismissRequest = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            onCancel = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            onRenamingFile = { sharedFileOperationsViewModel.onRenamingFile(it) },
+            onRenameFileClicked = { sharedFileOperationsViewModel.onRenameFileClicked() },
+            newFileName = { sharedFileOperationsUiState.newFileName },
+            selectedFile = { sharedFileOperationsUiState.selectedFile }
         )
     }
 
     // Delete Dialog
-    if (uiState.showDeleteDialog && uiState.selectedFile != null) {
+    if (sharedFileOperationsUiState.showDeleteDialog && sharedFileOperationsUiState.selectedFile != null) {
         DeleteDialog(
-            onDismissRequest = { viewModel.toggleDeleteDialog() },
+            onDismissRequest = { sharedFileOperationsViewModel.toggleDeleteDialog() },
             onConfirmDelete = {
-                viewModel.deleteFile(uiState.selectedFile!!.path)
-                viewModel.toggleDeleteDialog()
-                viewModel.selectedFileForBottomSheet(null)
+                sharedFileOperationsViewModel.deleteFile(sharedFileOperationsUiState.selectedFile.path)
+                sharedFileOperationsViewModel.toggleDeleteDialog()
+                sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
             },
-            selectedFile = { uiState.selectedFile!! }
+            selectedFile = { sharedFileOperationsUiState.selectedFile }
         )
     }
 }

@@ -32,7 +32,7 @@ fun FileThumbnail(
         file.isImage -> {
             Surface(
                 color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                    alpha = 0.2f
+                    alpha = 0.1f
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -56,7 +56,7 @@ fun FileThumbnail(
         file.isDirectory -> {
             Surface(
                 color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                    alpha = 0.2f
+                    alpha = 0.1f
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -64,17 +64,17 @@ fun FileThumbnail(
                     imageVector = Icons.Filled.Folder,
                     contentDescription = "Folder",
                     modifier = Modifier
-                        .padding(16.dp)
-                        .size(32.dp)
+                        .padding(8.dp)
+                        .size(40.dp)
                 )
             }
         }
 
-        // For other files, show generic file icon
+        // For other allRecents, show generic file icon
         else -> {
             Surface(
-                color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                    alpha = 0.2f
+                color = if (!isSystemInDarkTheme())  MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
+                    alpha = 0.1f
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -82,8 +82,8 @@ fun FileThumbnail(
                     imageVector = icon,
                     contentDescription = "File",
                     modifier = Modifier
-                        .padding(16.dp)
-                        .size(32.dp)
+                        .padding(8.dp)
+                        .size(40.dp)
                 )
             }
         }

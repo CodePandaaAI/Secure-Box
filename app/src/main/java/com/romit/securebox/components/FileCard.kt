@@ -1,6 +1,7 @@
 package com.romit.securebox.components
 
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,21 +32,22 @@ import com.romit.securebox.util.StorageHelper.getFileIcon
 
 @Composable
 fun FileCard(
+    modifier: Modifier = Modifier,
     file: FileItem,
     onFileClick: (FileItem) -> Unit,
     onFileOperation: (FileItem) -> Unit,
     onFileLongClick: (FileItem) -> Unit,
-    modifier: Modifier = Modifier
+    shape: RoundedCornerShape,
 ) {
     val icon = remember(file.mimeType, file.isDirectory) {
         getFileIcon(file.mimeType, file.isDirectory)
     }
 
     Surface(
-        shape = RoundedCornerShape(24.dp),
+        color = if (isSystemInDarkTheme()) Color.Gray.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface,
+        shape = shape,
         modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
-            .padding(vertical = 4.dp)
+            .clip(shape = shape)
             .fillMaxWidth()
             .combinedClickable(  // ✅ Replace Surface's onClick with this
                 onClick = { onFileClick(file) },
@@ -52,10 +55,10 @@ fun FileCard(
             )
     ) {
         Row(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FileThumbnail(file = file, icon = icon, Modifier.size(64.dp))
+            FileThumbnail(file = file, icon = icon, Modifier.size(56.dp))
 
             Spacer(modifier = Modifier.width(12.dp))
 

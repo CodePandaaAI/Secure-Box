@@ -25,7 +25,7 @@ fun openFile(context: Context, file: FileItem) {
             fileToView
         )
 
-        // Special handling for APK files
+        // Special handling for APK allRecents
         if (file.mimeType == "application/vnd.android.package-archive") {
             installApk(context, uri)
             return

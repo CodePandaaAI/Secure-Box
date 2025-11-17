@@ -1,7 +1,9 @@
 package com.romit.securebox.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import com.romit.securebox.R
@@ -24,6 +26,12 @@ val displayFontFamily = FontFamily(
         googleFont = GoogleFont("Roboto"),
         fontProvider = provider,
     )
+)
+
+val CustomFontFamily = FontFamily(
+    Font(R.font.momo_trust_display_regular, FontWeight.Normal),
+    Font(R.font.momo_trust_display_regular, FontWeight.Bold)
+    // Add more font weights/styles as needed
 )
 
 // Default Material 3 typography values

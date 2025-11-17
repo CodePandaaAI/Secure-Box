@@ -1,32 +1,27 @@
 package com.romit.securebox.screens.navigation
 
+import android.os.Environment
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CreateNewFolder
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -34,7 +29,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -44,12 +38,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.romit.securebox.components.FileOperationBottomAppBar
 import com.romit.securebox.screens.AllRecentsScreen
 import com.romit.securebox.screens.DestinationScreen
 import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.screens.HomeScreen
+import com.romit.securebox.util.FileOperations
 import com.romit.securebox.util.openFile
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 import kotlinx.coroutines.launch
 
 
@@ -66,10 +63,12 @@ fun AppNavHost(navController: NavHostController) {
     val scope = rememberCoroutineScope()
 
     val isHomeScreen = currentBackStackEntry?.destination?.hasRoute<Screen.Home>() == true
-    val isDestinationScreen = currentBackStackEntry?.destination?.hasRoute<Screen.DestinationScreen>() == true
+    val isDestinationScreen =
+        currentBackStackEntry?.destination?.hasRoute<Screen.DestinationScreen>() == true
     val sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
+    val sharedFileOperationsViewModel: SharedFileOperationsViewModel = hiltViewModel()
     val snackbarHostState = remember { SnackbarHostState() }
-    val uiState by sharedFileBrowserViewModel.uiState.collectAsState()
+    val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -83,21 +82,25 @@ fun AppNavHost(navController: NavHostController) {
             }
         },
         bottomBar = {
-            if (isDestinationScreen && uiState.selectedFile?.path != null) {
-                BottomBar(
-                    onCreateFolder = { sharedFileBrowserViewModel.toggleCreateFolderDialog() },
+            if (isDestinationScreen && uiState.operationSourceFile != null) {
+                FileOperationBottomAppBar(
+                    onCreateFolder = { sharedFileOperationsViewModel.toggleCreateFolderDialog() },
                     onConfirmLocation = {
-                        if (uiState.selectedFile!!.path.isNotBlank()) {
-                            if (uiState.isCopyFile) {
-                                sharedFileBrowserViewModel.copyFile(
-                                    uiState.selectedFile!!.path,
-                                    uiState.operationTargetPath
-                                )
-                            } else {
-                                sharedFileBrowserViewModel.moveFile(
-                                    uiState.selectedFile!!.path,
-                                    uiState.operationTargetPath
-                                )
+                        if (uiState.operationSourceFile!!.path.isNotBlank()) {
+                            scope.launch {
+                                if (uiState.selectedOperation == FileOperations.COPY) {
+                                    sharedFileOperationsViewModel.copyFile(
+                                        uiState.operationSourceFile!!.path,
+                                        uiState.operationTargetPath
+                                    )
+                                }
+                                if (uiState.selectedOperation == FileOperations.MOVE) {
+                                    sharedFileOperationsViewModel.moveFile(
+                                        uiState.operationSourceFile!!.path,
+                                        uiState.operationTargetPath
+                                    )
+                                }
+                                navController.popBackStack()
                             }
                         } else {
                             scope.launch {
@@ -108,7 +111,11 @@ fun AppNavHost(navController: NavHostController) {
                             }
                         }
                     },
-                    buttonLabel = if (uiState.isCopyFile) "Copy Here" else "Move Here"
+                    buttonLabel = when (uiState.selectedOperation) {
+                        FileOperations.COPY -> "Copy Here"
+                        FileOperations.MOVE -> "Move Here"
+                        else -> ""
+                    }
                 )
             }
         },
@@ -125,13 +132,14 @@ fun AppNavHost(navController: NavHostController) {
         ) {
             composable<Screen.Home> {
                 HomeScreen(
+                    sharedFileOperationsUiState = uiState,
                     snackbarHostState = snackbarHostState,
                     onCategoryClicked = { path ->
                         navController.navigate(Screen.FileBrowser(path)) {
                             launchSingleTop = true
                         }
                     },
-                    viewModel = sharedFileBrowserViewModel,
+                    sharedFileOperationsViewModel = sharedFileOperationsViewModel,
                     onFileClicked = { file ->
                         if (file.isDirectory) {
                             navController.navigate(Screen.FileBrowser(path = file.path))
@@ -142,17 +150,27 @@ fun AppNavHost(navController: NavHostController) {
                     onShowAllRecents = {
                         navController.navigate(Screen.AllRecents)
                     },
-                    onCopyTo = { // ✅ No parameter
-                        sharedFileBrowserViewModel.isCopyFile()
-                        navController.navigate(Screen.DestinationScreen(
-                            sharedFileBrowserViewModel.uiState.value.operationTargetPath
-                        ))
+                    onCopyTo = { file -> // ✅ Receives the file from bottom sheet
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     },
-                    onMoveTo = { // ✅ No parameter
-                        sharedFileBrowserViewModel.isMoveFile()
-                        navController.navigate(Screen.DestinationScreen(
-                            sharedFileBrowserViewModel.uiState.value.operationTargetPath
-                        ))
+                    onMoveTo = { file -> // ✅ Receives the file from bottom sheet
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     }
                 )
             }
@@ -160,8 +178,10 @@ fun AppNavHost(navController: NavHostController) {
             composable<Screen.FileBrowser> { backStackEntry ->
                 val path = backStackEntry.toRoute<Screen.FileBrowser>().path
                 FileBrowserScreen(
+                    sharedFileOperationsUiState = uiState,
                     snackbarHostState = snackbarHostState,
-                    viewModel = sharedFileBrowserViewModel,
+                    sharedFileOperationsViewModel = sharedFileOperationsViewModel,
+                    fileBrowserScreenViewModel = sharedFileBrowserViewModel,
                     path = path,
                     onFileClicked = { file ->
                         if (file.isDirectory) {
@@ -170,53 +190,86 @@ fun AppNavHost(navController: NavHostController) {
                             openFile(context, file)
                         }
                     },
-                    onCopyTo = {
-                        sharedFileBrowserViewModel.isCopyFile()
-                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
+                    onCopyTo = { file -> // ✅ Receives the file from bottom sheet
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     },
-                    onMoveTo = {
-                        sharedFileBrowserViewModel.isMoveFile()
-                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
+                    onMoveTo = { file -> // ✅ Receives the file from bottom sheet
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     }
                 )
             }
             composable<Screen.AllRecents> {
                 AllRecentsScreen(
+                    sharedFileOperationsUiState = uiState,
                     snackbarHostState = snackbarHostState, onFileClicked = { file ->
                         if (file.isDirectory) {
                             navController.navigate(Screen.FileBrowser(path = file.path))
                         } else {
                             openFile(context, file)
                         }
-                    }, onCopyTo = {
-                        sharedFileBrowserViewModel.isCopyFile()
-                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
                     },
-                    onMoveTo = {
-                        sharedFileBrowserViewModel.isMoveFile()
-                        navController.navigate(Screen.DestinationScreen(sharedFileBrowserViewModel.uiState.value.operationTargetPath))
+                    sharedFileOperationsViewModel = sharedFileOperationsViewModel,
+                    onCopyTo = { file -> // ✅ Receives the file from bottom sheet
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
+                    },
+                    onMoveTo = { file -> // ✅ Receives the file from bottom sheet
+                        sharedFileOperationsViewModel.clearAllOperationsState()
+                        sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
+                        sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
+                        sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
+                        navController.navigate(
+                            Screen.DestinationScreen(
+                                folderPath = Environment.getExternalStorageDirectory().absolutePath
+                            )
+                        )
                     }
                 )
             }
 
+            composable<Screen.DestinationScreen> {backStackEntry ->
+                val initialFolderPath = backStackEntry.toRoute<Screen.DestinationScreen>().folderPath
 
-            composable<Screen.DestinationScreen> { backStackEntry ->
-                val folderPath = backStackEntry.toRoute<Screen.DestinationScreen>().folderPath
+                // ✅ Initialize DestinationScreen with starting path
+                LaunchedEffect(Unit) {
+                    sharedFileOperationsViewModel.initializeDestinationScreen(initialFolderPath)
+                }
 
                 DestinationScreen(
-                    folderPath = folderPath,
-                    sharedFileBrowserViewModel,
-                    onFolderClicked = {
-                        sharedFileBrowserViewModel.updateCurrentPath(it.path)
-                        navController.navigate(Screen.DestinationScreen(it.path))
+                    sharedFileOperationsViewModel = sharedFileOperationsViewModel,
+                    onFolderClicked = { folder ->
+                        // ✅ Use navigateToFolder instead of direct updateCurrentPath
+                        sharedFileOperationsViewModel.navigateToFolder(folder.path)
                     },
-                    snackbarHostState = snackbarHostState,
                     onNavigateBack = {
+                        // ✅ Exit DestinationScreen completely
                         navController.popBackStack()
                     }
                 )
             }
-
         }
     }
 }
@@ -232,9 +285,7 @@ fun AppTopBar(
             IconButton(
                 modifier = Modifier.padding(horizontal = 8.dp),
                 onClick = onBackClick, colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                        alpha = 0.1f
-                    )
+                    containerColor = if (isSystemInDarkTheme()) Color.Gray.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
                 ),
                 shape = CircleShape
             ) {
@@ -244,42 +295,7 @@ fun AppTopBar(
                 )
             }
 
-        }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     )
-}
-
-@Composable
-fun BottomBar(
-    onCreateFolder: () -> Unit,
-    buttonLabel: String,
-    onConfirmLocation: () -> Unit
-) {
-    BottomAppBar {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            OutlinedButton(
-                onClick = { onCreateFolder() },
-            ) {
-                Icon(
-                    modifier = Modifier.padding(end = ButtonDefaults.IconSpacing),
-                    imageVector = Icons.Default.CreateNewFolder,
-                    contentDescription = null
-                )
-                Text("Create New Folder")
-            }
-            Button(onClick = { onConfirmLocation() }) {
-                Text(buttonLabel)
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun FabPreview() {
-    BottomBar(onCreateFolder = {}, onConfirmLocation = {}, buttonLabel = "Copy Here")
 }

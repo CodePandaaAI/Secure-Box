@@ -1,5 +1,6 @@
 package com.romit.securebox.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -26,6 +29,7 @@ import com.romit.securebox.util.StorageHelper.getFileIcon
 fun FolderCard(
     file: FileItem,
     onFolderClick: (FileItem) -> Unit,
+    shape: RoundedCornerShape,
     modifier: Modifier = Modifier
 ) {
     val icon = remember(file.mimeType, file.isDirectory) {
@@ -33,15 +37,18 @@ fun FolderCard(
     }
 
     Surface(
+        color = if (isSystemInDarkTheme()) Color.Gray.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface,
         onClick = { onFolderClick(file) },
-        shape = RoundedCornerShape(24.dp),
-        modifier = modifier.fillMaxWidth()
+        shape = shape,
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
     ) {
         Row(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FileThumbnail(file = file, icon = icon, Modifier.size(64.dp))
+            FileThumbnail(file = file, icon = icon, Modifier.size(56.dp))
 
             Spacer(modifier = Modifier.width(12.dp))
 

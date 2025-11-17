@@ -1,6 +1,8 @@
 package com.romit.securebox.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,15 +10,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,48 +31,53 @@ import com.romit.securebox.R
 import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
+import com.romit.securebox.util.getListItemShape
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @Composable
 fun DestinationScreen(
-    folderPath: String,
-    viewModel: FileBrowserScreenViewModel,
+    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onFolderClicked: (FileItem) -> Unit,
-    snackbarHostState: SnackbarHostState,
     onNavigateBack: () -> Unit
 ) {
 
-    val uiState by viewModel.uiState.collectAsState()
-    LaunchedEffect(folderPath) {
-        viewModel.getDirs(folderPath)
-    }
+    val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
-        uiState.successMessage?.let { successMessage ->
-            snackbarHostState.showSnackbar(message = successMessage)
-            viewModel.clearMessages()
-            onNavigateBack()
-        }
-        uiState.errorMessage?.let { error ->
-            snackbarHostState.showSnackbar(message = error)
-            viewModel.clearMessages()
+    // ✅ Handle back press
+    BackHandler(enabled = true) {
+        val handledInternally = sharedFileOperationsViewModel.navigateBack()
+        if (!handledInternally) {
+            // We're at root, exit DestinationScreen
             onNavigateBack()
         }
     }
 
     when {
-        uiState.isLoading -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        uiState.isDestinationScreenLoading -> {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceContainer
+                    ), contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator()
             }
         }
 
         uiState.operationTargetPathDirectories.isNotEmpty() -> {
-            LazyColumn(contentPadding = PaddingValues(8.dp)) {
-                items(uiState.operationTargetPathDirectories) { dir ->
+            LazyColumn(
+                Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.surfaceContainer), contentPadding = PaddingValues(16.dp)
+            ) {
+                itemsIndexed(uiState.operationTargetPathDirectories) { index ,dir ->
                     FolderCard(
+                        modifier = Modifier.padding(vertical = 1.dp),
                         file = dir,
-                        onFolderClick = { onFolderClicked(it) }
+                        onFolderClick = { onFolderClicked(it) },
+                        shape = getListItemShape(
+                            index = index,
+                            totalItems = uiState.operationTargetPathDirectories.size
+                        )
                     )
                 }
             }
@@ -78,7 +85,7 @@ fun DestinationScreen(
 
         else -> {
             Column(
-                Modifier.fillMaxSize(),
+                Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.surfaceContainer),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -100,9 +107,9 @@ fun DestinationScreen(
         CreateFolderDialog(
             folderName = uiState.newFolderName,
             error = uiState.newFolderError,
-            onFolderNameChange = { viewModel.updateNewFolderName(it) },
-            onConfirm = { viewModel.createFolder() },
-            onDismiss = { viewModel.toggleCreateFolderDialog() }
+            onFolderNameChange = { sharedFileOperationsViewModel.updateNewFolderName(it) },
+            onConfirm = { sharedFileOperationsViewModel.createFolder() },
+            onDismiss = { sharedFileOperationsViewModel.toggleCreateFolderDialog() }
         )
     }
 }

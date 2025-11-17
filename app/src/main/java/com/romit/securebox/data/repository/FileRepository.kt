@@ -42,7 +42,7 @@ class FileRepository @Inject constructor(application: Application) {
 
             // 3. Define Selection
             val selection = if (lastTimestamp != null) {
-                // If we have a timestamp, find files OLDER than it
+                // If we have a timestamp, find allRecents OLDER than it
                 "${MediaStore.Files.FileColumns.MIME_TYPE} IS NOT NULL" +
                         " AND ${MediaStore.Files.FileColumns.DATE_MODIFIED} * 1000 < $lastTimestamp"
             } else {
