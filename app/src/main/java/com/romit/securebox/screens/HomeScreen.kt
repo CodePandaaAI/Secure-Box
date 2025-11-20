@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.components.BottomFileInfoSheet
 import com.romit.securebox.components.DeleteDialog
@@ -46,6 +47,7 @@ import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.components.StorageCategoryCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.SharedFileOperationsUiState
+import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.HomeScreenViewModel
 import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
@@ -125,7 +127,8 @@ fun HomeScreen(
                     ) {
                         Text(
                             text = "Recents",
-                            style = MaterialTheme.typography.titleLarge,
+                            fontFamily = CustomFontFamily,
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
 
@@ -221,14 +224,15 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
 
             // Categories Section
             Text(
                 text = "Categories",
-                style = MaterialTheme.typography.titleLarge,
+                fontFamily = CustomFontFamily,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = 12.dp)
             )
 
             Spacer(Modifier.height(8.dp))
