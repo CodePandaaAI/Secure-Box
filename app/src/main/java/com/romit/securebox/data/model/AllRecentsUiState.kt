@@ -5,5 +5,6 @@ data class AllRecentsUiState(
     val isLoadingNextPage: Boolean = false,
     val successMessage: String? = null,
     val isRefreshing: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isPaginationEndReached: Boolean = false
 )

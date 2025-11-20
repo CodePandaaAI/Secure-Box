@@ -50,15 +50,16 @@ android {
 }
 
 dependencies {
+    // Nav 3
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil)
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
-
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
 
     // Google Fonts
     implementation(libs.androidx.compose.ui.text.google.fonts)

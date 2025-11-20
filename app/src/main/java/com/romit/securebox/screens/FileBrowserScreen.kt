@@ -156,6 +156,18 @@ fun FileBrowserScreen(
         )
     }
 
+    // Bottom Sheet for file operations
+    if (sharedFileOperationsUiState.selectedFile != null) {
+        BottomFileInfoSheet(
+            onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
+            onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
+            onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
+            selectedFile = { sharedFileOperationsUiState.selectedFile },
+            onCopyTo = { onCopyTo(it) },
+            onMoveTo = { onMoveTo(it) },
+        )
+    }
+
     // Rename Dialog
     if (sharedFileOperationsUiState.showRenameInput && sharedFileOperationsUiState.selectedFile != null) {
         RenameDialog(
