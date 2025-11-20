@@ -25,12 +25,10 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
     }
 
     fun loadNextPage() {
-        // 3. Check BOTH loading states
-        if (uiState.value.isLoadingNextPage || uiState.value.isRefreshing) return
+        if (uiState.value.isLoadingNextPage || uiState.value.isRefreshing || uiState.value.isPaginationEndReached) return
 
         val lastTimestamp = uiState.value.allRecents.lastOrNull()?.lastModified
 
-        // 4. Safety check: If the list is empty, a 'loadNextPage' call is actually a 'refresh'.
         if (lastTimestamp == null) {
             refresh()
             return
@@ -42,11 +40,11 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                 val newFiles = repository.getRecentFiles(lastTimestamp, pageSize)
                 _uiState.update {
                     it.copy(
-                        allRecents = it.allRecents + newFiles, // APPEND new allRecents
-                        isLoadingNextPage = false
+                        allRecents = it.allRecents + newFiles,
+                        isLoadingNextPage = false,
+                        isPaginationEndReached = newFiles.size < pageSize
                     )
                 }
-                // 5. DELETE currentPage++
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = e.message, isLoadingNextPage = false) }
             }
@@ -54,19 +52,17 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
     }
 
     fun refresh() {
-        // Don't refresh if we're already loading a page
         if (uiState.value.isLoadingNextPage) return
 
         viewModelScope.launch {
-            // Use the main 'isRefreshing' state
             _uiState.update { it.copy(isRefreshing = true) }
             try {
-                // Call repository with null to get the "first page"
                 val newFiles = repository.getRecentFiles(lastTimestamp = null, pageSize = pageSize)
                 _uiState.update {
                     it.copy(
-                        allRecents = newFiles, // REPLACE the list
-                        isRefreshing = false
+                        allRecents = newFiles,
+                        isRefreshing = false,
+                        isPaginationEndReached = newFiles.size < pageSize
                     )
                 }
             } catch (e: Exception) {
@@ -88,7 +84,6 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                     }
                 },
                 onFailure = { exception ->
-                    // Use repository message if available, otherwise create custom
                     val errorMessage = exception.message ?: when (exception) {
                         is FileNotFoundException -> "File not found"
                         is SecurityException -> "Permission denied"

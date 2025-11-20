@@ -48,7 +48,6 @@ fun AllRecentsScreen(
     val uiState by recentsScreenViewModel.uiState.collectAsState()
     val lazyListState = rememberLazyListState()
 
-    // This is the "trigger"
     val isScrolledToEnd by remember {
         derivedStateOf {
             lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == uiState.allRecents.size - 1
@@ -66,7 +65,6 @@ fun AllRecentsScreen(
         }
     }
 
-    // ✅ Observe SHARED OPERATIONS messages
     LaunchedEffect(sharedFileOperationsUiState.successMessage, sharedFileOperationsUiState.errorMessage) {
         sharedFileOperationsUiState.successMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
@@ -112,7 +110,6 @@ fun AllRecentsScreen(
                 )
             }
 
-            // Show the spinner at the bottom when loading
             if (uiState.isLoadingNextPage) {
                 item {
                     Row(
@@ -129,12 +126,11 @@ fun AllRecentsScreen(
     }
 
     LaunchedEffect(isScrolledToEnd) {
-        if (isScrolledToEnd && !uiState.isLoadingNextPage) {
+        if (isScrolledToEnd && !uiState.isLoadingNextPage && !uiState.isPaginationEndReached) {
             recentsScreenViewModel.loadNextPage()
         }
     }
 
-    // Bottom Sheet
     if (sharedFileOperationsUiState.selectedFile != null) {
         BottomFileInfoSheet(
             onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
@@ -146,7 +142,6 @@ fun AllRecentsScreen(
         )
     }
 
-    // Rename Dialog
     if (sharedFileOperationsUiState.showRenameInput && sharedFileOperationsUiState.selectedFile != null) {
         RenameDialog(
             onDismissRequest = { sharedFileOperationsViewModel.toggleRenameDialog() },
@@ -158,7 +153,6 @@ fun AllRecentsScreen(
         )
     }
 
-    // Delete Dialog
     if (sharedFileOperationsUiState.showDeleteDialog && sharedFileOperationsUiState.selectedFile != null) {
         DeleteDialog(
             onDismissRequest = { sharedFileOperationsViewModel.toggleDeleteDialog() },
