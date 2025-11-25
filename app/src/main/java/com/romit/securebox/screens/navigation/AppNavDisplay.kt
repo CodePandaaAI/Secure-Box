@@ -84,9 +84,6 @@ fun AppNavDisplay(backStack: SnapshotStateList<Screen>) {
     val windowAdaptiveInfo = currentWindowAdaptiveInfo()
     val windowSizeClass = windowAdaptiveInfo.windowSizeClass
 
-//    val isCompact = !windowSizeClass.isWidthAtLeastBreakpoint(
-//        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND
-//    )
     val isTablet = windowSizeClass.isWidthAtLeastBreakpoint(
         WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND
     )
@@ -105,7 +102,6 @@ fun AppNavDisplay(backStack: SnapshotStateList<Screen>) {
         backStack.removeLastOrNull()
     }
 
-    // ✅ Handle file selection based on device type
     LaunchedEffect(uiState.selectedFile, isTablet) {
         if (uiState.selectedFile != null && isTablet) {
             // On tablets: Navigate to FileDetails pane
@@ -225,7 +221,7 @@ fun AppNavDisplay(backStack: SnapshotStateList<Screen>) {
                         )
                     }
 
-                    is Screen.AllRecents -> NavEntry(route, ListDetailSceneStrategy.detailPane()) {
+                    is Screen.AllRecents -> NavEntry(route, metadata = ListDetailSceneStrategy.detailPane()) {
                         AllRecentsScreen(
                             sharedFileOperationsUiState = uiState,
                             snackbarHostState = snackbarHostState, onFileClicked = { file ->
@@ -268,11 +264,9 @@ fun AppNavDisplay(backStack: SnapshotStateList<Screen>) {
                         DestinationScreen(
                             sharedFileOperationsViewModel = sharedFileOperationsViewModel,
                             onFolderClicked = { folder ->
-                                // ✅ Use navigateToFolder instead of direct updateCurrentPath
                                 sharedFileOperationsViewModel.navigateToFolder(folder.path)
                             },
                             onNavigateBack = {
-                                // ✅ Exit DestinationScreen completely
                                 backStack.removeLastOrNull()
                             }
                         )
@@ -325,22 +319,22 @@ fun AppNavDisplay(backStack: SnapshotStateList<Screen>) {
                 onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
                 onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
                 selectedFile = { uiState.selectedFile!! },
-                onCopyTo = { file -> // ✅ Receives the file from bottom sheet
+                onCopyTo = { file ->
                     sharedFileOperationsViewModel.clearAllOperationsState()
-                    sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
+                    sharedFileOperationsViewModel.setOperationSourceFile(file)
                     sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
-                    sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
+                    sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
                     backStack.add(
                         Screen.DestinationScreen(
                             folderPath = Environment.getExternalStorageDirectory().absolutePath
                         )
                     )
                 },
-                onMoveTo = { file -> // ✅ Receives the file from bottom sheet
+                onMoveTo = { file ->
                     sharedFileOperationsViewModel.clearAllOperationsState()
-                    sharedFileOperationsViewModel.setOperationSourceFile(file) // ✅ Store for operation
+                    sharedFileOperationsViewModel.setOperationSourceFile(file)
                     sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
-                    sharedFileOperationsViewModel.selectedFileForBottomSheet(null) // ✅ Close bottom sheet
+                    sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
                     backStack.add(
                         Screen.DestinationScreen(
                             folderPath = Environment.getExternalStorageDirectory().absolutePath
