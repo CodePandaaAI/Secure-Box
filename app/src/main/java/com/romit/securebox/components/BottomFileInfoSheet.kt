@@ -34,11 +34,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.ui.theme.CustomFontFamily
+import com.romit.securebox.ui.theme.SecureBoxTheme
 import com.romit.securebox.util.StorageHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -148,7 +150,9 @@ fun BottomFileInfoSheet(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     fontFamily = CustomFontFamily,
-                    fontSize = 28.sp,
+                    fontSize = 24.sp,
+                    lineHeight = 34.sp,
+                    letterSpacing = 2.5.sp,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
@@ -309,5 +313,24 @@ fun BottomFileInfoSheet(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable()
+private fun Haha() {
+    SecureBoxTheme {
+        Text(
+            text = "DCIM",
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            fontFamily = CustomFontFamily,
+            fontSize = 24.sp,
+            lineHeight = 34.sp,
+            letterSpacing = 1.sp,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
     }
 }

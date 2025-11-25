@@ -165,10 +165,13 @@ fun FileDetailsPane(
                     text = file.name,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
-                    maxLines = 3,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     fontFamily = CustomFontFamily,
-                    fontSize = 28.sp
+                    fontSize = 24.sp,
+                    lineHeight = 34.sp,
+                    letterSpacing = 2.5.sp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
                 Text(
