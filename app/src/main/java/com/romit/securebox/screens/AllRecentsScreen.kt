@@ -24,10 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.romit.securebox.components.BottomFileInfoSheet
-import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileCard
-import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
@@ -42,8 +39,6 @@ fun AllRecentsScreen(
     sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onFileClicked: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState,
-    onCopyTo: (FileItem) -> Unit,
-    onMoveTo: (FileItem) -> Unit
 ) {
     val uiState by recentsScreenViewModel.uiState.collectAsState()
     val lazyListState = rememberLazyListState()
@@ -129,39 +124,5 @@ fun AllRecentsScreen(
         if (isScrolledToEnd && !uiState.isLoadingNextPage && !uiState.isPaginationEndReached) {
             recentsScreenViewModel.loadNextPage()
         }
-    }
-
-    if (sharedFileOperationsUiState.selectedFile != null) {
-        BottomFileInfoSheet(
-            onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
-            onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
-            onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
-            selectedFile = { sharedFileOperationsUiState.selectedFile },
-            onCopyTo = { onCopyTo(it) },
-            onMoveTo = { onMoveTo(it) }
-        )
-    }
-
-    if (sharedFileOperationsUiState.showRenameInput && sharedFileOperationsUiState.selectedFile != null) {
-        RenameDialog(
-            onDismissRequest = { sharedFileOperationsViewModel.toggleRenameDialog() },
-            onCancel = { sharedFileOperationsViewModel.toggleRenameDialog() },
-            onRenamingFile = { sharedFileOperationsViewModel.onRenamingFile(it) },
-            onRenameFileClicked = { sharedFileOperationsViewModel.onRenameFileClicked() },
-            newFileName = { sharedFileOperationsUiState.newFileName },
-            selectedFile = { sharedFileOperationsUiState.selectedFile }
-        )
-    }
-
-    if (sharedFileOperationsUiState.showDeleteDialog && sharedFileOperationsUiState.selectedFile != null) {
-        DeleteDialog(
-            onDismissRequest = { sharedFileOperationsViewModel.toggleDeleteDialog() },
-            onConfirmDelete = {
-                recentsScreenViewModel.deleteFile(sharedFileOperationsUiState.selectedFile.path)
-                sharedFileOperationsViewModel.toggleDeleteDialog()
-                sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
-            },
-            selectedFile = { sharedFileOperationsUiState.selectedFile }
-        )
     }
 }

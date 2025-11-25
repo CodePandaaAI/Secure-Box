@@ -10,4 +10,6 @@ sealed interface Screen {
     data object AllRecents: Screen
 
     data class DestinationScreen(val folderPath: String): Screen
+
+    data class FileDetails(val filePath: String) : Screen
 }
