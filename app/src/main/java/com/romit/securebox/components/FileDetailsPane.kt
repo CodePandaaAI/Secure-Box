@@ -103,9 +103,9 @@ fun FileDetailsPane(
                             model = file.path,
                             contentDescription = file.name,
                             modifier = Modifier
-                                .size(160.dp) // Slightly bigger for detail pane
+                                .size(200.dp) // Slightly bigger for detail pane
                                 .clip(RoundedCornerShape(20.dp)),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.FillWidth
                         )
                     }
                 }
@@ -117,7 +117,7 @@ fun FileDetailsPane(
                         ) {
                         Box(
                             modifier = Modifier
-                                .size(160.dp)
+                                .size(200.dp)
                                 .padding(40.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -138,7 +138,7 @@ fun FileDetailsPane(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(160.dp)
+                                .size(200.dp)
                                 .padding(40.dp),
                             contentAlignment = Alignment.Center
                         ) {
