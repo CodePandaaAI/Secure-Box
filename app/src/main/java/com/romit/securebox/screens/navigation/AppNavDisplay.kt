@@ -36,17 +36,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.window.core.layout.WindowSizeClass
 import com.romit.securebox.components.BottomFileInfoSheet
@@ -67,15 +69,17 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SecureApp() {
-    val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
+    val backStack: NavBackStack<NavKey> = rememberNavBackStack(Screen.Home)
     AppNavDisplay(backStack)
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun AppNavDisplay(backStack: SnapshotStateList<Screen>) {
-    val sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
-    val sharedFileOperationsViewModel: SharedFileOperationsViewModel = hiltViewModel()
+fun AppNavDisplay(
+    backStack: NavBackStack<NavKey>,
+    sharedFileOperationsViewModel: SharedFileOperationsViewModel = hiltViewModel(),
+    sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
+) {
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -93,7 +97,7 @@ fun AppNavDisplay(backStack: SnapshotStateList<Screen>) {
     val isHomeScreen = currentScreen is Screen.Home
     val isDestinationScreen = currentScreen is Screen.DestinationScreen
 
-    val listDetailStrategy = rememberListDetailSceneStrategy<Screen>()
+    val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>()
 
 
     val canGoBack = backStack.size > 1
@@ -179,6 +183,9 @@ fun AppNavDisplay(backStack: SnapshotStateList<Screen>) {
             predictivePopTransitionSpec = {
                 EnterTransition.None togetherWith ExitTransition.None
             },
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator()
+            ),
             entryProvider = { route ->
                 when (route) {
                     is Screen.Home -> NavEntry(
@@ -221,7 +228,10 @@ fun AppNavDisplay(backStack: SnapshotStateList<Screen>) {
                         )
                     }
 
-                    is Screen.AllRecents -> NavEntry(route, metadata = ListDetailSceneStrategy.detailPane()) {
+                    is Screen.AllRecents -> NavEntry(
+                        route,
+                        metadata = ListDetailSceneStrategy.detailPane()
+                    ) {
                         AllRecentsScreen(
                             sharedFileOperationsUiState = uiState,
                             snackbarHostState = snackbarHostState, onFileClicked = { file ->
@@ -310,6 +320,8 @@ fun AppNavDisplay(backStack: SnapshotStateList<Screen>) {
                             },
                         )
                     }
+
+                    else -> throw IllegalStateException("Unknown route: $route")
                 }
             }
         )

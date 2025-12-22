@@ -55,8 +55,8 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
 
     // Adaptive
-    implementation("androidx.compose.material3.adaptive:adaptive-navigation3:1.0.0")
-    implementation("androidx.window:window:1.3.0")
+    implementation(libs.androidx.compose.adaptive.navigation3)
+    implementation(libs.androidx.window)
 
     // Coil
     implementation(libs.coil.compose)
