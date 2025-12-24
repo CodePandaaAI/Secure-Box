@@ -67,12 +67,37 @@ import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 import kotlinx.coroutines.launch
 
 
+/**
+ * The main entry point composable for the SecureBox application.
+ *
+ * This function initializes the navigation back stack, starting with the `HomeScreen`,
+ * and sets up the primary navigation display for the entire app. It delegates the
+ * actual UI and navigation logic to the [AppNavDisplay] composable.
+ */
 @Composable
 fun SecureApp() {
     val backStack: NavBackStack<NavKey> = rememberNavBackStack(Screen.Home)
     AppNavDisplay(backStack)
 }
 
+/**
+ * A composable that serves as the main navigation and layout structure for the application.
+ * It manages the display of different screens based on the navigation back stack, handles
+ * back-press events, and adapts its layout for different window sizes (e.g., phones vs. tablets).
+ *
+ * This function integrates a `Scaffold` to provide a consistent layout with a top app bar,
+ * a bottom app bar for file operations, and a snackbar host. It uses a `NavDisplay` to render
+ * the current screen from the back stack, employing a `ListDetailSceneStrategy` for adaptive layouts
+ * on larger screens.
+ *
+ * It also orchestrates the display of various dialogs and bottom sheets for file operations like
+ * renaming, deleting, copying, and moving files, by observing the state from the provided ViewModels.
+ *
+ * @param backStack The navigation back stack that determines which screen to display.
+ * @param sharedFileOperationsViewModel The ViewModel that manages the state and logic for file operations
+ *   (copy, move, delete, rename) and UI state related to these operations (e.g., dialog visibility).
+ * @param sharedFileBrowserViewModel The ViewModel that manages the state for the file browser screen.
+ */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AppNavDisplay(
@@ -94,11 +119,7 @@ fun AppNavDisplay(
 
     val currentScreen = backStack.lastOrNull()
 
-    val isHomeScreen = currentScreen is Screen.Home
-    val isDestinationScreen = currentScreen is Screen.DestinationScreen
-
     val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>()
-
 
     val canGoBack = backStack.size > 1
 
@@ -119,7 +140,7 @@ fun AppNavDisplay(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            if (currentScreen != null && !isHomeScreen) {
+            if (currentScreen != null && currentScreen !is Screen.Home) {
                 AppTopBar(
                     onBackClick = {
                         backStack.removeLastOrNull()
@@ -128,7 +149,7 @@ fun AppNavDisplay(
             }
         },
         bottomBar = {
-            if (isDestinationScreen && uiState.operationSourceFile != null) {
+            if (currentScreen is Screen.DestinationScreen && uiState.operationSourceFile != null) {
                 FileOperationBottomAppBar(
                     onCreateFolder = { sharedFileOperationsViewModel.toggleCreateFolderDialog() },
                     onConfirmLocation = {
@@ -266,7 +287,6 @@ fun AppNavDisplay(
                     }
 
                     is Screen.DestinationScreen -> NavEntry(route) {
-                        // ✅ Initialize DestinationScreen with starting path
                         LaunchedEffect(Unit) {
                             sharedFileOperationsViewModel.initializeDestinationScreen(route.folderPath)
                         }
@@ -382,6 +402,12 @@ fun AppNavDisplay(
     }
 }
 
+/**
+ * A composable function that displays the top app bar for the application.
+ * It includes a title and a back navigation button.
+ *
+ * @param onBackClick A lambda function to be executed when the back navigation icon is clicked.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
