@@ -29,15 +29,14 @@ import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.getListItemShape
-import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.viewmodels.SharedViewModelProvider
 
 @Composable
 fun DestinationScreen(
-    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onFolderClicked: (FileItem) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-
+    val sharedFileOperationsViewModel = SharedViewModelProvider.current
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
 
     // ✅ Handle back press

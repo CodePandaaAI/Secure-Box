@@ -22,8 +22,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
-import androidx.window.core.layout.WindowSizeClass
 import com.romit.securebox.components.BottomFileInfoSheet
 import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileDetailsPane
@@ -51,6 +50,7 @@ import com.romit.securebox.util.FileOperations
 import com.romit.securebox.util.openFile
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.viewmodels.SharedViewModelProvider
 import kotlinx.coroutines.launch
 
 
@@ -63,8 +63,11 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun SecureApp() {
-    val backStack = remember {  mutableStateListOf<Screen>(Screen.Home) }
-    AppNavDisplay(backStack)
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
+    val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
+    CompositionLocalProvider(SharedViewModelProvider provides sharedFileOperationsViewModel) {
+        AppNavDisplay(backStack)
+    }
 }
 
 /**
@@ -80,41 +83,25 @@ fun SecureApp() {
  * It also orchestrates the display of various dialogs and bottom sheets for file operations like
  * renaming, deleting, copying, and moving files, by observing the state from the provided ViewModels.
  *
+ * sharedFileOperationsViewModel The ViewModel that manages the state and logic for file operations
+ * (copy, move, delete, rename) and UI state related to these operations (e.g., dialog visibility).
+ *
  * @param backStack The navigation back stack that determines which screen to display.
- * @param sharedFileOperationsViewModel The ViewModel that manages the state and logic for file operations
- *   (copy, move, delete, rename) and UI state related to these operations (e.g., dialog visibility).
  * @param sharedFileBrowserViewModel The ViewModel that manages the state for the file browser screen.
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AppNavDisplay(
     backStack: MutableList<Screen>,
-    sharedFileOperationsViewModel: SharedFileOperationsViewModel = hiltViewModel(),
     sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
 ) {
+    val sharedFileOperationsViewModel = SharedViewModelProvider.current
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val windowAdaptiveInfo = currentWindowAdaptiveInfo()
-    val windowSizeClass = windowAdaptiveInfo.windowSizeClass
-
-    val isTablet = windowSizeClass.isWidthAtLeastBreakpoint(
-        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND
-    )
-
     val currentScreen = backStack.lastOrNull()
-
-    LaunchedEffect(uiState.selectedFile, isTablet) {
-        if (uiState.selectedFile != null && isTablet) {
-            // On tablets: Navigate to FileDetails pane
-            val existingDetails = backStack.find { it is Screen.FileDetails }
-            if (existingDetails == null) {
-                backStack.add(Screen.FileDetails(uiState.selectedFile!!.path))
-            }
-        }
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -122,7 +109,7 @@ fun AppNavDisplay(
             if (currentScreen != null && currentScreen !is Screen.Home) {
                 AppTopBar(
                     onBackClick = {
-                        backStack.removeLastOrNull()
+                        if (backStack.size > 1) backStack.removeLastOrNull()
                     }
                 )
             }
@@ -133,21 +120,19 @@ fun AppNavDisplay(
                     onCreateFolder = { sharedFileOperationsViewModel.toggleCreateFolderDialog() },
                     onConfirmLocation = {
                         if (uiState.operationSourceFile!!.path.isNotBlank()) {
-                            scope.launch {
-                                if (uiState.selectedOperation == FileOperations.COPY) {
-                                    sharedFileOperationsViewModel.copyFile(
-                                        uiState.operationSourceFile!!.path,
-                                        uiState.operationTargetPath
-                                    )
-                                }
-                                if (uiState.selectedOperation == FileOperations.MOVE) {
-                                    sharedFileOperationsViewModel.moveFile(
-                                        uiState.operationSourceFile!!.path,
-                                        uiState.operationTargetPath
-                                    )
-                                }
-                                backStack.removeLastOrNull()
+                            if (uiState.selectedOperation == FileOperations.COPY) {
+                                sharedFileOperationsViewModel.copyFile(
+                                    uiState.operationSourceFile!!.path,
+                                    uiState.operationTargetPath
+                                )
                             }
+                            if (uiState.selectedOperation == FileOperations.MOVE) {
+                                sharedFileOperationsViewModel.moveFile(
+                                    uiState.operationSourceFile!!.path,
+                                    uiState.operationTargetPath
+                                )
+                            }
+                            backStack.removeLastOrNull()
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
@@ -191,7 +176,6 @@ fun AppNavDisplay(
                             onCategoryClicked = { path ->
                                 backStack.add(Screen.FileBrowser(path))
                             },
-                            sharedFileOperationsViewModel = sharedFileOperationsViewModel,
                             onFileClicked = { file ->
                                 if (file.isDirectory) {
                                     backStack.add(Screen.FileBrowser(path = file.path))
@@ -215,7 +199,6 @@ fun AppNavDisplay(
                                     openFile(context, file)
                                 }
                             },
-                            sharedFileOperationsViewModel = sharedFileOperationsViewModel
                         )
                     }
 
@@ -223,7 +206,6 @@ fun AppNavDisplay(
                         FileBrowserScreen(
                             sharedFileOperationsUiState = uiState,
                             snackbarHostState = snackbarHostState,
-                            sharedFileOperationsViewModel = sharedFileOperationsViewModel,
                             fileBrowserScreenViewModel = sharedFileBrowserViewModel,
                             path = route.path,
                             onFileClicked = { file ->
@@ -242,7 +224,6 @@ fun AppNavDisplay(
                         }
 
                         DestinationScreen(
-                            sharedFileOperationsViewModel = sharedFileOperationsViewModel,
                             onFolderClicked = { folder ->
                                 sharedFileOperationsViewModel.navigateToFolder(folder.path)
                             },
@@ -255,7 +236,6 @@ fun AppNavDisplay(
                     is Screen.FileDetails -> NavEntry(route) {
                         FileDetailsPane(
                             selectedFile = uiState.selectedFile,
-                            sharedFileOperationsViewModel = sharedFileOperationsViewModel,
                             onClose = {
                                 // Close detail pane and clear selection
                                 sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
@@ -290,7 +270,7 @@ fun AppNavDisplay(
                 }
             }
         )
-        if (!isTablet && uiState.selectedFile != null) {
+        if (uiState.selectedFile != null) {
             BottomFileInfoSheet(
                 onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
                 onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },

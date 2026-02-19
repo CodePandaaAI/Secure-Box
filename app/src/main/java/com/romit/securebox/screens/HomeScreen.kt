@@ -47,7 +47,7 @@ import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.HomeScreenViewModel
-import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.viewmodels.SharedViewModelProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,9 +58,9 @@ fun HomeScreen(
     onShowAllRecents: () -> Unit,
     onFileClicked: (FileItem) -> Unit,
     homeScreenViewModel: HomeScreenViewModel = hiltViewModel(),
-    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     snackbarHostState: SnackbarHostState
 ) {
+    val sharedFileOperationsViewModel = SharedViewModelProvider.current
     val uiState by homeScreenViewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.successMessage, uiState.errorMessage) {

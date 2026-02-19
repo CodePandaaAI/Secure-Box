@@ -29,17 +29,17 @@ import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.AllRecentsScreenViewModel
-import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.viewmodels.SharedViewModelProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllRecentsScreen(
     sharedFileOperationsUiState: SharedFileOperationsUiState,
     recentsScreenViewModel: AllRecentsScreenViewModel = hiltViewModel(),
-    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onFileClicked: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState,
 ) {
+    val sharedFileOperationsViewModel = SharedViewModelProvider.current
     val uiState by recentsScreenViewModel.uiState.collectAsState()
     val lazyListState = rememberLazyListState()
 

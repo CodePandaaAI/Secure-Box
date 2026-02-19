@@ -22,7 +22,6 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
     private val _uiState = MutableStateFlow(SharedFileOperationsUiState())
     val uiState = _uiState.asStateFlow()
 
-    // ✅ NEW: Track folder navigation history
     private val folderHistory = mutableListOf<String>()
 
     fun deleteFile(filePath: String) {
@@ -270,7 +269,6 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
     }
 
     fun initializeDestinationScreen(startPath: String) {
-        // ✅ Clear history when entering DestinationScreen
         folderHistory.clear()
         updateCurrentPath(startPath)
         getDirs(startPath)

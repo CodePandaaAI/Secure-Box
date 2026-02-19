@@ -44,16 +44,16 @@ import coil3.compose.AsyncImage
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.util.StorageHelper
-import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.viewmodels.SharedViewModelProvider
 
 @Composable
 fun FileDetailsPane(
     selectedFile: FileItem?,
-    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     onClose: () -> Unit,
     onCopyTo: (FileItem) -> Unit,
     onMoveTo: (FileItem) -> Unit,
 ) {
+    val sharedFileOperationsViewModel = SharedViewModelProvider.current
     Column(
         modifier = Modifier
             .fillMaxSize()

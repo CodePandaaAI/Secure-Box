@@ -31,7 +31,7 @@ import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
-import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.viewmodels.SharedViewModelProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,9 +41,9 @@ fun FileBrowserScreen(
     path: String,
     onFileClicked: (FileItem) -> Unit,
     fileBrowserScreenViewModel: FileBrowserScreenViewModel,
-    sharedFileOperationsViewModel: SharedFileOperationsViewModel,
     snackbarHostState: SnackbarHostState
 ) {
+    val sharedFileOperationsViewModel = SharedViewModelProvider.current
     val uiState by fileBrowserScreenViewModel.uiState.collectAsState()
 
     LaunchedEffect(path) {
