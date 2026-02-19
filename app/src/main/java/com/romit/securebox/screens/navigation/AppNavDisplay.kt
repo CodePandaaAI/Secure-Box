@@ -1,22 +1,15 @@
 package com.romit.securebox.screens.navigation
 
 import android.os.Environment
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,25 +23,19 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
-import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.window.core.layout.WindowSizeClass
 import com.romit.securebox.components.BottomFileInfoSheet
@@ -76,7 +63,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun SecureApp() {
-    val backStack: NavBackStack<NavKey> = rememberNavBackStack(Screen.Home)
+    val backStack = remember {  mutableStateListOf<Screen>(Screen.Home) }
     AppNavDisplay(backStack)
 }
 
@@ -101,7 +88,7 @@ fun SecureApp() {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AppNavDisplay(
-    backStack: NavBackStack<NavKey>,
+    backStack: MutableList<Screen>,
     sharedFileOperationsViewModel: SharedFileOperationsViewModel = hiltViewModel(),
     sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
 ) {
@@ -118,14 +105,6 @@ fun AppNavDisplay(
     )
 
     val currentScreen = backStack.lastOrNull()
-
-    val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>()
-
-    val canGoBack = backStack.size > 1
-
-    BackHandler(enabled = canGoBack) {
-        backStack.removeLastOrNull()
-    }
 
     LaunchedEffect(uiState.selectedFile, isTablet) {
         if (uiState.selectedFile != null && isTablet) {
@@ -192,8 +171,7 @@ fun AppNavDisplay(
         NavDisplay(
             modifier = Modifier.padding(innerPadding),
             backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
-            sceneStrategy = listDetailStrategy,
+            onBack = { if (backStack.size > 1) backStack.removeLastOrNull() },
             // Removed all animations
             transitionSpec = {
                 EnterTransition.None togetherWith ExitTransition.None
@@ -204,31 +182,9 @@ fun AppNavDisplay(
             predictivePopTransitionSpec = {
                 EnterTransition.None togetherWith ExitTransition.None
             },
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator()
-            ),
             entryProvider = { route ->
                 when (route) {
-                    is Screen.Home -> NavEntry(
-                        route, metadata = ListDetailSceneStrategy.listPane(
-                            detailPlaceholder = {
-                                // Show when no folder is selected
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Icon(
-                                            Icons.Default.Folder,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(64.dp)
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        Text("Select a category to browse files")
-                                    }
-                                }
-                            }
-                        )) {
+                    is Screen.Home -> NavEntry(route) {
                         HomeScreen(
                             sharedFileOperationsUiState = uiState,
                             snackbarHostState = snackbarHostState,
@@ -249,10 +205,7 @@ fun AppNavDisplay(
                         )
                     }
 
-                    is Screen.AllRecents -> NavEntry(
-                        route,
-                        metadata = ListDetailSceneStrategy.detailPane()
-                    ) {
+                    is Screen.AllRecents -> NavEntry(route) {
                         AllRecentsScreen(
                             sharedFileOperationsUiState = uiState,
                             snackbarHostState = snackbarHostState, onFileClicked = { file ->
@@ -266,10 +219,7 @@ fun AppNavDisplay(
                         )
                     }
 
-                    is Screen.FileBrowser -> NavEntry(
-                        route,
-                        metadata = ListDetailSceneStrategy.detailPane()
-                    ) {
+                    is Screen.FileBrowser -> NavEntry(route) {
                         FileBrowserScreen(
                             sharedFileOperationsUiState = uiState,
                             snackbarHostState = snackbarHostState,
@@ -302,10 +252,7 @@ fun AppNavDisplay(
                         )
                     }
 
-                    is Screen.FileDetails -> NavEntry(
-                        route,
-                        metadata = ListDetailSceneStrategy.extraPane()
-                    ) {
+                    is Screen.FileDetails -> NavEntry(route) {
                         FileDetailsPane(
                             selectedFile = uiState.selectedFile,
                             sharedFileOperationsViewModel = sharedFileOperationsViewModel,
@@ -340,8 +287,6 @@ fun AppNavDisplay(
                             },
                         )
                     }
-
-                    else -> throw IllegalStateException("Unknown route: $route")
                 }
             }
         )
