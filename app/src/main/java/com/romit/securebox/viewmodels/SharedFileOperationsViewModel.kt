@@ -33,11 +33,11 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                     }
                 },
                 onFailure = { exception ->
-                    val errorMessage = exception.message ?: when (exception) {
+                    val errorMessage = when (exception) {
                         is FileNotFoundException -> "File not found"
                         is SecurityException -> "Permission denied"
                         is IOException -> "Cannot delete file"
-                        else -> "Failed to delete"
+                        else -> exception.message ?: "Failed to delete"
                     }
 
                     _uiState.update {
@@ -94,26 +94,26 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                         it.copy(
                             successMessage = message,
                             errorMessage = null,
-                            showRenameInput = false,
+                            showRenameDialog = false,
                             newFileName = "",
                             selectedFile = null
                         )
                     }
                 },
                 onFailure = { exception ->
-                    val errorMessage = exception.message ?: when (exception) {
+                    val errorMessage = when (exception) {
                         is FileNotFoundException -> "File not found"
                         is IllegalArgumentException -> "Invalid name"
                         is FileAlreadyExistsException -> "Name already exists"
                         is IOException -> "Rename failed"
                         is SecurityException -> "Permission denied"
-                        else -> "Unknown errorMessage"
+                        else -> exception.message ?: "Unknown errorMessage"
                     }
                     _uiState.update {
                         it.copy(
                             errorMessage = errorMessage,
                             successMessage = null,
-                            showRenameInput = false,
+                            showRenameDialog = false,
                             newFileName = "",
                             selectedFile = null
                         )
@@ -137,12 +137,12 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                     clearAllOperationsState()
                 },
                 onFailure = { message ->
-                    val error = message.message ?: when (message) {
+                    val error = when (message) {
                         is FileNotFoundException -> "File not found"
                         is FileAlreadyExistsException -> "File already exists"
                         is SecurityException -> "Permission denied"
                         is IOException -> "Copy failed"
-                        else -> "Unknown errorMessage"
+                        else -> message.message ?: "Unknown errorMessage"
                     }
                     _uiState.update { it.copy(errorMessage = error, successMessage = null) }
 
@@ -227,16 +227,10 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
     }
 
     fun chooseOperation(fileOperation: FileOperations) {
-        when (fileOperation) {
-            FileOperations.NONE -> return
+        if (fileOperation == FileOperations.NONE) return
 
-            FileOperations.COPY -> _uiState.update {
-                it.copy(selectedOperation = fileOperation)
-            }
-
-            FileOperations.MOVE -> _uiState.update {
-                it.copy(selectedOperation = fileOperation)
-            }
+        else _uiState.update {
+            it.copy(selectedOperation = fileOperation)
         }
     }
 
@@ -245,7 +239,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
     }
 
     fun navigateToFolder(folderPath: String) {
-        // ✅ Add current path to history before navigating
+        // Add current path to history before navigating
         val currentPath = _uiState.value.operationTargetPath
         if (currentPath.isNotEmpty() && folderHistory.lastOrNull() != currentPath) {
             folderHistory.add(currentPath)
@@ -283,7 +277,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                 operationTargetPathDirectories = emptyList()
             )
         }
-        // ✅ Clear folder history too
+        // Clear folder history too
         folderHistory.clear()
     }
 
@@ -291,7 +285,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
     fun toggleRenameDialog() {
         _uiState.update {
             it.copy(
-                showRenameInput = !uiState.value.showRenameInput,
+                showRenameDialog = !uiState.value.showRenameDialog,
                 newFileName = uiState.value.selectedFile?.name ?: ""
             )
         }

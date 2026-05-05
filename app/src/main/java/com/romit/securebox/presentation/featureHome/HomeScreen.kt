@@ -1,31 +1,23 @@
-package com.romit.securebox.screens
+package com.romit.securebox.presentation.featureHome
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -35,58 +27,57 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.romit.securebox.components.FileCard
 import com.romit.securebox.components.StorageCategoryCard
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.data.model.SharedFileOperationsUiState
+import com.romit.securebox.presentation.featureHome.components.HomeLoadingScreen
+import com.romit.securebox.presentation.featureHome.components.HomeScreenContent
 import com.romit.securebox.ui.theme.CustomFontFamily
-import com.romit.securebox.util.getListItemShape
-import com.romit.securebox.viewmodels.HomeScreenViewModel
-import com.romit.securebox.viewmodels.SharedViewModelProvider
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    sharedFileOperationsUiState: SharedFileOperationsUiState,
     modifier: Modifier = Modifier,
     onCategoryClicked: (String) -> Unit,
     onShowAllRecents: () -> Unit,
-    onFileClicked: (FileItem) -> Unit,
-    homeScreenViewModel: HomeScreenViewModel = hiltViewModel(),
-    snackbarHostState: SnackbarHostState
+    onOpenFile: (FileItem) -> Unit,
+    snackBarHostState: SnackbarHostState
 ) {
-    val sharedFileOperationsViewModel = SharedViewModelProvider.current
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
+    val sharedFileOperationsUiState by sharedFileOperationsViewModel.uiState.collectAsState()
+
+    val homeScreenViewModel: HomeScreenViewModel = hiltViewModel<HomeScreenViewModel>()
     val uiState by homeScreenViewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
         uiState.successMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
+            snackBarHostState.showSnackbar(message)
             homeScreenViewModel.clearMessages()
         }
         uiState.errorMessage?.let { error ->
-            snackbarHostState.showSnackbar(error)
+            snackBarHostState.showSnackbar(error)
             homeScreenViewModel.clearMessages()
         }
     }
 
-    // ✅ Observe SHARED OPERATIONS messages (delete, rename, copy, move)
-    LaunchedEffect(sharedFileOperationsUiState.successMessage, sharedFileOperationsUiState.errorMessage) {
+    LaunchedEffect(
+        sharedFileOperationsUiState.successMessage,
+        sharedFileOperationsUiState.errorMessage
+    ) {
         sharedFileOperationsUiState.successMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
+            snackBarHostState.showSnackbar(message)
             sharedFileOperationsViewModel.clearMessages()
             homeScreenViewModel.getRecentFiles()
         }
         sharedFileOperationsUiState.errorMessage?.let { error ->
-            snackbarHostState.showSnackbar(error)
+            snackBarHostState.showSnackbar(error)
             sharedFileOperationsViewModel.clearMessages()
         }
     }
-
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
         onRefresh = { homeScreenViewModel.getRecentFiles() },
@@ -95,106 +86,46 @@ fun HomeScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.surfaceContainer)
-                .verticalScroll(rememberScrollState())
                 .padding(vertical = 16.dp, horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Recents Section
             when {
                 uiState.isRefreshing -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                    HomeLoadingScreen()
                 }
 
                 uiState.recentFilesList.isNotEmpty() -> {
-                    // Section Header with "Show All" button
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Recents",
-                            fontFamily = CustomFontFamily,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Surface(
-                            onClick = onShowAllRecents,
-                            color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(
-                                alpha = 0.1f
-                            ),
-                            shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.clip(RoundedCornerShape(16.dp))
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Text(
-                                    text = "Show all",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                    contentDescription = "Show all",
-                                    modifier = Modifier.size(16.dp),
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(8.dp))
-
-                    // Recent Files List
-                    uiState.recentFilesList.forEachIndexed { index, file ->
-                        FileCard(
-                            modifier = Modifier.padding(vertical = 1.dp),
-                            file = file,
-                            onFileClick = { onFileClicked(it) },
-                            onFileOperation = {
-                                sharedFileOperationsViewModel.selectedFileForBottomSheet(
-                                    it
-                                )
-                            },
-                            onFileLongClick = {
-                                sharedFileOperationsViewModel.selectedFileForBottomSheet(
-                                    it
-                                )
-                            },
-                            shape = getListItemShape(
-                                index = index,
-                                totalItems = uiState.recentFilesList.size
+                    HomeScreenContent(
+                        uiState,
+                        onOpenFile = {
+                            onOpenFile(it)
+                        },
+                        onSelectFileForBottomSheet = {
+                            sharedFileOperationsViewModel.selectedFileForBottomSheet(
+                                it
                             )
-                        )
-                    }
+                        },
+                        onShowAllRecents = onShowAllRecents
+                    )
                 }
 
                 else -> {
                     // Empty state
-                    Card(
+                    Box(
                         modifier = Modifier
+                            .padding(16.dp)
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surface),
+                        contentAlignment = Alignment.Center
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(32.dp),
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
@@ -203,9 +134,8 @@ fun HomeScreen(
                                 modifier = Modifier.size(48.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Spacer(Modifier.height(8.dp))
                             Text(
-                                text = "No recent allRecents",
+                                text = "No recent files",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -218,29 +148,17 @@ fun HomeScreen(
                     }
                 }
             }
-
-            Spacer(Modifier.height(20.dp))
-
             // Categories Section
             Text(
                 text = "Categories",
                 fontFamily = CustomFontFamily,
-                fontSize = 24.sp,
+                fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 12.dp)
+                modifier = Modifier
             )
 
-            Spacer(Modifier.height(8.dp))
-
             if (uiState.storageCategories.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                HomeLoadingScreen()
             } else {
                 // Category Grid (cleaner with Column for rows)
                 Column(

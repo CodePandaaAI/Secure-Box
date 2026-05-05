@@ -1,4 +1,7 @@
-package com.romit.securebox.data.model
+package com.romit.securebox.presentation.featureHome
+
+import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.data.model.StorageCategory
 
 data class HomeUiState(
     val recentFilesList: List<FileItem> = emptyList(),

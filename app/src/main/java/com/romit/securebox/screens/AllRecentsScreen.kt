@@ -29,7 +29,7 @@ import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.AllRecentsScreenViewModel
-import com.romit.securebox.viewmodels.SharedViewModelProvider
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +39,7 @@ fun AllRecentsScreen(
     onFileClicked: (FileItem) -> Unit,
     snackbarHostState: SnackbarHostState,
 ) {
-    val sharedFileOperationsViewModel = SharedViewModelProvider.current
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
     val uiState by recentsScreenViewModel.uiState.collectAsState()
     val lazyListState = rememberLazyListState()
 
@@ -60,7 +60,10 @@ fun AllRecentsScreen(
         }
     }
 
-    LaunchedEffect(sharedFileOperationsUiState.successMessage, sharedFileOperationsUiState.errorMessage) {
+    LaunchedEffect(
+        sharedFileOperationsUiState.successMessage,
+        sharedFileOperationsUiState.errorMessage
+    ) {
         sharedFileOperationsUiState.successMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
             sharedFileOperationsViewModel.clearMessages()
@@ -89,13 +92,9 @@ fun AllRecentsScreen(
                 key = { _, file -> file.path }
             ) { index, file ->
                 FileCard(
-                    modifier = Modifier.padding(vertical = 1.dp),
                     file = file,
-                    onFileClick = { onFileClicked(it) },
-                    onFileOperation = { fileItem ->
-                        sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
-                    },
-                    onFileLongClick = { fileItem ->
+                    onOpenFile = { onFileClicked(it) },
+                    onSelectFileForBottomSheet = { fileItem ->
                         sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
                     },
                     shape = getListItemShape(

@@ -18,7 +18,7 @@ fun getListItemShape(
     index: Int,
     totalItems: Int,
     topRadius: Float = 12f,
-    middleRadius: Float = 4f,
+    middleRadius: Float = 0f,
     bottomRadius: Float = 12f
 ): RoundedCornerShape {
     return when {

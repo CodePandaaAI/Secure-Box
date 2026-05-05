@@ -1,5 +1,7 @@
 package com.romit.securebox.components
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -40,11 +42,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.util.StorageHelper
-import com.romit.securebox.viewmodels.SharedViewModelProvider
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @Composable
 fun FileDetailsPane(
@@ -53,7 +56,7 @@ fun FileDetailsPane(
     onCopyTo: (FileItem) -> Unit,
     onMoveTo: (FileItem) -> Unit,
 ) {
-    val sharedFileOperationsViewModel = SharedViewModelProvider.current
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
     Column(
         modifier = Modifier
             .fillMaxSize()

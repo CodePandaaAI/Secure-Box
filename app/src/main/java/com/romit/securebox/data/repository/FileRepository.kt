@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ContentResolver
 import android.os.Bundle
 import android.provider.MediaStore
+import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.StorageHelper
 import com.romit.securebox.util.StorageHelper.getMimeType
@@ -187,9 +188,16 @@ class FileRepository @Inject constructor(application: Application) {
         return withContext(Dispatchers.IO) {
             try {
                 val sourceFile = File(filePath)
+                val destDir = File(destPath)
 
                 if (!sourceFile.exists()) {
                     return@withContext Result.failure(FileNotFoundException("File Not Found"))
+                }
+
+                if (!destDir.exists() || !destDir.isDirectory) {
+                    return@withContext Result.failure(
+                        FileNotFoundException("Destination directory not found")
+                    )
                 }
 
                 val destFile = File(destPath, sourceFile.name)
@@ -277,8 +285,8 @@ class FileRepository @Inject constructor(application: Application) {
                     return@withContext Result.failure(
                         IOException(
                             "Insufficient storage space. " +
-                                    "Need ${sourceSize / 1_048_576}MB, " +
-                                    "available ${availableSpace / 1_048_576}MB"
+                                    "Required: ${StorageHelper.formatSize(sourceSize)}, " +
+                                    "Available: ${StorageHelper.formatSize(availableSpace)}"
                         )
                     )
                 }
@@ -444,7 +452,7 @@ class FileRepository @Inject constructor(application: Application) {
         }
     }
 
-    suspend fun renameFile(filePath: String, newName: String): Result<String> {  // ✅ Changed name
+    suspend fun renameFile(filePath: String, newName: String): Result<String> {
         return withContext(Dispatchers.IO) {
             try {
                 val oldFile = File(filePath)

@@ -24,19 +24,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.R
 import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.getListItemShape
-import com.romit.securebox.viewmodels.SharedViewModelProvider
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @Composable
 fun DestinationScreen(
     onFolderClicked: (FileItem) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val sharedFileOperationsViewModel = SharedViewModelProvider.current
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
 
     // ✅ Handle back press

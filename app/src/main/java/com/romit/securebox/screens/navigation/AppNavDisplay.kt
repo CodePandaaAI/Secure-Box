@@ -1,6 +1,8 @@
 package com.romit.securebox.screens.navigation
 
 import android.os.Environment
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.togetherWith
@@ -23,7 +25,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,12 +46,11 @@ import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.screens.AllRecentsScreen
 import com.romit.securebox.screens.DestinationScreen
 import com.romit.securebox.screens.FileBrowserScreen
-import com.romit.securebox.screens.HomeScreen
+import com.romit.securebox.presentation.featureHome.HomeScreen
 import com.romit.securebox.util.FileOperations
 import com.romit.securebox.util.openFile
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
 import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
-import com.romit.securebox.viewmodels.SharedViewModelProvider
 import kotlinx.coroutines.launch
 
 
@@ -63,11 +63,9 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun SecureApp() {
-    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
     val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
-    CompositionLocalProvider(SharedViewModelProvider provides sharedFileOperationsViewModel) {
-        AppNavDisplay(backStack)
-    }
+
+    AppNavDisplay(backStack)
 }
 
 /**
@@ -87,16 +85,16 @@ fun SecureApp() {
  * (copy, move, delete, rename) and UI state related to these operations (e.g., dialog visibility).
  *
  * @param backStack The navigation back stack that determines which screen to display.
- * @param sharedFileBrowserViewModel The ViewModel that manages the state for the file browser screen.
+ * @param fileBrowserViewModel The ViewModel that manages the state for the file browser screen.
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AppNavDisplay(
     backStack: MutableList<Screen>,
-    sharedFileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
+    fileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
 ) {
-    val sharedFileOperationsViewModel = SharedViewModelProvider.current
-    val snackbarHostState = remember { SnackbarHostState() }
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
+    val snackBarHostState = remember { SnackbarHostState() }
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -135,7 +133,7 @@ fun AppNavDisplay(
                             backStack.removeLastOrNull()
                         } else {
                             scope.launch {
-                                snackbarHostState.showSnackbar(
+                                snackBarHostState.showSnackbar(
                                     message = "No file selected to paste.",
                                     withDismissAction = true
                                 )
@@ -150,7 +148,8 @@ fun AppNavDisplay(
                 )
             }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackBarHostState) },
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { innerPadding ->
 
         NavDisplay(
@@ -171,12 +170,11 @@ fun AppNavDisplay(
                 when (route) {
                     is Screen.Home -> NavEntry(route) {
                         HomeScreen(
-                            sharedFileOperationsUiState = uiState,
-                            snackbarHostState = snackbarHostState,
+                            snackBarHostState = snackBarHostState,
                             onCategoryClicked = { path ->
                                 backStack.add(Screen.FileBrowser(path))
                             },
-                            onFileClicked = { file ->
+                            onOpenFile = { file ->
                                 if (file.isDirectory) {
                                     backStack.add(Screen.FileBrowser(path = file.path))
                                 } else {
@@ -192,7 +190,7 @@ fun AppNavDisplay(
                     is Screen.AllRecents -> NavEntry(route) {
                         AllRecentsScreen(
                             sharedFileOperationsUiState = uiState,
-                            snackbarHostState = snackbarHostState, onFileClicked = { file ->
+                            snackbarHostState = snackBarHostState, onFileClicked = { file ->
                                 if (file.isDirectory) {
                                     backStack.add(Screen.FileBrowser(path = file.path))
                                 } else {
@@ -205,8 +203,8 @@ fun AppNavDisplay(
                     is Screen.FileBrowser -> NavEntry(route) {
                         FileBrowserScreen(
                             sharedFileOperationsUiState = uiState,
-                            snackbarHostState = snackbarHostState,
-                            fileBrowserScreenViewModel = sharedFileBrowserViewModel,
+                            snackbarHostState = snackBarHostState,
+                            fileBrowserScreenViewModel = fileBrowserViewModel,
                             path = route.path,
                             onFileClicked = { file ->
                                 if (file.isDirectory) {
@@ -301,7 +299,7 @@ fun AppNavDisplay(
             )
         }
         // Rename Dialog
-        if (uiState.showRenameInput && uiState.selectedFile != null) {
+        if (uiState.showRenameDialog && uiState.selectedFile != null) {
             RenameDialog(
                 onDismissRequest = { sharedFileOperationsViewModel.toggleRenameDialog() },
                 onCancel = { sharedFileOperationsViewModel.toggleRenameDialog() },

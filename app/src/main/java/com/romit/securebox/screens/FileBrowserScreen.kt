@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -25,13 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.R
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
-import com.romit.securebox.viewmodels.SharedViewModelProvider
+import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +43,7 @@ fun FileBrowserScreen(
     fileBrowserScreenViewModel: FileBrowserScreenViewModel,
     snackbarHostState: SnackbarHostState
 ) {
-    val sharedFileOperationsViewModel = SharedViewModelProvider.current
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
     val uiState by fileBrowserScreenViewModel.uiState.collectAsState()
 
     LaunchedEffect(path) {
@@ -97,13 +97,9 @@ fun FileBrowserScreen(
                     key = { _, file -> file.path }
                 ) { index, file ->
                     FileCard(
-                        modifier = Modifier.padding(vertical = 1.dp),
                         file = file,
-                        onFileClick = { onFileClicked(it) },
-                        onFileOperation = { fileItem ->
-                            sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
-                        },
-                        onFileLongClick = { fileItem ->
+                        onOpenFile = { onFileClicked(it) },
+                        onSelectFileForBottomSheet = { fileItem ->
                             sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
                         },
                         shape = getListItemShape(
