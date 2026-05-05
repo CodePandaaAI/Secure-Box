@@ -27,7 +27,7 @@ import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.util.getListItemShape
 
 @Composable
-fun HomeScreenContent(
+fun HomeScreenRecentsContent(
     uiState: HomeUiState,
     onSelectFileForBottomSheet: (FileItem) -> Unit,
     onShowAllRecents: () -> Unit,
