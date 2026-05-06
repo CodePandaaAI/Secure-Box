@@ -29,8 +29,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.R
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.presentation.viewmodel.SharedFileOperationsUiEvent
-import com.romit.securebox.presentation.viewmodel.SharedFileOperationsViewModel
+import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsUiEvent
+import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
 import com.romit.securebox.util.getListItemShape
 
 @OptIn(ExperimentalMaterial3Api::class)

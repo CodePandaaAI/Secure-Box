@@ -1,4 +1,4 @@
-package com.romit.securebox.presentation.viewmodel
+package com.romit.securebox.presentation.sharedViewmodel
 
 import android.os.Environment
 import com.romit.securebox.data.model.FileItem

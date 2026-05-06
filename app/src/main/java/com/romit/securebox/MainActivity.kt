@@ -32,7 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.romit.securebox.screens.navigation.SecureApp
+import com.romit.securebox.navigation.SecureApp
 import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.ui.theme.SecureBoxTheme
 import dagger.hilt.android.AndroidEntryPoint

@@ -45,7 +45,7 @@ import coil3.compose.AsyncImage
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.util.StorageHelper
-import com.romit.securebox.presentation.viewmodel.SharedFileOperationsViewModel
+import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
 
 @Composable
 fun FileDetailsPane(

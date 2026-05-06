@@ -22,7 +22,7 @@ import com.romit.securebox.presentation.featureHome.components.HomeLoadingScreen
 import com.romit.securebox.presentation.featureHome.components.HomeScreenCategoriesContent
 import com.romit.securebox.presentation.featureHome.components.HomeScreenEmptyState
 import com.romit.securebox.presentation.featureHome.components.HomeScreenRecentsContent
-import com.romit.securebox.presentation.viewmodel.SharedFileOperationsViewModel
+import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
