@@ -5,19 +5,29 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.SharedFileOperationsUiState
-import com.romit.securebox.data.repository.FileRepository
+import com.romit.securebox.domain.usecases.CopyFileUseCase
+import com.romit.securebox.domain.usecases.CreateFolderUseCase
+import com.romit.securebox.domain.usecases.DeleteFileUseCase
+import com.romit.securebox.domain.usecases.GetDirectoriesUseCase
+import com.romit.securebox.domain.usecases.MoveFileUseCase
+import com.romit.securebox.domain.usecases.RenameFileUseCase
 import com.romit.securebox.util.FileOperations
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.FileNotFoundException
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
-class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepository) :
+class SharedFileOperationsViewModel @Inject constructor(
+    private val deleteFileUseCase: DeleteFileUseCase,
+    private val getDirectoriesUseCase: GetDirectoriesUseCase,
+    private val renameFileUseCase: RenameFileUseCase,
+    private val copyFileUseCase: CopyFileUseCase,
+    private val createFolderUseCase: CreateFolderUseCase,
+    private val moveFileUseCase: MoveFileUseCase
+) :
     ViewModel() {
     private val _uiState = MutableStateFlow(SharedFileOperationsUiState())
     val uiState = _uiState.asStateFlow()
@@ -26,29 +36,25 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
 
     fun deleteFile(filePath: String) {
         viewModelScope.launch {
-            repository.deleteFile(filePath).fold(
+            deleteFileUseCase(filePath).fold(
                 onSuccess = { message ->
                     _uiState.update {
                         it.copy(successMessage = message, errorMessage = null)
                     }
                 },
                 onFailure = { exception ->
-                    val errorMessage = when (exception) {
-                        is FileNotFoundException -> "File not found"
-                        is SecurityException -> "Permission denied"
-                        is IOException -> "Cannot delete file"
-                        else -> exception.message ?: "Failed to delete"
-                    }
-
                     _uiState.update {
-                        it.copy(errorMessage = errorMessage, successMessage = null)
+                        it.copy(
+                            errorMessage = exception.message ?: "Failed to delete",
+                            successMessage = null
+                        )
                     }
                 }
             )
         }
     }
 
-    fun getDirs(dirPath: String) {
+    fun getDirectories(dirPath: String) {
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
@@ -57,26 +63,27 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                     isDestinationScreenLoading = true
                 )
             }
-
-            try {
-                val files = repository.getDirs(path = dirPath)
-                _uiState.update {
-                    it.copy(
-                        errorMessage = null,
-                        successMessage = null,
-                        isDestinationScreenLoading = false,
-                        operationTargetPathDirectories = files
-                    )
+            getDirectoriesUseCase(dirPath).fold(
+                onSuccess = { files ->
+                    _uiState.update {
+                        it.copy(
+                            errorMessage = null,
+                            successMessage = null,
+                            isDestinationScreenLoading = false,
+                            operationTargetPathDirectories = files
+                        )
+                    }
+                },
+                onFailure = { message ->
+                    _uiState.update {
+                        it.copy(
+                            errorMessage = message.message,
+                            successMessage = null,
+                            isDestinationScreenLoading = false
+                        )
+                    }
                 }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        errorMessage = e.message,
-                        successMessage = null,
-                        isDestinationScreenLoading = false
-                    )
-                }
-            }
+            )
         }
     }
 
@@ -87,8 +94,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
     fun onRenameFileClicked() {
         viewModelScope.launch {
             val selectedFile = uiState.value.selectedFile ?: return@launch
-
-            repository.renameFile(selectedFile.path, uiState.value.newFileName).fold(
+            renameFileUseCase(selectedFile.path, uiState.value.newFileName).fold(
                 onSuccess = { message ->
                     _uiState.update {
                         it.copy(
@@ -100,18 +106,10 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                         )
                     }
                 },
-                onFailure = { exception ->
-                    val errorMessage = when (exception) {
-                        is FileNotFoundException -> "File not found"
-                        is IllegalArgumentException -> "Invalid name"
-                        is FileAlreadyExistsException -> "Name already exists"
-                        is IOException -> "Rename failed"
-                        is SecurityException -> "Permission denied"
-                        else -> exception.message ?: "Unknown errorMessage"
-                    }
+                onFailure = { errorMessage ->
                     _uiState.update {
                         it.copy(
-                            errorMessage = errorMessage,
+                            errorMessage = errorMessage.message,
                             successMessage = null,
                             showRenameDialog = false,
                             newFileName = "",
@@ -125,7 +123,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
 
     fun copyFile(filePath: String, destPath: String) {
         viewModelScope.launch {
-            repository.copyFile(filePath, destPath).fold(
+            copyFileUseCase(filePath, destPath).fold(
                 onSuccess = { message ->
                     _uiState.update {
                         it.copy(
@@ -136,15 +134,8 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
 
                     clearAllOperationsState()
                 },
-                onFailure = { message ->
-                    val error = when (message) {
-                        is FileNotFoundException -> "File not found"
-                        is FileAlreadyExistsException -> "File already exists"
-                        is SecurityException -> "Permission denied"
-                        is IOException -> "Copy failed"
-                        else -> message.message ?: "Unknown errorMessage"
-                    }
-                    _uiState.update { it.copy(errorMessage = error, successMessage = null) }
+                onFailure = { errorMessage ->
+                    _uiState.update { it.copy(errorMessage = errorMessage.message, successMessage = null) }
 
                     clearAllOperationsState()
                 }
@@ -154,7 +145,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
 
     fun moveFile(filePath: String, destPath: String) {
         viewModelScope.launch {
-            repository.moveTo(filePath, destPath).fold(
+            moveFileUseCase(filePath, destPath).fold(
                 onSuccess = { message ->
                     _uiState.update {
                         it.copy(
@@ -188,7 +179,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
         }
 
         viewModelScope.launch {
-            repository.createFolder(uiState.value.operationTargetPath, folderName).fold(
+            createFolderUseCase(uiState.value.operationTargetPath, folderName).fold(
                 onSuccess = { message ->
                     _uiState.update {
                         it.copy(
@@ -199,14 +190,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
                     }
                 },
                 onFailure = { exception ->
-                    val errorMessage = when (exception) {
-                        is FileNotFoundException -> "Parent directory not found"
-                        is SecurityException -> "Permission denied"
-                        is IllegalArgumentException -> exception.message ?: "Invalid folder name"
-                        is FileAlreadyExistsException -> "Folder already exists"
-                        else -> "Failed to create folder: ${exception.message}"
-                    }
-                    _uiState.update { it.copy(newFolderError = errorMessage) }
+                    _uiState.update { it.copy(newFolderError = exception.message) }
                 }
             )
         }
@@ -228,7 +212,6 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
 
     fun chooseOperation(fileOperation: FileOperations) {
         if (fileOperation == FileOperations.NONE) return
-
         else _uiState.update {
             it.copy(selectedOperation = fileOperation)
         }
@@ -246,7 +229,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
         }
 
         updateCurrentPath(folderPath)
-        getDirs(folderPath)
+        getDirectories(folderPath)
     }
 
     fun navigateBack(): Boolean {
@@ -254,7 +237,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
         return if (folderHistory.isNotEmpty()) {
             val previousPath = folderHistory.removeAt(folderHistory.lastIndex)
             updateCurrentPath(previousPath)
-            getDirs(previousPath)
+            getDirectories(previousPath)
             true
         } else {
             // We're at the root, let the system handle back press (exit DestinationScreen)
@@ -265,7 +248,7 @@ class SharedFileOperationsViewModel @Inject constructor(val repository: FileRepo
     fun initializeDestinationScreen(startPath: String) {
         folderHistory.clear()
         updateCurrentPath(startPath)
-        getDirs(startPath)
+        getDirectories(startPath)
     }
 
     fun clearAllOperationsState() {

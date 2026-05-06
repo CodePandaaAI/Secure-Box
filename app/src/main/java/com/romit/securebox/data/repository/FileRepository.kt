@@ -387,10 +387,10 @@ class FileRepository @Inject constructor(application: Application) {
         }
     }
 
-    suspend fun getDirs(path: String): List<FileItem> {
+    suspend fun getDirs(path: String): Result<List<FileItem>> {
         return withContext(Dispatchers.IO) {
             val root = File(path)
-            if (!root.exists() || !root.isDirectory) return@withContext emptyList()
+            if (!root.exists() || !root.isDirectory) return@withContext Result.success(emptyList())
             try {
                 val files = root.listFiles()
                     ?.filter { it.isDirectory }
@@ -408,9 +408,9 @@ class FileRepository @Inject constructor(application: Application) {
                         )
                     }
 
-                files ?: emptyList()
+                Result.success(files ?: emptyList())
             } catch (e: Exception) {
-                emptyList()
+                Result.failure(e)
             }
         }
     }
