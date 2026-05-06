@@ -4,7 +4,6 @@ import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.domain.usecases.CopyFileUseCase
 import com.romit.securebox.domain.usecases.CreateFolderUseCase
 import com.romit.securebox.domain.usecases.DeleteFileUseCase
@@ -13,8 +12,10 @@ import com.romit.securebox.domain.usecases.MoveFileUseCase
 import com.romit.securebox.domain.usecases.RenameFileUseCase
 import com.romit.securebox.util.FileOperations
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,6 +32,9 @@ class SharedFileOperationsViewModel @Inject constructor(
     ViewModel() {
     private val _uiState = MutableStateFlow(SharedFileOperationsUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _uiEvent = Channel<SharedFileOperationsUiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     private val folderHistory = mutableListOf<String>()
 
@@ -276,10 +280,6 @@ class SharedFileOperationsViewModel @Inject constructor(
 
     fun toggleDeleteDialog() {
         _uiState.update { it.copy(showDeleteDialog = !uiState.value.showDeleteDialog) }
-    }
-
-    fun clearMessages() {
-        _uiState.update { it.copy(errorMessage = null, successMessage = null) }
     }
 
     fun selectedFileForBottomSheet(file: FileItem?) {

@@ -1,6 +1,7 @@
-package com.romit.securebox.data.model
+package com.romit.securebox.presentation.viewmodel
 
 import android.os.Environment
+import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.FileOperations
 
 data class SharedFileOperationsUiState(

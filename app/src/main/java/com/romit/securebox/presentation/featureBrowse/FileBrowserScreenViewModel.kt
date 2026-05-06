@@ -22,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class FileBrowserScreenViewModel @Inject constructor(private val repository: FileRepository) :
     ViewModel() {
-    private var _uiState = MutableStateFlow(FileBrowserUiState())
+    private var _uiState: MutableStateFlow<FileBrowserUiState> =
+        MutableStateFlow(FileBrowserUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
     private var currentLoadJob: Job? = null
@@ -32,18 +33,14 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
     fun getDirFiles(path: String) {
         currentLoadJob?.cancel()
 
-        _uiState.update { it.copy(browsingPath = path, errorMessage = null, isLoading = true) }
         currentLoadJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val files = repository.getDirFileItems(path)
                 withContext(Dispatchers.Main) {
-                    _uiState.update {
-                        it.copy(
-                            browsingPathDirectories = files,
-                            errorMessage = null,
-                            isLoading = false
-                        )
-                    }
+                    _uiState.value = FileBrowserUiState.Success(
+                        browsingPathDirectories = files,
+                        browsingPath = path
+                    )
                 }
                 val dirWithSize = files.map { file ->
                     async {
@@ -58,12 +55,10 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
 
                 if (isActive) {
                     withContext(Dispatchers.Main) {
-                        _uiState.update {
-                            it.copy(
-                                browsingPathDirectories = dirWithSize,
-                                errorMessage = null,
-                                isLoading = false
-                            )
+                        _uiState.update { state ->
+                            if (state is FileBrowserUiState.Success) {
+                                state.copy(browsingPathDirectories = dirWithSize)
+                            } else state
                         }
                     }
                 }
@@ -72,13 +67,9 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
                 // Ignore cancellation
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(errorMessage = e.message, isLoading = false) }
+                    _uiState.value = FileBrowserUiState.Error(e.message ?: "Something went wrong")
                 }
             }
         }
-    }
-
-    fun clearMessages() {
-        _uiState.update { it.copy(errorMessage = null, successMessage = null) }
     }
 }

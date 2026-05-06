@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -28,51 +29,37 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.R
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.data.model.SharedFileOperationsUiState
-import com.romit.securebox.util.getListItemShape
+import com.romit.securebox.presentation.viewmodel.SharedFileOperationsUiEvent
 import com.romit.securebox.presentation.viewmodel.SharedFileOperationsViewModel
+import com.romit.securebox.util.getListItemShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FileBrowserScreen(
     modifier: Modifier = Modifier,
-    sharedFileOperationsUiState: SharedFileOperationsUiState,
     path: String,
     onFileClicked: (FileItem) -> Unit,
-    fileBrowserScreenViewModel: FileBrowserScreenViewModel,
-    snackbarHostState: SnackbarHostState
 ) {
+    val fileBrowserScreenViewModel: FileBrowserScreenViewModel = hiltViewModel()
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
     val uiState by fileBrowserScreenViewModel.uiState.collectAsState()
+
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        sharedFileOperationsViewModel.uiEvent.collect { event ->
+            if (event is SharedFileOperationsUiEvent.ShowSnackBar) snackBarHostState.showSnackbar(
+                event.message
+            )
+        }
+    }
 
     LaunchedEffect(path) {
         fileBrowserScreenViewModel.getDirFiles(path)
     }
-    LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
-        uiState.successMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            fileBrowserScreenViewModel.clearMessages()
-        }
-        uiState.errorMessage?.let { error ->
-            snackbarHostState.showSnackbar(error)
-            fileBrowserScreenViewModel.clearMessages()
-        }
-    }
 
-    // ✅ Observe SHARED OPERATIONS messages
-    LaunchedEffect(sharedFileOperationsUiState.successMessage, sharedFileOperationsUiState.errorMessage) {
-        sharedFileOperationsUiState.successMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            sharedFileOperationsViewModel.clearMessages()
-            fileBrowserScreenViewModel.getDirFiles(path)
-        }
-        sharedFileOperationsUiState.errorMessage?.let { error ->
-            snackbarHostState.showSnackbar(error)
-            sharedFileOperationsViewModel.clearMessages()
-        }
-    }
-    when {
-        uiState.isLoading -> {
+    when (uiState) {
+        is FileBrowserUiState.Loading -> {
             Column(
                 Modifier
                     .fillMaxSize()
@@ -84,33 +71,36 @@ fun FileBrowserScreen(
             }
         }
 
-        uiState.browsingPathDirectories.isNotEmpty() -> {
-            LazyColumn(
-                Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                itemsIndexed(
-                    items = uiState.browsingPathDirectories,
-                    key = { _, file -> file.path }
-                ) { index, file ->
-                    FileCard(
-                        file = file,
-                        onOpenFile = { onFileClicked(it) },
-                        onSelectFileForBottomSheet = { fileItem ->
-                            sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
-                        },
-                        shape = getListItemShape(
-                            index = index,
-                            totalItems = uiState.browsingPathDirectories.size
+        is FileBrowserUiState.Success -> {
+            if ((uiState as FileBrowserUiState.Success).browsingPathDirectories.isNotEmpty()) {
+                LazyColumn(
+                    Modifier
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.surfaceContainer),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    itemsIndexed(
+                        items = (uiState as FileBrowserUiState.Success).browsingPathDirectories,
+                        key = { _, file -> file.path }
+                    ) { index, file ->
+                        FileCard(
+                            file = file,
+                            onOpenFile = { onFileClicked(it) },
+                            onSelectFileForBottomSheet = { fileItem ->
+                                sharedFileOperationsViewModel.selectedFileForBottomSheet(fileItem)
+                            },
+                            shape = getListItemShape(
+                                index = index,
+                                totalItems = (uiState as FileBrowserUiState.Success).browsingPathDirectories.size
+                            )
                         )
-                    )
+                    }
                 }
             }
+
         }
 
-        else -> {
+        is FileBrowserUiState.Error -> {
             Column(
                 modifier = modifier
                     .fillMaxSize()
