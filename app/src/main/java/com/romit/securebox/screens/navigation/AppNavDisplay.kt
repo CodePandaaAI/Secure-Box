@@ -43,7 +43,7 @@ import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileDetailsPane
 import com.romit.securebox.components.FileOperationBottomAppBar
 import com.romit.securebox.components.RenameDialog
-import com.romit.securebox.screens.AllRecentsScreen
+import com.romit.securebox.presentation.featureRecents.AllRecentsScreen
 import com.romit.securebox.screens.DestinationScreen
 import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.presentation.featureHome.HomeScreen
@@ -188,8 +188,7 @@ fun AppNavDisplay(
 
                     is Screen.AllRecents -> NavEntry(route) {
                         AllRecentsScreen(
-                            sharedFileOperationsUiState = uiState,
-                            snackbarHostState = snackBarHostState, onFileClicked = { file ->
+                           onFileClicked = { file ->
                                 if (file.isDirectory) {
                                     backStack.add(Screen.FileBrowser(path = file.path))
                                 } else {

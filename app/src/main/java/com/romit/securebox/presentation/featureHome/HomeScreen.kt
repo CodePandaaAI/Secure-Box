@@ -79,7 +79,7 @@ fun HomeScreen(
                     )
                 }
 
-                else -> {
+                is HomeUiState.Error -> {
                     // Empty state
                     HomeScreenEmptyState()
                 }
