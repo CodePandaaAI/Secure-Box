@@ -1,7 +1,5 @@
 package com.romit.securebox.components
 
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +45,7 @@ import coil3.compose.AsyncImage
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.util.StorageHelper
-import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.presentation.viewmodel.SharedFileOperationsViewModel
 
 @Composable
 fun FileDetailsPane(

@@ -1,4 +1,4 @@
-package com.romit.securebox.viewmodels
+package com.romit.securebox.presentation.viewmodel
 
 import android.os.Environment
 import androidx.lifecycle.ViewModel

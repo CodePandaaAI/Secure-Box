@@ -1,4 +1,4 @@
-package com.romit.securebox.screens
+package com.romit.securebox.presentation.featureBrowse
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,8 +30,7 @@ import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.SharedFileOperationsUiState
 import com.romit.securebox.util.getListItemShape
-import com.romit.securebox.viewmodels.FileBrowserScreenViewModel
-import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.presentation.viewmodel.SharedFileOperationsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

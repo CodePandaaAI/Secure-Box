@@ -1,8 +1,7 @@
-package com.romit.securebox.viewmodels
+package com.romit.securebox.presentation.featureBrowse
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.romit.securebox.data.model.FileBrowserUiState
 import com.romit.securebox.data.repository.FileRepository
 import com.romit.securebox.util.StorageHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,7 +38,11 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
                 val files = repository.getDirFileItems(path)
                 withContext(Dispatchers.Main) {
                     _uiState.update {
-                        it.copy(browsingPathDirectories = files, errorMessage = null, isLoading = false)
+                        it.copy(
+                            browsingPathDirectories = files,
+                            errorMessage = null,
+                            isLoading = false
+                        )
                     }
                 }
                 val dirWithSize = files.map { file ->
@@ -56,7 +59,11 @@ class FileBrowserScreenViewModel @Inject constructor(private val repository: Fil
                 if (isActive) {
                     withContext(Dispatchers.Main) {
                         _uiState.update {
-                            it.copy(browsingPathDirectories = dirWithSize, errorMessage = null, isLoading = false)
+                            it.copy(
+                                browsingPathDirectories = dirWithSize,
+                                errorMessage = null,
+                                isLoading = false
+                            )
                         }
                     }
                 }
