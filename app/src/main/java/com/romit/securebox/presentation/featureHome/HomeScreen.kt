@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -29,42 +30,24 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     onCategoryClicked: (String) -> Unit,
     onShowAllRecents: () -> Unit,
-    onOpenFile: (FileItem) -> Unit,
-    snackBarHostState: SnackbarHostState
+    onOpenFile: (FileItem) -> Unit
 ) {
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
-    val sharedFileOperationsUiState by sharedFileOperationsViewModel.uiState.collectAsState()
 
     val homeScreenViewModel: HomeScreenViewModel = hiltViewModel<HomeScreenViewModel>()
     val uiState by homeScreenViewModel.uiState.collectAsState()
+    val storageCategories = homeScreenViewModel.storageCategories.collectAsState()
 
-    LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
-        uiState.successMessage?.let { message ->
-            snackBarHostState.showSnackbar(message)
-            homeScreenViewModel.clearMessages()
-        }
-        uiState.errorMessage?.let { error ->
-            snackBarHostState.showSnackbar(error)
-            homeScreenViewModel.clearMessages()
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        homeScreenViewModel.uiEvent.collect { event ->
+            if (event is HomeUiEvent.ShowSnackBar) snackBarHostState.showSnackbar(event.message)
         }
     }
 
-    LaunchedEffect(
-        sharedFileOperationsUiState.successMessage,
-        sharedFileOperationsUiState.errorMessage
-    ) {
-        sharedFileOperationsUiState.successMessage?.let { message ->
-            snackBarHostState.showSnackbar(message)
-            sharedFileOperationsViewModel.clearMessages()
-            homeScreenViewModel.getRecentFiles()
-        }
-        sharedFileOperationsUiState.errorMessage?.let { error ->
-            snackBarHostState.showSnackbar(error)
-            sharedFileOperationsViewModel.clearMessages()
-        }
-    }
     PullToRefreshBox(
-        isRefreshing = uiState.isRefreshing,
+        isRefreshing = uiState is HomeUiState.RecentFilesLoading,
         onRefresh = { homeScreenViewModel.getRecentFiles() },
         modifier = Modifier.fillMaxSize()
     ) {
@@ -76,14 +59,14 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Recents Section
-            when {
-                uiState.isRefreshing -> {
+            when (uiState) {
+                is HomeUiState.RecentFilesLoading -> {
                     HomeLoadingScreen()
                 }
 
-                uiState.recentFilesList.isNotEmpty() -> {
+                is HomeUiState.Success -> {
                     HomeScreenRecentsContent(
-                        uiState,
+                        uiState as HomeUiState.Success,
                         onOpenFile = {
                             onOpenFile(it)
                         },
@@ -101,7 +84,11 @@ fun HomeScreen(
                     HomeScreenEmptyState()
                 }
             }
-            HomeScreenCategoriesContent(uiState, onCategoryClicked)
+            // Categories Section
+            HomeScreenCategoriesContent(
+                { storageCategories.value },
+                onCategoryClicked
+            )
         }
     }
 }

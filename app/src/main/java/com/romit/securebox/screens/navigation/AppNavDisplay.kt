@@ -170,7 +170,6 @@ fun AppNavDisplay(
                 when (route) {
                     is Screen.Home -> NavEntry(route) {
                         HomeScreen(
-                            snackBarHostState = snackBarHostState,
                             onCategoryClicked = { path ->
                                 backStack.add(Screen.FileBrowser(path))
                             },

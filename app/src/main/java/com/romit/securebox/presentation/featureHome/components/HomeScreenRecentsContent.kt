@@ -28,7 +28,7 @@ import com.romit.securebox.util.getListItemShape
 
 @Composable
 fun HomeScreenRecentsContent(
-    uiState: HomeUiState,
+    uiState: HomeUiState.Success,
     onSelectFileForBottomSheet: (FileItem) -> Unit,
     onShowAllRecents: () -> Unit,
     onOpenFile: (FileItem) -> Unit

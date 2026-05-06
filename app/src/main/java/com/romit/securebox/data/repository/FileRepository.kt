@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.ContentResolver
 import android.os.Bundle
 import android.provider.MediaStore
-import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.StorageHelper
 import com.romit.securebox.util.StorageHelper.getMimeType

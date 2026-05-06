@@ -11,11 +11,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.romit.securebox.components.StorageCategoryCard
-import com.romit.securebox.presentation.featureHome.HomeUiState
+import com.romit.securebox.data.model.StorageCategory
 import com.romit.securebox.ui.theme.CustomFontFamily
 
 @Composable
-fun HomeScreenCategoriesContent(uiState: HomeUiState, onCategoryClicked: (String) -> Unit) {
+fun HomeScreenCategoriesContent(storageCategories: () -> List<StorageCategory>, onCategoryClicked: (String) -> Unit) {
+
+    val storageCategories = storageCategories()
+
     Text(
         text = "Categories",
         fontFamily = CustomFontFamily,
@@ -24,7 +27,7 @@ fun HomeScreenCategoriesContent(uiState: HomeUiState, onCategoryClicked: (String
         modifier = Modifier
     )
 
-    if (uiState.storageCategories.isEmpty()) {
+    if (storageCategories.isEmpty()) {
         HomeLoadingScreen()
     } else {
         // Category Grid (cleaner with Column for rows)
@@ -37,12 +40,12 @@ fun HomeScreenCategoriesContent(uiState: HomeUiState, onCategoryClicked: (String
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 StorageCategoryCard(
-                    uiState.storageCategories[0],
+                    storageCategories[0],
                     onCategoryClick = onCategoryClicked,
                     modifier = Modifier.weight(1f)
                 )
                 StorageCategoryCard(
-                    uiState.storageCategories[1],
+                    storageCategories[1],
                     onCategoryClick = onCategoryClicked,
                     modifier = Modifier.weight(1f)
                 )
@@ -54,12 +57,12 @@ fun HomeScreenCategoriesContent(uiState: HomeUiState, onCategoryClicked: (String
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 StorageCategoryCard(
-                    uiState.storageCategories[2],
+                    storageCategories[2],
                     onCategoryClick = onCategoryClicked,
                     modifier = Modifier.weight(1f)
                 )
                 StorageCategoryCard(
-                    uiState.storageCategories[3],
+                    storageCategories[3],
                     onCategoryClick = onCategoryClicked,
                     modifier = Modifier.weight(1f)
                 )
@@ -71,12 +74,12 @@ fun HomeScreenCategoriesContent(uiState: HomeUiState, onCategoryClicked: (String
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 StorageCategoryCard(
-                    uiState.storageCategories[4],
+                    storageCategories[4],
                     onCategoryClick = onCategoryClicked,
                     modifier = Modifier.weight(1f)
                 )
                 StorageCategoryCard(
-                    uiState.storageCategories[5],
+                    storageCategories[5],
                     onCategoryClick = onCategoryClicked,
                     modifier = Modifier.weight(1f)
                 )
