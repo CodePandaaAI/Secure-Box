@@ -15,11 +15,11 @@ fun CreateFolderDialog(
     folderName: String,
     error: String?,
     onFolderNameChange: (String) -> Unit,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onConfirmFolderCreation: () -> Unit,
+    onDismissFolderDialog: () -> Unit
 ) {
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = onDismissFolderDialog,
         title = { Text("Create New Folder") },
         text = {
             Column {
@@ -43,14 +43,14 @@ fun CreateFolderDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = onConfirm,
+                onClick = onConfirmFolderCreation,
                 enabled = folderName.isNotBlank()
             ) {
                 Text("Create")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = onDismissFolderDialog) {
                 Text("Cancel")
             }
         }

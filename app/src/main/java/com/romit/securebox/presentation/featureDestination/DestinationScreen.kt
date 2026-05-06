@@ -1,4 +1,4 @@
-package com.romit.securebox.screens
+package com.romit.securebox.presentation.featureDestination
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -35,18 +35,17 @@ import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
 @Composable
 fun DestinationScreen(
     onFolderClicked: (FileItem) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onFolderNameChange: (String) -> Unit,
+    onConfirmFolderCreation: () -> Unit,
+    onDismissFolderDialog: () -> Unit
+
 ) {
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
 
-    // ✅ Handle back press
-    BackHandler(enabled = true) {
-        val handledInternally = sharedFileOperationsViewModel.navigateBack()
-        if (!handledInternally) {
-            // We're at root, exit DestinationScreen
-            onNavigateBack()
-        }
+    BackHandler(enabled = sharedFileOperationsViewModel.navigateBack()) {
+        onNavigateBack()
     }
 
     when {
@@ -101,9 +100,9 @@ fun DestinationScreen(
         CreateFolderDialog(
             folderName = uiState.newFolderName,
             error = uiState.newFolderError,
-            onFolderNameChange = { sharedFileOperationsViewModel.updateNewFolderName(it) },
-            onConfirm = { sharedFileOperationsViewModel.createFolder() },
-            onDismiss = { sharedFileOperationsViewModel.toggleCreateFolderDialog() }
+            onFolderNameChange = onFolderNameChange,
+            onConfirmFolderCreation = onConfirmFolderCreation,
+            onDismissFolderDialog = onDismissFolderDialog
         )
     }
 }

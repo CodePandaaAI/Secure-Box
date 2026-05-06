@@ -44,7 +44,7 @@ import com.romit.securebox.components.FileDetailsPane
 import com.romit.securebox.components.FileOperationBottomAppBar
 import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.presentation.featureRecents.AllRecentsScreen
-import com.romit.securebox.screens.DestinationScreen
+import com.romit.securebox.presentation.featureDestination.DestinationScreen
 import com.romit.securebox.screens.FileBrowserScreen
 import com.romit.securebox.presentation.featureHome.HomeScreen
 import com.romit.securebox.util.FileOperations
@@ -93,7 +93,8 @@ fun AppNavDisplay(
     backStack: MutableList<Screen>,
     fileBrowserViewModel: FileBrowserScreenViewModel = hiltViewModel()
 ) {
-    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
+    val sharedFileOperationsViewModel =
+        hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val snackBarHostState = remember { SnackbarHostState() }
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -188,7 +189,7 @@ fun AppNavDisplay(
 
                     is Screen.AllRecents -> NavEntry(route) {
                         AllRecentsScreen(
-                           onFileClicked = { file ->
+                            onFileClicked = { file ->
                                 if (file.isDirectory) {
                                     backStack.add(Screen.FileBrowser(path = file.path))
                                 } else {
@@ -225,7 +226,14 @@ fun AppNavDisplay(
                             },
                             onNavigateBack = {
                                 backStack.removeLastOrNull()
-                            }
+                            },
+                            onFolderNameChange = {
+                                sharedFileOperationsViewModel.updateNewFolderName(
+                                    it
+                                )
+                            },
+                            onConfirmFolderCreation = { sharedFileOperationsViewModel.createFolder() },
+                            onDismissFolderDialog = { sharedFileOperationsViewModel.toggleCreateFolderDialog() }
                         )
                     }
 
