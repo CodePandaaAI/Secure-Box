@@ -47,7 +47,7 @@ fun FileBrowserScreen(
     val snackBarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        sharedFileOperationsViewModel.uiEvent.collect { event ->
+        sharedFileOperationsViewModel.uiEvents.collect { event ->
             if (event is SharedFileOperationsUiEvent.ShowSnackBar) snackBarHostState.showSnackbar(
                 event.message
             )

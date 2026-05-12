@@ -51,8 +51,8 @@ import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsView
 fun FileDetailsPane(
     selectedFile: FileItem?,
     onClose: () -> Unit,
-    onCopyTo: (FileItem) -> Unit,
-    onMoveTo: (FileItem) -> Unit,
+    onCopyTo: () -> Unit,
+    onMoveTo: () -> Unit,
 ) {
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
     Column(
@@ -266,7 +266,7 @@ fun FileDetailsPane(
                 // Copy To button
                 Surface(
                     onClick = {
-                        onCopyTo(file)
+                        onCopyTo()
                     },
                     shape = RoundedCornerShape(4.dp),
                     color = if (!isSystemInDarkTheme())
@@ -299,7 +299,7 @@ fun FileDetailsPane(
                 // Move To button
                 Surface(
                     onClick = {
-                        onMoveTo(file)
+                        onMoveTo()
                     },
                     shape = RoundedCornerShape(
                         topStart = 4.dp,

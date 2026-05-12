@@ -46,6 +46,7 @@ import com.romit.securebox.presentation.featureDestination.DestinationScreen
 import com.romit.securebox.presentation.featureHome.HomeScreen
 import com.romit.securebox.presentation.featureRecents.AllRecentsScreen
 import com.romit.securebox.presentation.sharedViewmodel.NavigationViewModel
+import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsUiEvent
 import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
 import com.romit.securebox.util.FileOperations
 import com.romit.securebox.util.openFile
@@ -145,6 +146,14 @@ fun AppNavDisplay(
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { innerPadding ->
 
+        LaunchedEffect(Unit) {
+            sharedFileOperationsViewModel.uiEvents.collect { event ->
+                when (event) {
+                    is SharedFileOperationsUiEvent.ShowSnackBar -> snackBarHostState.showSnackbar(event.message)
+                }
+            }
+        }
+
         NavDisplay(
             modifier = Modifier.padding(innerPadding),
             backStack = navigationViewModel.backStack,
@@ -234,7 +243,7 @@ fun AppNavDisplay(
                                 sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
                                navigationViewModel.removeLastOrNull()
                             },
-                            onCopyTo = { file ->
+                            onCopyTo = {
                                 sharedFileOperationsViewModel.clearAllOperationsState()
                                 sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
                                 sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
@@ -245,7 +254,7 @@ fun AppNavDisplay(
                                     )
                                 )
                             },
-                            onMoveTo = { file ->
+                            onMoveTo = {
                                 sharedFileOperationsViewModel.clearAllOperationsState()
                                 sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
                                 sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
@@ -267,7 +276,7 @@ fun AppNavDisplay(
                 onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
                 onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
                 selectedFile = { uiState.selectedFile!! },
-                onCopyTo = { file ->
+                onCopyTo = {
                     sharedFileOperationsViewModel.clearAllOperationsState()
                     sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
                     sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
@@ -277,7 +286,7 @@ fun AppNavDisplay(
                         )
                     )
                 },
-                onMoveTo = { file ->
+                onMoveTo = {
                     sharedFileOperationsViewModel.clearAllOperationsState()
                     sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
                     sharedFileOperationsViewModel.selectedFileForBottomSheet(null)

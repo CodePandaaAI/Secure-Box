@@ -33,8 +33,8 @@ class SharedFileOperationsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SharedFileOperationsUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _uiEvent = Channel<SharedFileOperationsUiEvent>()
-    val uiEvent = _uiEvent.receiveAsFlow()
+    private val _uiEvents = Channel<SharedFileOperationsUiEvent>()
+    val uiEvents = _uiEvents.receiveAsFlow()
 
     private val folderHistory = mutableListOf<String>()
 
@@ -42,17 +42,10 @@ class SharedFileOperationsViewModel @Inject constructor(
         viewModelScope.launch {
             deleteFileUseCase(filePath).fold(
                 onSuccess = { message ->
-                    _uiState.update {
-                        it.copy(successMessage = message, errorMessage = null)
-                    }
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(message))
                 },
                 onFailure = { exception ->
-                    _uiState.update {
-                        it.copy(
-                            errorMessage = exception.message ?: "Failed to delete",
-                            successMessage = null
-                        )
-                    }
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(exception.message ?: "Failed to delete"))
                 }
             )
         }
@@ -62,8 +55,6 @@ class SharedFileOperationsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    errorMessage = null,
-                    successMessage = null,
                     isDestinationScreenLoading = true
                 )
             }
@@ -71,21 +62,18 @@ class SharedFileOperationsViewModel @Inject constructor(
                 onSuccess = { files ->
                     _uiState.update {
                         it.copy(
-                            errorMessage = null,
-                            successMessage = null,
                             isDestinationScreenLoading = false,
                             operationTargetPathDirectories = files
                         )
                     }
                 },
-                onFailure = { message ->
+                onFailure = { exception ->
                     _uiState.update {
                         it.copy(
-                            errorMessage = message.message,
-                            successMessage = null,
                             isDestinationScreenLoading = false
                         )
                     }
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(exception.message ?: "Failed To Load"))
                 }
             )
         }
@@ -102,24 +90,22 @@ class SharedFileOperationsViewModel @Inject constructor(
                 onSuccess = { message ->
                     _uiState.update {
                         it.copy(
-                            successMessage = message,
-                            errorMessage = null,
                             showRenameDialog = false,
                             newFileName = "",
                             selectedFile = null
                         )
                     }
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(message))
                 },
-                onFailure = { errorMessage ->
+                onFailure = { exception ->
                     _uiState.update {
                         it.copy(
-                            errorMessage = errorMessage.message,
-                            successMessage = null,
                             showRenameDialog = false,
                             newFileName = "",
                             selectedFile = null
                         )
                     }
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(exception.message ?: "Failed to rename file"))
                 }
             )
         }
@@ -129,18 +115,12 @@ class SharedFileOperationsViewModel @Inject constructor(
         viewModelScope.launch {
             copyFileUseCase(filePath, destPath).fold(
                 onSuccess = { message ->
-                    _uiState.update {
-                        it.copy(
-                            successMessage = message,
-                            errorMessage = null
-                        )
-                    }
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(message))
 
                     clearAllOperationsState()
                 },
-                onFailure = { errorMessage ->
-                    _uiState.update { it.copy(errorMessage = errorMessage.message, successMessage = null) }
-
+                onFailure = { exception ->
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(exception.message ?: "Failed to rename file"))
                     clearAllOperationsState()
                 }
             )
@@ -151,22 +131,12 @@ class SharedFileOperationsViewModel @Inject constructor(
         viewModelScope.launch {
             moveFileUseCase(filePath, destPath).fold(
                 onSuccess = { message ->
-                    _uiState.update {
-                        it.copy(
-                            successMessage = message,
-                            errorMessage = null
-                        )
-                    }
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(message))
 
                     clearAllOperationsState()
                 },
-                onFailure = { message ->
-                    _uiState.update {
-                        it.copy(
-                            errorMessage = message.message,
-                            successMessage = null
-                        )
-                    }
+                onFailure = { exception ->
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(exception.message ?: "Failed to rename file"))
 
                     clearAllOperationsState()
                 }
@@ -187,11 +157,11 @@ class SharedFileOperationsViewModel @Inject constructor(
                 onSuccess = { message ->
                     _uiState.update {
                         it.copy(
-                            successMessage = message,
                             showCreateFolderDialog = false,
                             newFolderName = ""
                         )
                     }
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(message))
                 },
                 onFailure = { exception ->
                     _uiState.update { it.copy(newFolderError = exception.message) }

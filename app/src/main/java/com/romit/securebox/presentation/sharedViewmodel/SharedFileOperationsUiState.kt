@@ -13,17 +13,15 @@ data class SharedFileOperationsUiState(
     val showCreateFolderDialog: Boolean = false, // For Creating new folder
     val showRenameDialog: Boolean = false, // For renaming the selected file name
 
-    // New File/Folder
+    // New File
     val newFileName: String = "", // For storing the file name while renaming
+
+    // New Folder
     val newFolderName: String = "", // For storing new folder name while naming
-    val newFolderError: String? = null, // Any Error that occurs after trying to create folder pressing on create folder button, th errorMessage is shown directly in alert dialog
+    val newFolderError: String? = null, // Any Error that occurs after trying to create folder pressing on create folder button, the errorMessage is shown directly in alert dialog
 
     // Destination Screen State
     val operationTargetPath: String = Environment.getExternalStorageDirectory().absolutePath, // Path For Copy or Move Operations just for copying, moving allRecents and creating folders
     val operationTargetPathDirectories: List<FileItem> = emptyList(), // Items(Dir) inside operation path
-    val isDestinationScreenLoading: Boolean = false,
-
-    // Error/Success Messages for all operations
-    val errorMessage: String? = null, // Universal errorMessage if any operation fails
-    val successMessage: String? = null, // Universal confirming success message for all successful operations
+    val isDestinationScreenLoading: Boolean = false
 )
