@@ -1,7 +1,6 @@
 package com.romit.securebox.components
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -75,14 +73,14 @@ fun BottomFileInfoSheet(
             when {
                 selectedFile().isImage -> {
                     Surface(
-                        shape = RoundedCornerShape(20.dp),
+                        shape = RoundedCornerShape(24.dp),
                         color = MaterialTheme.colorScheme.surface,
                     ) {
                         AsyncImage(
                             model = selectedFile().path,
                             contentDescription = selectedFile().name,
                             modifier = Modifier.size(200.dp)
-                                .clip(RoundedCornerShape(20.dp)),
+                                .clip(RoundedCornerShape(24.dp)),
                             contentScale = ContentScale.FillWidth
                         )
                     }
@@ -90,10 +88,8 @@ fun BottomFileInfoSheet(
 
                 selectedFile().isDirectory -> {
                     Surface(
-                        shape = RoundedCornerShape(20.dp),
-                        color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(
-                                alpha = 0.2f
-                        )
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.surface
                     ) {
                         Box(
                             modifier = Modifier
@@ -104,8 +100,7 @@ fun BottomFileInfoSheet(
                             Icon(
                                 imageVector = Icons.Filled.Folder,
                                 contentDescription = "Folder",
-                                modifier = Modifier.fillMaxSize(),
-                                tint = MaterialTheme.colorScheme.primary
+                                modifier = Modifier.fillMaxSize()
                             )
                         }
                     }
@@ -113,8 +108,8 @@ fun BottomFileInfoSheet(
 
                 else -> {
                     Surface(
-                        shape = RoundedCornerShape(20.dp),
-                        color = if(!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(alpha = 0.2f),
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.surface,
                     ) {
                         Box(
                             modifier = Modifier
@@ -128,8 +123,7 @@ fun BottomFileInfoSheet(
                                     selectedFile().isDirectory
                                 ),
                                 contentDescription = "File",
-                                modifier = Modifier.fillMaxSize(),
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                modifier = Modifier.fillMaxSize()
                             )
                         }
                     }
@@ -166,10 +160,8 @@ fun BottomFileInfoSheet(
                 color = MaterialTheme.colorScheme.outlineVariant
             )
 
-            // ✅ Action buttons with better styling
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 // Rename button
                 Surface(
@@ -178,13 +170,8 @@ fun BottomFileInfoSheet(
                     },
                     shape = RoundedCornerShape(
                         topStart = 12.dp,
-                        topEnd = 12.dp,
-                        bottomEnd = 4.dp,
-                        bottomStart = 4.dp
-                    ),
-                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(
-                        alpha = 0.2f
-                    ),
+                        topEnd = 12.dp),
+                    color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -207,19 +194,12 @@ fun BottomFileInfoSheet(
                         )
                     }
                 }
-
                 // Delete button
                 Surface(
                     onClick = {
                         onOpenDeleteDialog()
                     },
-                    shape = RoundedCornerShape(
-                        topStart = 4.dp,
-                        topEnd = 4.dp,
-                        bottomEnd = 4.dp,
-                        bottomStart = 4.dp
-                    ),
-                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(alpha = 0.2f),
+                    color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -248,13 +228,7 @@ fun BottomFileInfoSheet(
                     onClick = {
                         onCopyTo(selectedFile())
                     },
-                    shape = RoundedCornerShape(
-                        topStart = 4.dp,
-                        topEnd = 4.dp,
-                        bottomEnd = 4.dp,
-                        bottomStart = 4.dp
-                    ),
-                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(alpha = 0.2f),
+                    color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -282,12 +256,10 @@ fun BottomFileInfoSheet(
                         onMoveTo(selectedFile())
                     },
                     shape = RoundedCornerShape(
-                        topStart = 4.dp,
-                        topEnd = 4.dp,
-                        bottomEnd = 12.dp,
-                        bottomStart = 12.dp
+                        bottomStart = 12.dp,
+                        bottomEnd = 12.dp
                     ),
-                    color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color.Gray.copy(alpha = 0.2f),
+                    color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(

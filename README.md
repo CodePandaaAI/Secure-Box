@@ -1,77 +1,111 @@
-# SecureBox 🔐
+<div align="center">
 
-SecureBox is a modern, feature-rich Android file manager built with **Jetpack Compose**. It provides an intuitive interface for browsing, managing, and organizing your files with advanced features like image thumbnails, smart recents, and type-safe file operations.
+<img src="assets/secure_box_logo.png" width="160" alt="Secure Box Logo" />
 
-## ✨ Features
+# Secure Box
 
-### 📁 File Management
-- **Smart File Browser:** Navigate through directories with smooth animations and modern UI
-- **Image Thumbnails:** Instant preview of images using Coil's efficient loading and caching
-- **Recent Files:** Unified recents showing recently downloaded, modified, and opened files
-- **Pagination:** Smooth infinite scroll with pull-to-refresh support (30 items per page)
-- **Quick Actions:** Long-press or tap three-dot menu for file operations
+**your files, your way**
 
-### 🎨 User Interface
-- **Material Design 3:** Modern, beautiful UI following latest Material guidelines
-- **Adaptive Thumbnails:** Different previews for images, folders, and documents
-- **Bottom Sheets:** Smooth modals for file operations with image previews
-- **Empty States:** Helpful messages and icons when no files are present
-- **Storage Categories:** Quick access cards for Downloads, Pictures, Documents, Audio, Videos, and More
+<br>
 
-### 🛠️ File Operations
-- **Rename:** Edit file names with extension protection (prevents accidental format changes)
-- **Delete:** Safe deletion with confirmation dialogs for files and folders
-- **Result-based Error Handling:** Clear, actionable error messages:
-  - "File not found" instead of generic "Failed"
-  - "Permission denied" with context
-  - "Name already exists" for duplicates
-  - "Invalid characters" for special symbols
+[![Android](https://img.shields.io/badge/Android-15-34A853?style=flat&logo=android&logoColor=white)](https://developer.android.com)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Compose](https://img.shields.io/badge/Jetpack_Compose-BOM_2026-4285F4?style=flat&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 
-### ⚡ Performance
-- **Lazy Loading:** Only loads visible files, saving memory
-- **Thumbnail Caching:** Images load instantly after first view (Coil memory + disk cache)
-- **Background Operations:** File operations don't block UI
-- **Optimized Pagination:** Prefetches next page 5 items before scroll end
+</div>
 
-## 🏗️ Architecture
+<br>
 
-### Clean Architecture
-- **MVVM Pattern:** ViewModels manage UI state and business logic
-- **Repository Pattern:** Centralized data access layer
-- **Unidirectional Data Flow:** Immutable state with sealed classes
+> A file manager that doesn't feel like one.
+> 
+> No clutter. No bloat. Just your files, shown the way you want.
 
-### Error Handling
-- **Result<T> Pattern:** Type-safe error handling throughout the app
-- **Specific Exceptions:** FileNotFoundException, SecurityException, IllegalArgumentException
-- **User-Friendly Messages:** Context-aware error messages for each failure case
+<br>
 
-## 🧰 Tech Stack
+## What does it do?
 
-### Core
-- **Kotlin** - Modern, concise programming language
-- **Jetpack Compose** - Declarative UI framework
-- **Coroutines** - Asynchronous programming
-- **Flow** - Reactive state management
+It manages your files. That's it. But it does it well.
 
-### Android Jetpack
-- **Hilt** - Dependency injection
-- **Navigation Compose** - Type-safe navigation
-- **ViewModel** - Lifecycle-aware state management
-- **Lifecycle Runtime** - Compose lifecycle integration
+You open it. You see your recent files right there — no digging through folders. You want to browse? Tap a category. Downloads, Pictures, Documents, Audio, Videos — one tap, you're in.
 
-### Libraries
-- **Coil 3** - Async image loading with automatic resizing and caching
-- **Kotlinx Serialization** - Type-safe data serialization
-- **Material Icons Extended** - Rich iconography
-- **Google Fonts** - Custom typography
+Every file can be renamed, copied, moved, or deleted. Long press → pick what you want → done. If you're copying or moving, you pick the folder — we show you a clean folder picker with a "paste here" button at the bottom.
 
-### Storage
-- **File API** - Native Android file system access
-- **MediaStore** (planned) - System media queries for enhanced recents
+It shows image thumbnails instantly. Folders show their sizes. Everything loads fast because it only loads what you can see.
 
-## 📱 Screenshots
+<br>
 
-|                                                                                                           |                                                                                                           |                                                                                                           |
-|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|
+## Screenshots
+
+|  |  |  |
+|:-:|:-:|:-:|
 | <img width="240" src="https://github.com/user-attachments/assets/434506c0-1387-4235-a3c5-4e107ce52b4b" /> | <img width="240" src="https://github.com/user-attachments/assets/8e6bac65-9923-4fda-92ad-f9bac2d6f9ec" /> | <img width="240" src="https://github.com/user-attachments/assets/022be59d-6026-44f1-9ef0-11bea6a332e0" /> |
 | <img width="240" src="https://github.com/user-attachments/assets/bc80357d-e678-4e3b-97de-29cd6fb01c1a" /> | <img width="240" src="https://github.com/user-attachments/assets/901177e3-dab7-4790-a765-80f19aa02fe4" /> | <img width="240" src="https://github.com/user-attachments/assets/28d5b5ab-29e2-4049-a06d-7e5b4a23d723" /> |
+
+<br>
+
+## How it's built
+
+No shortcuts. No tutorials copy-pasted. This is built from scratch to learn Android properly.
+
+**The UI** is Jetpack Compose with Material 3. Every screen — Home, File Browser, Recents, Destination Picker — is its own composable with its own ViewModel. The theme follows the device — light or dark, it adapts.
+
+**The architecture** is MVVM with a repository layer. ViewModels hold the state. The repository talks to the file system. State flows down, events flow up. No weird callbacks, no spaghetti.
+
+**File operations** use Kotlin's `Result<T>`. Every operation — rename, delete, copy, move — either succeeds or fails with a specific error. Not "something went wrong". You get "File not found" or "Permission denied" or "Name already exists". The exact problem.
+
+**Navigation** uses Navigation3 with a simple back stack. No fragments. No XML. Just a list of screens.
+
+<br>
+
+## The stack
+
+| Layer | What | Why |
+|:------|:-----|:----|
+| Language | Kotlin | Only choice for modern Android |
+| UI | Jetpack Compose | Declarative, fast, less code |
+| Design | Material 3 | Looks native, supports dynamic color |
+| DI | Hilt | Inject once, use everywhere |
+| Images | Coil 3 | Async loading, caching, thumbnails |
+| Navigation | Navigation3 | Type-safe, composable-first |
+| Async | Coroutines + Flow | Non-blocking, lifecycle-aware |
+| Serialization | Kotlinx Serialization | Type-safe route args |
+
+<br>
+
+## Things I'm still working on
+
+This is a learning project. It's not done. Here's what's next:
+
+- [ ] Snackbar system using `Channel` instead of StateFlow strings
+- [ ] Use cases for file operations (domain layer)
+- [ ] Split the shared ViewModel — it's too big right now
+- [ ] Search
+- [ ] Favorites / pinned folders
+- [ ] Multi-select for batch operations
+- [ ] Sort and filter options in file browser
+
+<br>
+
+## Run it yourself
+
+```bash
+# Clone
+git clone https://github.com/CodePandaaAI/Secure-Box.git
+
+# Open in Android Studio, sync gradle, run on device/emulator
+# Needs "All Files Access" permission — the app will ask on first launch
+```
+
+> **Note:** Needs Android 11+ (API 30) for `MANAGE_EXTERNAL_STORAGE`. Works best on a real device — emulator file system is mostly empty.
+
+<br>
+
+---
+
+<div align="center">
+
+Built by learning, not by copying.
+
+Made with Kotlin, Compose, and a lot of late nights.
+
+</div>

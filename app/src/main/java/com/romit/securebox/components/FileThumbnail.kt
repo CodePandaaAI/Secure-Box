@@ -1,7 +1,6 @@
 package com.romit.securebox.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +11,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -31,9 +29,7 @@ fun FileThumbnail(
 
         file.isImage -> {
             Surface(
-                color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                    alpha = 0.1f
-                ),
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 AsyncImage(
@@ -55,9 +51,7 @@ fun FileThumbnail(
         // If it's a folder, show folder icon
         file.isDirectory -> {
             Surface(
-                color = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                    alpha = 0.1f
-                ),
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(
@@ -73,9 +67,7 @@ fun FileThumbnail(
         // For other allRecents, show generic file icon
         else -> {
             Surface(
-                color = if (!isSystemInDarkTheme())  MaterialTheme.colorScheme.surfaceContainer else Color.Gray.copy(
-                    alpha = 0.1f
-                ),
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(
