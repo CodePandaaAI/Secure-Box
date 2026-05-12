@@ -28,7 +28,7 @@ import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.presentation.featureRecents.components.AllRecentsErrorScreen
 import com.romit.securebox.presentation.featureRecents.components.AllRecentsLoadingScreen
 import com.romit.securebox.util.getListItemShape
-import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
 
 
 @Composable

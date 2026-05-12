@@ -30,7 +30,7 @@ import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.getListItemShape
-import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
 
 @Composable
 fun DestinationScreen(

@@ -1,7 +1,5 @@
 package com.romit.securebox.components
 
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -47,14 +45,14 @@ import coil3.compose.AsyncImage
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.util.StorageHelper
-import com.romit.securebox.viewmodels.SharedFileOperationsViewModel
+import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
 
 @Composable
 fun FileDetailsPane(
     selectedFile: FileItem?,
     onClose: () -> Unit,
-    onCopyTo: (FileItem) -> Unit,
-    onMoveTo: (FileItem) -> Unit,
+    onCopyTo: () -> Unit,
+    onMoveTo: () -> Unit,
 ) {
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
     Column(
@@ -268,7 +266,7 @@ fun FileDetailsPane(
                 // Copy To button
                 Surface(
                     onClick = {
-                        onCopyTo(file)
+                        onCopyTo()
                     },
                     shape = RoundedCornerShape(4.dp),
                     color = if (!isSystemInDarkTheme())
@@ -301,7 +299,7 @@ fun FileDetailsPane(
                 // Move To button
                 Surface(
                     onClick = {
-                        onMoveTo(file)
+                        onMoveTo()
                     },
                     shape = RoundedCornerShape(
                         topStart = 4.dp,
