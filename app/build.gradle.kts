@@ -49,10 +49,6 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
 
-    // Adaptive
-    implementation(libs.androidx.compose.adaptive.navigation3)
-    implementation(libs.androidx.window)
-
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil)
@@ -70,7 +66,6 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
-    implementation(libs.androidx.compose.adaptive.navigation3)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
