@@ -221,10 +221,6 @@ class SharedFileOperationsViewModel @Inject constructor(
         }
     }
 
-    fun setOperationSourceFile(file: FileItem) {
-        _uiState.update { it.copy(operationSourceFile = file) }
-    }
-
     fun navigateToFolder(folderPath: String) {
         // Add current path to history before navigating
         val currentPath = _uiState.value.operationTargetPath
@@ -259,7 +255,6 @@ class SharedFileOperationsViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 selectedOperation = FileOperations.NONE,
-                operationSourceFile = null,
                 operationTargetPath = Environment.getExternalStorageDirectory().absolutePath,
                 operationTargetPathDirectories = emptyList()
             )

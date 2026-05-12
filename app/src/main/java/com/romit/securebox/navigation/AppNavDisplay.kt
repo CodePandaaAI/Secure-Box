@@ -106,20 +106,20 @@ fun AppNavDisplay(
             }
         },
         bottomBar = {
-            if (currentScreen is Screen.DestinationScreen && uiState.operationSourceFile != null) {
+            if (currentScreen is Screen.DestinationScreen && uiState.selectedFile != null) {
                 FileOperationBottomAppBar(
                     onCreateFolder = { sharedFileOperationsViewModel.toggleCreateFolderDialog() },
                     onConfirmLocation = {
-                        if (uiState.operationSourceFile!!.path.isNotBlank()) {
+                        if (uiState.selectedFile!!.path.isNotBlank()) {
                             if (uiState.selectedOperation == FileOperations.COPY) {
                                 sharedFileOperationsViewModel.copyFile(
-                                    uiState.operationSourceFile!!.path,
+                                    uiState.selectedFile!!.path,
                                     uiState.operationTargetPath
                                 )
                             }
                             if (uiState.selectedOperation == FileOperations.MOVE) {
                                 sharedFileOperationsViewModel.moveFile(
-                                    uiState.operationSourceFile!!.path,
+                                    uiState.selectedFile!!.path,
                                     uiState.operationTargetPath
                                 )
                             }
@@ -236,7 +236,6 @@ fun AppNavDisplay(
                             },
                             onCopyTo = { file ->
                                 sharedFileOperationsViewModel.clearAllOperationsState()
-                                sharedFileOperationsViewModel.setOperationSourceFile(file)
                                 sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
                                 sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
                                 navigationViewModel.removeIf { it is Screen.FileDetails }
@@ -248,7 +247,6 @@ fun AppNavDisplay(
                             },
                             onMoveTo = { file ->
                                 sharedFileOperationsViewModel.clearAllOperationsState()
-                                sharedFileOperationsViewModel.setOperationSourceFile(file)
                                 sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
                                 sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
                                 navigationViewModel.removeIf { it is Screen.FileDetails }
@@ -271,7 +269,6 @@ fun AppNavDisplay(
                 selectedFile = { uiState.selectedFile!! },
                 onCopyTo = { file ->
                     sharedFileOperationsViewModel.clearAllOperationsState()
-                    sharedFileOperationsViewModel.setOperationSourceFile(file)
                     sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
                     sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
                    navigationViewModel.navigateTo(
@@ -282,7 +279,6 @@ fun AppNavDisplay(
                 },
                 onMoveTo = { file ->
                     sharedFileOperationsViewModel.clearAllOperationsState()
-                    sharedFileOperationsViewModel.setOperationSourceFile(file)
                     sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
                     sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
                     navigationViewModel.navigateTo(

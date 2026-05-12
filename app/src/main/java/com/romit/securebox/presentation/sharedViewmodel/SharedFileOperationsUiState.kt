@@ -6,7 +6,6 @@ import com.romit.securebox.util.FileOperations
 
 data class SharedFileOperationsUiState(
     val selectedFile: FileItem? = null, // Universal Selected File on which all the operations are based on
-    val operationSourceFile: FileItem? = null, // File being copied/moved
     val selectedOperation: FileOperations = FileOperations.NONE,
 
     // Dialogs
