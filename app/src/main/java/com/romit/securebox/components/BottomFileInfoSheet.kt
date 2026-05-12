@@ -149,7 +149,7 @@ fun BottomFileInfoSheet(
                     fontFamily = CustomFontFamily,
                     fontSize = 24.sp,
                     lineHeight = 34.sp,
-                    letterSpacing = 2.5.sp,
+                    letterSpacing = 2.sp,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
