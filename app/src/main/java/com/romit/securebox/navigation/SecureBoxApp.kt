@@ -52,20 +52,8 @@ import com.romit.securebox.util.FileOperations
 import com.romit.securebox.util.openFile
 import kotlinx.coroutines.launch
 
-
 /**
  * The main entry point composable for the SecureBox application.
- *
- * This function initializes the navigation back stack, starting with the `HomeScreen`,
- * and sets up the primary navigation display for the entire app. It delegates the
- * actual UI and navigation logic to the [AppNavDisplay] composable.
- */
-@Composable
-fun SecureApp() {
-    AppNavDisplay()
-}
-
-/**
  * A composable that serves as the main navigation and layout structure for the application.
  * It manages the display of different screens based on the navigation back stack, handles
  * back-press events, and adapts its layout for different window sizes (e.g., phones vs. tablets).
@@ -83,7 +71,7 @@ fun SecureApp() {
  *
  */
 @Composable
-fun AppNavDisplay(
+fun SecureBoxApp(
 ) {
     val navigationViewModel = hiltViewModel<NavigationViewModel>()
     val sharedFileOperationsViewModel =

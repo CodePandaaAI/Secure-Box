@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.romit.securebox.navigation.SecureApp
+import com.romit.securebox.navigation.SecureBoxApp
 import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.ui.theme.SecureBoxTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,7 +46,7 @@ import dagger.hilt.android.AndroidEntryPoint
  * necessary permissions before launching the main user interface. It ensures that the app has
  * "All Files Access" permission, which is critical for its file management functionalities.
  *
- * If the permission is already granted, it displays the main app content via the [SecureApp] composable.
+ * If the permission is already granted, it displays the main app content via the [SecureBoxApp] composable.
  * If the permission is not granted, it launches the system settings screen to allow the user
  * to grant the permission. A loading/requesting message is shown in the meantime.
  *
@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 if (hasExternalStoragePermission) {
-                    SecureApp()
+                    SecureBoxApp()
                 } else {
                     Box(
                         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainer),
