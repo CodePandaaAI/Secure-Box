@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -26,20 +25,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.R
-import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.util.getListItemShape
 import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
+import com.romit.securebox.util.getListItemShape
 
 @Composable
 fun DestinationScreen(
     onFolderClicked: (FileItem) -> Unit,
-    onNavigateBack: () -> Unit,
-    onFolderNameChange: (String) -> Unit,
-    onConfirmFolderCreation: () -> Unit,
-    onDismissFolderDialog: () -> Unit
-
+    onNavigateBack: () -> Unit
 ) {
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
@@ -65,9 +59,12 @@ fun DestinationScreen(
             LazyColumn(
                 Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.surfaceContainer), contentPadding = PaddingValues(16.dp)
             ) {
-                itemsIndexed(uiState.operationTargetPathDirectories) { index ,dir ->
+                itemsIndexed(
+                    items = uiState.operationTargetPathDirectories,
+                    key = { _, dir -> dir.path }
+                ) { index, dir ->
                     FolderCard(
-                        modifier = Modifier.padding(vertical = 1.dp),
+                        modifier = Modifier,
                         file = dir,
                         onFolderClick = { onFolderClicked(it) },
                         shape = getListItemShape(
@@ -94,15 +91,5 @@ fun DestinationScreen(
                 Text("Nothing Here")
             }
         }
-    }
-
-    if (uiState.showCreateFolderDialog) {
-        CreateFolderDialog(
-            folderName = uiState.newFolderName,
-            error = uiState.newFolderError,
-            onFolderNameChange = onFolderNameChange,
-            onConfirmFolderCreation = onConfirmFolderCreation,
-            onDismissFolderDialog = onDismissFolderDialog
-        )
     }
 }

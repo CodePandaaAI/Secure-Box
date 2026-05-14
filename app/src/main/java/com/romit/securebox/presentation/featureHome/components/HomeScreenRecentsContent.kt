@@ -19,11 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.romit.securebox.components.FileCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.presentation.featureHome.HomeUiState
-import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.util.getListItemShape
 
 @Composable
@@ -40,8 +38,7 @@ fun HomeScreenRecentsContent(
     ) {
         Text(
             text = "Recents",
-            fontFamily = CustomFontFamily,
-            fontSize = 28.sp
+            style = MaterialTheme.typography.titleMedium
         )
 
         Box(

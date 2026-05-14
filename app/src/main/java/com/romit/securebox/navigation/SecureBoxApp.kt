@@ -35,6 +35,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import com.romit.securebox.components.BottomFileInfoSheet
+import com.romit.securebox.components.CreateFolderDialog
 import com.romit.securebox.components.DeleteDialog
 import com.romit.securebox.components.FileDetailsPane
 import com.romit.securebox.components.FileOperationBottomAppBar
@@ -210,14 +211,7 @@ fun SecureBoxApp(
                             },
                             onNavigateBack = {
                                 navigationViewModel.removeLastOrNull()
-                            },
-                            onFolderNameChange = {
-                                sharedFileOperationsViewModel.updateNewFolderName(
-                                    it
-                                )
-                            },
-                            onConfirmFolderCreation = { sharedFileOperationsViewModel.createFolder() },
-                            onDismissFolderDialog = { sharedFileOperationsViewModel.toggleCreateFolderDialog() }
+                            }
                         )
                     }
 
@@ -306,6 +300,20 @@ fun SecureBoxApp(
                     sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
                 },
                 selectedFile = { uiState.selectedFile!! }
+            )
+        }
+
+        if (uiState.showCreateFolderDialog) {
+            CreateFolderDialog(
+                folderName = uiState.newFolderName,
+                error = uiState.newFolderError,
+                onFolderNameChange = {
+                    sharedFileOperationsViewModel.updateNewFolderName(
+                        it
+                    )
+                },
+                onConfirmFolderCreation = { sharedFileOperationsViewModel.createFolder() },
+                onDismissFolderDialog = { sharedFileOperationsViewModel.toggleCreateFolderDialog() }
             )
         }
     }
