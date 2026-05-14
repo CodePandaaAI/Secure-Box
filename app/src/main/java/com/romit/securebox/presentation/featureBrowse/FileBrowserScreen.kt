@@ -58,7 +58,7 @@ fun FileBrowserScreen(
         fileBrowserScreenViewModel.getDirFiles(path)
     }
 
-    when (uiState) {
+    when (val state = uiState) {
         is FileBrowserUiState.Loading -> {
             Column(
                 Modifier
@@ -72,7 +72,7 @@ fun FileBrowserScreen(
         }
 
         is FileBrowserUiState.Success -> {
-            if ((uiState as FileBrowserUiState.Success).browsingPathDirectories.isNotEmpty()) {
+            if (state.browsingPathDirectories.isNotEmpty()) {
                 LazyColumn(
                     Modifier
                         .fillMaxSize()
@@ -80,7 +80,7 @@ fun FileBrowserScreen(
                     contentPadding = PaddingValues(16.dp)
                 ) {
                     itemsIndexed(
-                        items = (uiState as FileBrowserUiState.Success).browsingPathDirectories,
+                        items = state.browsingPathDirectories,
                         key = { _, file -> file.path }
                     ) { index, file ->
                         FileCard(
@@ -91,7 +91,7 @@ fun FileBrowserScreen(
                             },
                             shape = getListItemShape(
                                 index = index,
-                                totalItems = (uiState as FileBrowserUiState.Success).browsingPathDirectories.size
+                                totalItems = state.browsingPathDirectories.size
                             )
                         )
                     }

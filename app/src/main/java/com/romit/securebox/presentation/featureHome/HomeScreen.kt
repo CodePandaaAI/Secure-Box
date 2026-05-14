@@ -59,14 +59,14 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Recents Section
-            when (uiState) {
+            when (val state = uiState) {
                 is HomeUiState.RecentFilesLoading -> {
                     HomeLoadingScreen()
                 }
 
                 is HomeUiState.Success -> {
                     HomeScreenRecentsContent(
-                        uiState as HomeUiState.Success,
+                        state,
                         onOpenFile = {
                             onOpenFile(it)
                         },
