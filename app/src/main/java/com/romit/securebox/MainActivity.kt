@@ -88,6 +88,7 @@ class MainActivity : ComponentActivity() {
                                 fontWeight = FontWeight.SemiBold,
                                 overflow = TextOverflow.Ellipsis,
                                 fontFamily = CustomFontFamily,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 24.sp,
                                 lineHeight = 30.sp,
                                 letterSpacing = 1.8.sp,
