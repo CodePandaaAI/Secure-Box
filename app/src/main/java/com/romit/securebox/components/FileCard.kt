@@ -45,7 +45,7 @@ fun FileCard(
         modifier = Modifier
             .clip(shape = shape)
             .fillMaxWidth()
-            .combinedClickable(  // ✅ Replace Surface's onClick with this
+            .combinedClickable(  // Replace Surface's onClick with this
                 onClick = { onOpenFile(file) },
                 onLongClick = { onSelectFileForBottomSheet(file) }
             )
@@ -54,9 +54,9 @@ fun FileCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FileThumbnail(file = file, icon = icon, Modifier.size(56.dp))
+            FileThumbnail(file = file, icon = icon, Modifier.size(64.dp))
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(

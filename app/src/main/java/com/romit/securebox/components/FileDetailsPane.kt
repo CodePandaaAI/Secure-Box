@@ -1,5 +1,7 @@
 package com.romit.securebox.components
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +56,8 @@ fun FileDetailsPane(
     onCopyTo: () -> Unit,
     onMoveTo: () -> Unit,
 ) {
-    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
+    val activity = LocalActivity.current as ComponentActivity
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
     Column(
         modifier = Modifier
             .fillMaxSize()

@@ -4,15 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.romit.securebox.components.StorageCategoryCard
 import com.romit.securebox.data.model.StorageCategory
-import com.romit.securebox.ui.theme.CustomFontFamily
 
 @Composable
 fun HomeScreenCategoriesContent(storageCategories: () -> List<StorageCategory>, onCategoryClicked: (String) -> Unit) {
@@ -21,10 +19,7 @@ fun HomeScreenCategoriesContent(storageCategories: () -> List<StorageCategory>, 
 
     Text(
         text = "Categories",
-        fontFamily = CustomFontFamily,
-        fontSize = 28.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier
+        style = MaterialTheme.typography.titleLarge
     )
 
     if (storageCategories.isEmpty()) {

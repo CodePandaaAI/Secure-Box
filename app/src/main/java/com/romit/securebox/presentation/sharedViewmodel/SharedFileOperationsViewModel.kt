@@ -27,7 +27,7 @@ class SharedFileOperationsViewModel @Inject constructor(
     private val renameFileUseCase: RenameFileUseCase,
     private val copyFileUseCase: CopyFileUseCase,
     private val createFolderUseCase: CreateFolderUseCase,
-    private val moveFileUseCase: MoveFileUseCase
+    private val moveFileUseCase: MoveFileUseCase,
 ) :
     ViewModel() {
     private val _uiState = MutableStateFlow(SharedFileOperationsUiState())
@@ -36,18 +36,19 @@ class SharedFileOperationsViewModel @Inject constructor(
     private val _uiEvents = Channel<SharedFileOperationsUiEvent>()
     val uiEvents = _uiEvents.receiveAsFlow()
 
-    private val folderHistory = mutableListOf<String>()
-
     fun deleteFile(filePath: String) {
         viewModelScope.launch {
             deleteFileUseCase(filePath).fold(
                 onSuccess = { message ->
                     _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(message))
-                },
-                onFailure = { exception ->
-                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(exception.message ?: "Failed to delete"))
                 }
-            )
+            ) { exception ->
+                _uiEvents.send(
+                    SharedFileOperationsUiEvent.ShowSnackBar(
+                        exception.message ?: "Failed to delete"
+                    )
+                )
+            }
         }
     }
 
@@ -191,36 +192,6 @@ class SharedFileOperationsViewModel @Inject constructor(
         }
     }
 
-    fun navigateToFolder(folderPath: String) {
-        // Add current path to history before navigating
-        val currentPath = _uiState.value.operationTargetPath
-        if (currentPath.isNotEmpty() && folderHistory.lastOrNull() != currentPath) {
-            folderHistory.add(currentPath)
-        }
-
-        updateCurrentPath(folderPath)
-        getDirectories(folderPath)
-    }
-
-    fun navigateBack(): Boolean {
-        // ✅ Return true if we handled the back press, false if we should exit
-        return if (folderHistory.isNotEmpty()) {
-            val previousPath = folderHistory.removeAt(folderHistory.lastIndex)
-            updateCurrentPath(previousPath)
-            getDirectories(previousPath)
-            true
-        } else {
-            // We're at the root, let the system handle back press (exit DestinationScreen)
-            false
-        }
-    }
-
-    fun initializeDestinationScreen(startPath: String) {
-        folderHistory.clear()
-        updateCurrentPath(startPath)
-        getDirectories(startPath)
-    }
-
     fun clearAllOperationsState() {
         _uiState.update {
             it.copy(
@@ -229,8 +200,6 @@ class SharedFileOperationsViewModel @Inject constructor(
                 operationTargetPathDirectories = emptyList()
             )
         }
-        // Clear folder history too
-        folderHistory.clear()
     }
 
 
@@ -251,7 +220,8 @@ class SharedFileOperationsViewModel @Inject constructor(
         _uiState.update { it.copy(selectedFile = file) }
     }
 
-    fun updateCurrentPath(newCurrPath: String) {
+    fun updateOperationPathAndFetchDirectories(newCurrPath: String) {
         _uiState.update { it.copy(operationTargetPath = newCurrPath) }
+        getDirectories(newCurrPath)
     }
 }

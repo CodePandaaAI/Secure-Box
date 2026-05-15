@@ -1,5 +1,7 @@
 package com.romit.securebox.presentation.featureBrowse
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,8 +42,9 @@ fun FileBrowserScreen(
     path: String,
     onFileClicked: (FileItem) -> Unit,
 ) {
+    val activity = LocalActivity.current as ComponentActivity
     val fileBrowserScreenViewModel: FileBrowserScreenViewModel = hiltViewModel()
-    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
     val uiState by fileBrowserScreenViewModel.uiState.collectAsState()
 
     val snackBarHostState = remember { SnackbarHostState() }
@@ -58,7 +61,7 @@ fun FileBrowserScreen(
         fileBrowserScreenViewModel.getDirFiles(path)
     }
 
-    when (uiState) {
+    when (val state = uiState) {
         is FileBrowserUiState.Loading -> {
             Column(
                 Modifier
@@ -72,7 +75,7 @@ fun FileBrowserScreen(
         }
 
         is FileBrowserUiState.Success -> {
-            if ((uiState as FileBrowserUiState.Success).browsingPathDirectories.isNotEmpty()) {
+            if (state.browsingPathDirectories.isNotEmpty()) {
                 LazyColumn(
                     Modifier
                         .fillMaxSize()
@@ -80,7 +83,7 @@ fun FileBrowserScreen(
                     contentPadding = PaddingValues(16.dp)
                 ) {
                     itemsIndexed(
-                        items = (uiState as FileBrowserUiState.Success).browsingPathDirectories,
+                        items = state.browsingPathDirectories,
                         key = { _, file -> file.path }
                     ) { index, file ->
                         FileCard(
@@ -91,7 +94,7 @@ fun FileBrowserScreen(
                             },
                             shape = getListItemShape(
                                 index = index,
-                                totalItems = (uiState as FileBrowserUiState.Success).browsingPathDirectories.size
+                                totalItems = state.browsingPathDirectories.size
                             )
                         )
                     }

@@ -1,5 +1,7 @@
 package com.romit.securebox.presentation.featureRecents
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,7 +37,8 @@ import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsView
 fun AllRecentsScreen(
     onFileClicked: (FileItem) -> Unit
 ) {
-    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
+    val activity = LocalActivity.current as ComponentActivity
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
     val recentsScreenViewModel = hiltViewModel<AllRecentsScreenViewModel>()
     val uiState by recentsScreenViewModel.uiState.collectAsState()
 
@@ -54,15 +57,16 @@ fun AllRecentsScreen(
         onRefresh = { recentsScreenViewModel.reloadRecentFiles() },
         modifier = Modifier.fillMaxSize()
     ) {
-        when (uiState) {
+        when (val state = uiState) {
             is AllRecentsUiState.Loading -> {
                 AllRecentsLoadingScreen()
             }
 
             is AllRecentsUiState.Success -> {
-                val isScrolledToEnd by remember {
+                val reachedBottom by remember(state.allRecents.size) {
                     derivedStateOf {
-                        lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == (uiState as AllRecentsUiState.Success).allRecents.size - 1
+                        val lastVisibleItem = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()
+                        lastVisibleItem != null && lastVisibleItem.index != -1 && lastVisibleItem.index == state.allRecents.size - 1
                     }
                 }
                 LazyColumn(
@@ -73,7 +77,7 @@ fun AllRecentsScreen(
                     contentPadding = PaddingValues(16.dp)
                 ) {
                     itemsIndexed(
-                        items = (uiState as AllRecentsUiState.Success).allRecents,
+                        items = state.allRecents,
                         key = { _, file -> file.path }
                     ) { index, file ->
                         FileCard(
@@ -84,12 +88,12 @@ fun AllRecentsScreen(
                             },
                             shape = getListItemShape(
                                 index = index,
-                                totalItems = (uiState as AllRecentsUiState.Success).allRecents.size
+                                totalItems = state.allRecents.size
                             )
                         )
                     }
 
-                    if ((uiState as AllRecentsUiState.Success).isLoadingNextPage) {
+                    if (state.isLoadingNextPage) {
                         item {
                             Row(
                                 modifier = Modifier
@@ -102,8 +106,8 @@ fun AllRecentsScreen(
                         }
                     }
                 }
-                LaunchedEffect(isScrolledToEnd) {
-                    if (isScrolledToEnd && !(uiState as AllRecentsUiState.Success).isLoadingNextPage && !(uiState as AllRecentsUiState.Success).isPaginationEndReached) {
+                LaunchedEffect(reachedBottom) {
+                    if (reachedBottom && !state.isLoadingNextPage && !state.isPaginationEndReached) {
                         recentsScreenViewModel.loadNextPage()
                     }
                 }
