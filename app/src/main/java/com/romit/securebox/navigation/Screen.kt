@@ -9,5 +9,5 @@ sealed interface Screen {
 
     data class DestinationScreen(val folderPath: String) : Screen
 
-    data class FileDetails(val filePath: String) : Screen
+//    data class FileDetails(val filePath: String) : Screen
 }

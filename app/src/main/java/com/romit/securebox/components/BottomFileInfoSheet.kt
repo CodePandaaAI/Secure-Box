@@ -79,7 +79,7 @@ fun BottomFileInfoSheet(
                         AsyncImage(
                             model = selectedFile().path,
                             contentDescription = selectedFile().name,
-                            modifier = Modifier.size(200.dp)
+                            modifier = Modifier.size(width = 275.dp, height = 200.dp)
                                 .clip(RoundedCornerShape(24.dp)),
                             contentScale = ContentScale.FillWidth
                         )

@@ -18,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -28,16 +29,24 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.R
 import com.romit.securebox.components.FolderCard
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.navigation.Screen
 import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
 import com.romit.securebox.util.getListItemShape
 
 @Composable
 fun DestinationScreen(
+    currentRoute: Screen.DestinationScreen,
     onFolderClicked: (FileItem) -> Unit
 ) {
     val activity = LocalActivity.current as ComponentActivity
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
+
+    LaunchedEffect(currentRoute.folderPath) {
+        if (uiState.operationTargetPath != currentRoute.folderPath) {
+            sharedFileOperationsViewModel.updateOperationPathAndFetchDirectories(currentRoute.folderPath)
+        }
+    }
 
     when {
         uiState.isDestinationScreenLoading -> {
