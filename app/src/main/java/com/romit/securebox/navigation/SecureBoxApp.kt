@@ -1,7 +1,5 @@
 package com.romit.securebox.navigation
 
-import android.os.Environment
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.EnterTransition
@@ -9,40 +7,23 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.romit.securebox.components.BottomFileInfoSheet
-import com.romit.securebox.components.CreateFolderDialog
-import com.romit.securebox.components.DeleteDialog
-import com.romit.securebox.components.FileDetailsPane
+import com.romit.securebox.components.AppTopBar
+import com.romit.securebox.components.DialogsAndBottomSheet
 import com.romit.securebox.components.FileOperationBottomAppBar
-import com.romit.securebox.components.RenameDialog
 import com.romit.securebox.presentation.featureBrowse.FileBrowserScreen
 import com.romit.securebox.presentation.featureDestination.DestinationScreen
 import com.romit.securebox.presentation.featureHome.HomeScreen
@@ -50,9 +31,7 @@ import com.romit.securebox.presentation.featureRecents.AllRecentsScreen
 import com.romit.securebox.presentation.sharedViewmodel.NavigationViewModel
 import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsUiEvent
 import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
-import com.romit.securebox.util.FileOperations
 import com.romit.securebox.util.openFile
-import kotlinx.coroutines.launch
 
 /**
  * The main entry point composable for the SecureBox application.
@@ -76,61 +55,28 @@ import kotlinx.coroutines.launch
 fun SecureBoxApp(
 ) {
     val activity = LocalActivity.current as ComponentActivity
+
     val navigationViewModel = hiltViewModel<NavigationViewModel>(viewModelStoreOwner = activity)
+
     val sharedFileOperationsViewModel =
         hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
+
     val snackBarHostState = remember { SnackbarHostState() }
-    val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
+
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val currentScreen = navigationViewModel.currentScreen()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            if (currentScreen != null && currentScreen !is Screen.Home) {
-                AppTopBar(
-                    onBackClick = {
-                        navigationViewModel.removeLastOrNull()
-                    }
-                )
-            }
+            AppTopBar()
         },
         bottomBar = {
-            if (currentScreen is Screen.DestinationScreen && uiState.selectedFile != null) {
-                FileOperationBottomAppBar(
-                    onCreateFolder = { sharedFileOperationsViewModel.toggleCreateFolderDialog() },
-                    onConfirmLocation = {
-                        if (uiState.selectedFile!!.path.isNotBlank()) {
-                            if (uiState.selectedOperation == FileOperations.COPY) {
-                                sharedFileOperationsViewModel.copyFile(
-                                    uiState.selectedFile!!.path,
-                                    uiState.operationTargetPath
-                                )
-                            }
-                            if (uiState.selectedOperation == FileOperations.MOVE) {
-                                sharedFileOperationsViewModel.moveFile(
-                                    uiState.selectedFile!!.path,
-                                    uiState.operationTargetPath
-                                )
-                            }
-                            navigationViewModel.removeLastOrNull()
-                        } else {
-                            scope.launch {
-                                snackBarHostState.showSnackbar(
-                                    message = "No file selected to paste.",
-                                    withDismissAction = true
-                                )
-                            }
-                        }
-                    },
-                    buttonLabel = when (uiState.selectedOperation) {
-                        FileOperations.COPY -> "Copy Here"
-                        FileOperations.MOVE -> "Move Here"
-                        else -> ""
-                    }
-                )
-            }
+            FileOperationBottomAppBar(
+                onCreateFolder = { sharedFileOperationsViewModel.toggleCreateFolderDialog() },
+                onConfirmLocation = {
+                    navigationViewModel.removeAllDestinationScreens()
+                }
+            )
         },
         snackbarHost = { SnackbarHost(snackBarHostState) },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -145,8 +91,6 @@ fun SecureBoxApp(
                 }
             }
         }
-        Log.d("Current Screen is Des", "is Des ${navigationViewModel.currentScreen() is Screen.DestinationScreen} and isSelected: ${uiState.selectedFile}")
-
         NavDisplay(
             modifier = Modifier.padding(innerPadding),
             backStack = navigationViewModel.backStack,
@@ -213,12 +157,8 @@ fun SecureBoxApp(
                     }
 
                     is Screen.DestinationScreen -> NavEntry(route, contentKey = route.folderPath) {
-                        LaunchedEffect(route.folderPath) {
-                            if (uiState.operationTargetPath != route.folderPath) {
-                                sharedFileOperationsViewModel.updateOperationPathAndFetchDirectories(route.folderPath)
-                            }
-                        }
                         DestinationScreen(
+                            currentRoute = route,
                             onFolderClicked = { folder ->
                                 sharedFileOperationsViewModel.updateOperationPathAndFetchDirectories(
                                     folder.path
@@ -231,150 +171,49 @@ fun SecureBoxApp(
                         )
                     }
 
-                    is Screen.FileDetails -> NavEntry(route) {
-                        FileDetailsPane(
-                            selectedFile = uiState.selectedFile,
-                            onClose = {
-                                // Close detail pane and clear selection
-                                sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
-                                navigationViewModel.removeLastOrNull()
-                            },
-                            onCopyTo = {
-                                sharedFileOperationsViewModel.clearAllOperationsState()
-                                sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
-                                navigationViewModel.removeIf { it is Screen.FileDetails }
-                                navigationViewModel.navigateTo(
-                                    Screen.DestinationScreen(
-                                        folderPath = Environment.getExternalStorageDirectory().absolutePath
-                                    )
-                                )
-                                sharedFileOperationsViewModel.updateOperationPathAndFetchDirectories(
-                                    Environment.getExternalStorageDirectory().absolutePath
-                                )
-                            },
-                            onMoveTo = {
-                                sharedFileOperationsViewModel.clearAllOperationsState()
-                                sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
-                                navigationViewModel.removeIf { it is Screen.FileDetails }
-                                navigationViewModel.navigateTo(
-                                    Screen.DestinationScreen(
-                                        folderPath = Environment.getExternalStorageDirectory().absolutePath
-                                    )
-                                )
-                                sharedFileOperationsViewModel.updateOperationPathAndFetchDirectories(
-                                    Environment.getExternalStorageDirectory().absolutePath
-                                )
-                                Log.d(
-                                    "Current Back Stack",
-                                    navigationViewModel.backStack.toString()
-                                )
-                            },
-                        )
-                    }
+//                    is Screen.FileDetails -> NavEntry(route) {
+//                        FileDetailsPane(
+//                            selectedFile = uiState.selectedFile,
+//                            onClose = {
+//                                // Close detail pane and clear selection
+//                                sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
+//                                navigationViewModel.removeLastOrNull()
+//                            },
+//                            onCopyTo = {
+//                                sharedFileOperationsViewModel.clearAllOperationsState()
+//                                sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
+//                                navigationViewModel.removeIf { it is Screen.FileDetails }
+//                                navigationViewModel.navigateTo(
+//                                    Screen.DestinationScreen(
+//                                        folderPath = Environment.getExternalStorageDirectory().absolutePath
+//                                    )
+//                                )
+//                                sharedFileOperationsViewModel.updateOperationPathAndFetchDirectories(
+//                                    Environment.getExternalStorageDirectory().absolutePath
+//                                )
+//                            },
+//                            onMoveTo = {
+//                                sharedFileOperationsViewModel.clearAllOperationsState()
+//                                sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
+//                                navigationViewModel.removeIf { it is Screen.FileDetails }
+//                                navigationViewModel.navigateTo(
+//                                    Screen.DestinationScreen(
+//                                        folderPath = Environment.getExternalStorageDirectory().absolutePath
+//                                    )
+//                                )
+//                                sharedFileOperationsViewModel.updateOperationPathAndFetchDirectories(
+//                                    Environment.getExternalStorageDirectory().absolutePath
+//                                )
+//                                Log.d(
+//                                    "Current Back Stack",
+//                                    navigationViewModel.backStack.toString()
+//                                )
+//                            },
+//                        )
+//                    }
                 }
             }
         )
-        if (uiState.selectedFile != null && navigationViewModel.currentScreen() !is Screen.DestinationScreen) {
-            BottomFileInfoSheet(
-                onDismiss = { sharedFileOperationsViewModel.selectedFileForBottomSheet(null) },
-                onOpenDeleteDialog = { sharedFileOperationsViewModel.toggleDeleteDialog() },
-                onOpenRenameDialog = { sharedFileOperationsViewModel.toggleRenameDialog() },
-                selectedFile = { uiState.selectedFile!! },
-                onCopyTo = {
-                    sharedFileOperationsViewModel.clearAllOperationsState()
-                    sharedFileOperationsViewModel.chooseOperation(FileOperations.COPY)
-                    navigationViewModel.navigateTo(
-                        Screen.DestinationScreen(
-                            folderPath = Environment.getExternalStorageDirectory().absolutePath
-                        )
-                    )
-                    sharedFileOperationsViewModel.updateOperationPathAndFetchDirectories(
-                        Environment.getExternalStorageDirectory().absolutePath
-                    )
-                },
-                onMoveTo = {
-                    sharedFileOperationsViewModel.clearAllOperationsState()
-                    sharedFileOperationsViewModel.chooseOperation(FileOperations.MOVE)
-                    navigationViewModel.navigateTo(
-                        Screen.DestinationScreen(
-                            folderPath = Environment.getExternalStorageDirectory().absolutePath
-                        )
-                    )
-                    sharedFileOperationsViewModel.updateOperationPathAndFetchDirectories(
-                        Environment.getExternalStorageDirectory().absolutePath
-                    )
-                }
-            )
-        }
-        // Rename Dialog
-        if (uiState.showRenameDialog && uiState.selectedFile != null) {
-            RenameDialog(
-                onDismissRequest = { sharedFileOperationsViewModel.toggleRenameDialog() },
-                onCancel = { sharedFileOperationsViewModel.toggleRenameDialog() },
-                onRenamingFile = { sharedFileOperationsViewModel.onRenamingFile(it) },
-                onRenameFileClicked = { sharedFileOperationsViewModel.onRenameFileClicked() },
-                newFileName = { uiState.newFileName },
-                selectedFile = { uiState.selectedFile!! }
-            )
-        }
-
-        // Delete Dialog
-        if (uiState.showDeleteDialog && uiState.selectedFile != null) {
-            DeleteDialog(
-                onDismissRequest = { sharedFileOperationsViewModel.toggleDeleteDialog() },
-                onConfirmDelete = {
-                    sharedFileOperationsViewModel.deleteFile(uiState.selectedFile!!.path)
-                    sharedFileOperationsViewModel.toggleDeleteDialog()
-                    sharedFileOperationsViewModel.selectedFileForBottomSheet(null)
-                },
-                selectedFile = { uiState.selectedFile!! }
-            )
-        }
-
-        if (uiState.showCreateFolderDialog) {
-            CreateFolderDialog(
-                folderName = uiState.newFolderName,
-                error = uiState.newFolderError,
-                onFolderNameChange = {
-                    sharedFileOperationsViewModel.updateNewFolderName(
-                        it
-                    )
-                },
-                onConfirmFolderCreation = { sharedFileOperationsViewModel.createFolder() },
-                onDismissFolderDialog = { sharedFileOperationsViewModel.toggleCreateFolderDialog() }
-            )
-        }
+        DialogsAndBottomSheet()
     }
-}
-
-/**
- * A composable function that displays the top app bar for the application.
- * It includes a title and a back navigation button.
- *
- * @param onBackClick A lambda function to be executed when the back navigation icon is clicked.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AppTopBar(
-    onBackClick: () -> Unit
-) {
-    TopAppBar(
-        title = { Text("Secure Box") },
-        navigationIcon = {
-            IconButton(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                onClick = onBackClick, colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                shape = CircleShape
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Go back"
-                )
-            }
-
-        },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
-    )
 }

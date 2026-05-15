@@ -34,6 +34,10 @@ class NavigationViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    fun removeAllDestinationScreens() {
+        _backStack.removeAll { it is Screen.DestinationScreen }
+    }
+
     fun removeIf(predicate: (Screen) -> Boolean) {
         _backStack.removeAll(predicate)
     }
