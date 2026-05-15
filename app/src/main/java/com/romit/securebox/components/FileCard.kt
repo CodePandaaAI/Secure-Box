@@ -45,7 +45,7 @@ fun FileCard(
         modifier = Modifier
             .clip(shape = shape)
             .fillMaxWidth()
-            .combinedClickable(  // ✅ Replace Surface's onClick with this
+            .combinedClickable(  // Replace Surface's onClick with this
                 onClick = { onOpenFile(file) },
                 onLongClick = { onSelectFileForBottomSheet(file) }
             )

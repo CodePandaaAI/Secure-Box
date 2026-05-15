@@ -34,7 +34,7 @@ fun FolderCard(
     }
 
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MaterialTheme.colorScheme.surface,
         onClick = { onFolderClick(file) },
         shape = shape,
         modifier = modifier

@@ -1,6 +1,7 @@
 package com.romit.securebox.presentation.featureDestination
 
-import androidx.activity.compose.BackHandler
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,15 +33,11 @@ import com.romit.securebox.util.getListItemShape
 
 @Composable
 fun DestinationScreen(
-    onFolderClicked: (FileItem) -> Unit,
-    onNavigateBack: () -> Unit
+    onFolderClicked: (FileItem) -> Unit
 ) {
-    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
+    val activity = LocalActivity.current as ComponentActivity
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
     val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
-
-    BackHandler(enabled = sharedFileOperationsViewModel.navigateBack()) {
-        onNavigateBack()
-    }
 
     when {
         uiState.isDestinationScreenLoading -> {

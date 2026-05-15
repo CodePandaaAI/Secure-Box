@@ -1,5 +1,7 @@
 package com.romit.securebox.presentation.featureHome
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,7 +34,8 @@ fun HomeScreen(
     onShowAllRecents: () -> Unit,
     onOpenFile: (FileItem) -> Unit
 ) {
-    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
+    val activity = LocalActivity.current as ComponentActivity
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
 
     val homeScreenViewModel: HomeScreenViewModel = hiltViewModel<HomeScreenViewModel>()
     val uiState by homeScreenViewModel.uiState.collectAsState()
@@ -56,7 +59,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(vertical = 16.dp, horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Recents Section
             when (val state = uiState) {

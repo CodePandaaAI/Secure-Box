@@ -1,5 +1,7 @@
 package com.romit.securebox.presentation.featureRecents
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,7 +37,8 @@ import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsView
 fun AllRecentsScreen(
     onFileClicked: (FileItem) -> Unit
 ) {
-    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>()
+    val activity = LocalActivity.current as ComponentActivity
+    val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
     val recentsScreenViewModel = hiltViewModel<AllRecentsScreenViewModel>()
     val uiState by recentsScreenViewModel.uiState.collectAsState()
 

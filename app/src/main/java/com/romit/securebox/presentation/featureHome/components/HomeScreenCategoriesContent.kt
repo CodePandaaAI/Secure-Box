@@ -19,7 +19,7 @@ fun HomeScreenCategoriesContent(storageCategories: () -> List<StorageCategory>, 
 
     Text(
         text = "Categories",
-        style = MaterialTheme.typography.titleMedium
+        style = MaterialTheme.typography.titleLarge
     )
 
     if (storageCategories.isEmpty()) {

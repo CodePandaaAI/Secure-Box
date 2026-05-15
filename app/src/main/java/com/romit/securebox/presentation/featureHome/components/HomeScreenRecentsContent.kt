@@ -38,7 +38,7 @@ fun HomeScreenRecentsContent(
     ) {
         Text(
             text = "Recents",
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleLarge
         )
 
         Box(
