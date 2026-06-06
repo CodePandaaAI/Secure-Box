@@ -2,7 +2,6 @@ package com.romit.securebox.components
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -48,11 +46,7 @@ fun FileOperationBottomAppBar(
 
     if (navigationViewModel.currentScreen() is Screen.DestinationScreen && uiState.selectedFile != null) {
         BottomAppBar(
-            containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(
-                red = 242,
-                green = 242,
-                blue = 247
-            )
+            containerColor = MaterialTheme.colorScheme.surface
         ) {
             Row(
                 Modifier

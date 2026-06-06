@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,16 +28,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.romit.securebox.data.model.FileItem
-import com.romit.securebox.ui.theme.CustomFontFamily
 import com.romit.securebox.util.StorageHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,13 +58,12 @@ fun BottomFileInfoSheet(
     ModalBottomSheet(
         onDismissRequest = { onDismiss() },
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 24.dp),
+                .padding(start = 16.dp, end = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -79,9 +76,8 @@ fun BottomFileInfoSheet(
                         AsyncImage(
                             model = selectedFile().path,
                             contentDescription = selectedFile().name,
-                            modifier = Modifier.size(width = 275.dp, height = 200.dp)
-                                .clip(RoundedCornerShape(24.dp)),
-                            contentScale = ContentScale.FillWidth
+                            modifier = Modifier.height(250.dp).fillMaxWidth(),
+                            contentScale = ContentScale.Crop
                         )
                     }
                 }
@@ -93,7 +89,7 @@ fun BottomFileInfoSheet(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(200.dp)
+                                .size(150.dp)
                                 .padding(32.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -113,7 +109,7 @@ fun BottomFileInfoSheet(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(200.dp)
+                                .size(150.dp)
                                 .padding(32.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -140,11 +136,7 @@ fun BottomFileInfoSheet(
                     textAlign = TextAlign.Center,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    fontFamily = CustomFontFamily,
-                    fontSize = 24.sp,
-                    lineHeight = 34.sp,
-                    letterSpacing = 2.sp,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    style = MaterialTheme.typography.titleMedium
                 )
 
                 Text(

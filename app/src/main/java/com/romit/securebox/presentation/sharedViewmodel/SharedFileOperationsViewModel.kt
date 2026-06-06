@@ -81,18 +81,18 @@ class SharedFileOperationsViewModel @Inject constructor(
     }
 
     fun onRenamingFile(newName: String) {
-        _uiState.update { it.copy(newFileName = newName) }
+        _uiState.update { it.copy(renameInput = newName) }
     }
 
     fun onRenameFileClicked() {
         viewModelScope.launch {
             val selectedFile = uiState.value.selectedFile ?: return@launch
-            renameFileUseCase(selectedFile.path, uiState.value.newFileName).fold(
+            renameFileUseCase(selectedFile.path, uiState.value.renameInput).fold(
                 onSuccess = { message ->
                     _uiState.update {
                         it.copy(
                             showRenameDialog = false,
-                            newFileName = "",
+                            renameInput = "",
                             selectedFile = null
                         )
                     }
@@ -102,7 +102,7 @@ class SharedFileOperationsViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             showRenameDialog = false,
-                            newFileName = "",
+                            renameInput = "",
                             selectedFile = null
                         )
                     }
@@ -207,7 +207,7 @@ class SharedFileOperationsViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 showRenameDialog = !uiState.value.showRenameDialog,
-                newFileName = uiState.value.selectedFile?.name ?: ""
+                renameInput = uiState.value.selectedFile?.name ?: ""
             )
         }
     }

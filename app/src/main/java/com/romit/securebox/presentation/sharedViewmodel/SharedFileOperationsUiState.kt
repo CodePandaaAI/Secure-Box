@@ -13,8 +13,8 @@ data class SharedFileOperationsUiState(
     val showCreateFolderDialog: Boolean = false, // For Creating new folder
     val showRenameDialog: Boolean = false, // For renaming the selected file name
 
-    // New File
-    val newFileName: String = "", // For storing the file name while renaming
+    // Renaming File Value
+    val renameInput: String = "", // For storing the file name while renaming
 
     // New Folder
     val newFolderName: String = "", // For storing new folder name while naming
