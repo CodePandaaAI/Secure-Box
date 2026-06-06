@@ -56,7 +56,7 @@ fun DialogsAndBottomSheet() {
         RenameDialog(
             onDismissRequest = { sharedFileOperationsViewModel.toggleRenameDialog() },
             onCancel = { sharedFileOperationsViewModel.toggleRenameDialog() },
-            onRenamingFile = { sharedFileOperationsViewModel.onRenamingFile(it) },
+            onRenamingFile = { sharedFileOperationsViewModel.onRenameInputChange(it) },
             onRenameFileClicked = { sharedFileOperationsViewModel.onRenameFileClicked() },
             newFileName = { uiState.renameInput },
             selectedFile = { uiState.selectedFile!! }

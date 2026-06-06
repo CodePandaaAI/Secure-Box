@@ -35,23 +35,6 @@ class SharedFileOperationsViewModel @Inject constructor(
 
     private val _uiEvents = Channel<SharedFileOperationsUiEvent>()
     val uiEvents = _uiEvents.receiveAsFlow()
-
-    fun deleteFile(filePath: String) {
-        viewModelScope.launch {
-            deleteFileUseCase(filePath).fold(
-                onSuccess = { message ->
-                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(message))
-                }
-            ) { exception ->
-                _uiEvents.send(
-                    SharedFileOperationsUiEvent.ShowSnackBar(
-                        exception.message ?: "Failed to delete"
-                    )
-                )
-            }
-        }
-    }
-
     fun getDirectories(dirPath: String) {
         viewModelScope.launch {
             _uiState.update {
@@ -80,8 +63,21 @@ class SharedFileOperationsViewModel @Inject constructor(
         }
     }
 
-    fun onRenamingFile(newName: String) {
-        _uiState.update { it.copy(renameInput = newName) }
+    // Main Operations: Delete File/Folder, Rename File/Folder, Copy/Move, Create Folder
+    fun deleteFile(filePath: String) {
+        viewModelScope.launch {
+            deleteFileUseCase(filePath).fold(
+                onSuccess = { message ->
+                    _uiEvents.send(SharedFileOperationsUiEvent.ShowSnackBar(message))
+                }
+            ) { exception ->
+                _uiEvents.send(
+                    SharedFileOperationsUiEvent.ShowSnackBar(
+                        exception.message ?: "Failed to delete"
+                    )
+                )
+            }
+        }
     }
 
     fun onRenameFileClicked() {
@@ -171,6 +167,8 @@ class SharedFileOperationsViewModel @Inject constructor(
         }
     }
 
+    // Toggle Dialogs
+
     fun toggleCreateFolderDialog() {
         _uiState.update {
             it.copy(
@@ -181,8 +179,27 @@ class SharedFileOperationsViewModel @Inject constructor(
         }
     }
 
+    fun toggleRenameDialog() {
+        _uiState.update {
+            it.copy(
+                showRenameDialog = !uiState.value.showRenameDialog,
+                renameInput = uiState.value.selectedFile?.name ?: ""
+            )
+        }
+    }
+
+    fun toggleDeleteDialog() {
+        _uiState.update { it.copy(showDeleteDialog = !uiState.value.showDeleteDialog) }
+    }
+
+    // Changing Data/State
+
     fun updateNewFolderName(name: String) {
         _uiState.update { it.copy(newFolderName = name, newFolderError = null) }
+    }
+
+    fun onRenameInputChange(newName: String) {
+        _uiState.update { it.copy(renameInput = newName) }
     }
 
     fun chooseOperation(fileOperation: FileOperations) {
@@ -200,20 +217,6 @@ class SharedFileOperationsViewModel @Inject constructor(
                 operationTargetPathDirectories = emptyList()
             )
         }
-    }
-
-
-    fun toggleRenameDialog() {
-        _uiState.update {
-            it.copy(
-                showRenameDialog = !uiState.value.showRenameDialog,
-                renameInput = uiState.value.selectedFile?.name ?: ""
-            )
-        }
-    }
-
-    fun toggleDeleteDialog() {
-        _uiState.update { it.copy(showDeleteDialog = !uiState.value.showDeleteDialog) }
     }
 
     fun selectedFileForBottomSheet(file: FileItem?) {
