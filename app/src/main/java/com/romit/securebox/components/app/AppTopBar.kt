@@ -1,4 +1,4 @@
-package com.romit.securebox.components
+package com.romit.securebox.components.app
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity

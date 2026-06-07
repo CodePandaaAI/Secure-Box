@@ -21,9 +21,9 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.romit.securebox.components.AppTopBar
-import com.romit.securebox.components.DialogsAndBottomSheet
-import com.romit.securebox.components.FileOperationBottomAppBar
+import com.romit.securebox.components.app.AppTopBar
+import com.romit.securebox.components.dialogs.DialogsAndBottomSheet
+import com.romit.securebox.components.app.FileOperationBottomAppBar
 import com.romit.securebox.presentation.featureBrowse.FileBrowserScreen
 import com.romit.securebox.presentation.featureDestination.DestinationScreen
 import com.romit.securebox.presentation.featureHome.HomeScreen

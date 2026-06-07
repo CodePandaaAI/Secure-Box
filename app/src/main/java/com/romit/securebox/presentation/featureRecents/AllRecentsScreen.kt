@@ -25,7 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.romit.securebox.components.FileCard
+import com.romit.securebox.components.file.FileCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.presentation.featureRecents.components.AllRecentsErrorScreen
 import com.romit.securebox.presentation.featureRecents.components.AllRecentsLoadingScreen

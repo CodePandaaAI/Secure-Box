@@ -1,4 +1,4 @@
-package com.romit.securebox.components
+package com.romit.securebox.components.file
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

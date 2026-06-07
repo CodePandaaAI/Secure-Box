@@ -1,4 +1,4 @@
-package com.romit.securebox.components
+package com.romit.securebox.components.dialogs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

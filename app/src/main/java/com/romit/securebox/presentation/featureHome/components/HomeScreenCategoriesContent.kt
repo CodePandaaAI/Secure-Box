@@ -9,7 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.romit.securebox.components.StorageCategoryCard
+import com.romit.securebox.components.storage.StorageCategoryCard
 import com.romit.securebox.data.model.StorageCategory
 
 @Composable

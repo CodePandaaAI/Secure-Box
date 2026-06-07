@@ -1,4 +1,4 @@
-package com.romit.securebox.components
+package com.romit.securebox.components.dialogs
 
 import android.os.Environment
 import androidx.activity.ComponentActivity

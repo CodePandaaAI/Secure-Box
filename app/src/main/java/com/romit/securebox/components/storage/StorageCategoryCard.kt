@@ -1,4 +1,4 @@
-package com.romit.securebox.components
+package com.romit.securebox.components.storage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

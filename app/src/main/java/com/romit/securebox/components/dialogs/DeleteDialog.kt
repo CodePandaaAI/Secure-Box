@@ -1,4 +1,4 @@
-package com.romit.securebox.components
+package com.romit.securebox.components.dialogs
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults

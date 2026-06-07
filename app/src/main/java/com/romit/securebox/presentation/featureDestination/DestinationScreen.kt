@@ -27,7 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.R
-import com.romit.securebox.components.FolderCard
+import com.romit.securebox.components.file.FolderCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.navigation.Screen
 import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
