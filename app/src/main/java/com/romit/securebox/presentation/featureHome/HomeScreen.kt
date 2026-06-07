@@ -13,12 +13,12 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.presentation.featureHome.components.HomeLoadingScreen
 import com.romit.securebox.presentation.featureHome.components.HomeScreenCategoriesContent
@@ -38,8 +38,8 @@ fun HomeScreen(
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
 
     val homeScreenViewModel: HomeScreenViewModel = hiltViewModel<HomeScreenViewModel>()
-    val uiState by homeScreenViewModel.uiState.collectAsState()
-    val storageCategories = homeScreenViewModel.storageCategories.collectAsState()
+    val uiState by homeScreenViewModel.uiState.collectAsStateWithLifecycle()
+    val storageCategories = homeScreenViewModel.storageCategories.collectAsStateWithLifecycle()
 
     val snackBarHostState = remember { SnackbarHostState() }
 

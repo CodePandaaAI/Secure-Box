@@ -18,12 +18,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.romit.securebox.navigation.Screen
 import com.romit.securebox.presentation.sharedViewmodel.NavigationViewModel
 import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsViewModel
@@ -37,7 +37,7 @@ fun FileOperationBottomAppBar(
     val activity = LocalActivity.current as ComponentActivity
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
     val navigationViewModel = hiltViewModel<NavigationViewModel>(viewModelStoreOwner = activity)
-    val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
+    val uiState by sharedFileOperationsViewModel.uiState.collectAsStateWithLifecycle()
     val buttonLabel = when (uiState.selectedOperation) {
         FileOperations.COPY -> "Copy Here"
         FileOperations.MOVE -> "Move Here"

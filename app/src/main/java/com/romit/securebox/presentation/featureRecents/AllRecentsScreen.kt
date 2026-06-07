@@ -18,13 +18,13 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.romit.securebox.components.file.FileCard
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.presentation.featureRecents.components.AllRecentsErrorScreen
@@ -40,7 +40,7 @@ fun AllRecentsScreen(
     val activity = LocalActivity.current as ComponentActivity
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
     val recentsScreenViewModel = hiltViewModel<AllRecentsScreenViewModel>()
-    val uiState by recentsScreenViewModel.uiState.collectAsState()
+    val uiState by recentsScreenViewModel.uiState.collectAsStateWithLifecycle()
 
     val snackBarHostState = remember { SnackbarHostState() }
 

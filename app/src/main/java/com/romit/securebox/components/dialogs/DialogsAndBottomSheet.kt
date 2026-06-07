@@ -4,9 +4,9 @@ import android.os.Environment
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.romit.securebox.components.sheets.BottomFileSheet
 import com.romit.securebox.navigation.Screen
 import com.romit.securebox.presentation.sharedViewmodel.NavigationViewModel
@@ -18,7 +18,7 @@ fun DialogsAndBottomSheet() {
     val activity = LocalActivity.current as ComponentActivity
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
     val navigationViewModel = hiltViewModel<NavigationViewModel>(viewModelStoreOwner = activity)
-    val uiState by sharedFileOperationsViewModel.uiState.collectAsState()
+    val uiState by sharedFileOperationsViewModel.uiState.collectAsStateWithLifecycle()
 
     if (uiState.selectedFile != null && navigationViewModel.currentScreen() !is Screen.DestinationScreen) {
         BottomFileSheet(

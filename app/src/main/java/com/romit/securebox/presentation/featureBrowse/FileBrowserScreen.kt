@@ -20,7 +20,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.romit.securebox.R
 import com.romit.securebox.components.file.FileCard
 import com.romit.securebox.data.model.FileItem
@@ -45,7 +45,7 @@ fun FileBrowserScreen(
     val activity = LocalActivity.current as ComponentActivity
     val fileBrowserScreenViewModel: FileBrowserScreenViewModel = hiltViewModel()
     val sharedFileOperationsViewModel = hiltViewModel<SharedFileOperationsViewModel>(viewModelStoreOwner = activity)
-    val uiState by fileBrowserScreenViewModel.uiState.collectAsState()
+    val uiState by fileBrowserScreenViewModel.uiState.collectAsStateWithLifecycle()
 
     val snackBarHostState = remember { SnackbarHostState() }
 
