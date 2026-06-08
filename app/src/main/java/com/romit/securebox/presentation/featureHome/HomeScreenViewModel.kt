@@ -3,6 +3,7 @@ package com.romit.securebox.presentation.featureHome
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romit.securebox.data.repository.FileRepository
+import com.romit.securebox.data.model.StorageCategoryType
 import com.romit.securebox.util.StorageHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +40,7 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
         viewModelScope.launch {
             _uiState.value = HomeUiState.RecentFilesLoading
             try {
-                val recentFiles = repository.getRecentFiles(limit = 4)
+                val recentFiles = repository.getRecentFiles(limit = 9)
                 _uiState.value = HomeUiState.Success(recentFilesList = recentFiles)
             } catch (e: Exception) {
                 _uiState.value = HomeUiState.Error(e.message ?: "Something went wrong")
@@ -54,7 +55,14 @@ class HomeScreenViewModel @Inject constructor(private val repository: FileReposi
                 val categoriesListWithSizes = withContext(Dispatchers.IO) {
                     _storageCategories.value.map { dir ->
                         async {
-                            dir.copy(dirSize = repository.getDirectorySize(dir.path))
+                            when (dir.type) {
+                                StorageCategoryType.DOWNLOADS,
+                                StorageCategoryType.INTERNAL_STORAGE -> {
+                                    dir.copy(dirSize = repository.getDirectorySize(dir.path))
+                                }
+
+                                else -> dir
+                            }
                         }
                     }.awaitAll()
                 }

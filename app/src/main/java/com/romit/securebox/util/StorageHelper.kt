@@ -23,6 +23,7 @@ import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.romit.securebox.data.model.StorageCategory
+import com.romit.securebox.data.model.StorageCategoryType
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -48,32 +49,38 @@ object StorageHelper {
             StorageCategory(
                 name = "Downloads",
                 path = downloadsDir.absolutePath,
-                icon = Icons.Outlined.Download
+                icon = Icons.Outlined.Download,
+                type = StorageCategoryType.DOWNLOADS
             ),
             StorageCategory(
                 name = "Images",
                 path = dcimDir.absolutePath,
-                icon = Icons.Outlined.Image
+                icon = Icons.Outlined.Image,
+                type = StorageCategoryType.IMAGES
             ),
             StorageCategory(
                 name = "Videos",
                 path = moviesDir.absolutePath,
-                icon = Icons.Outlined.VideoLibrary
+                icon = Icons.Outlined.VideoLibrary,
+                type = StorageCategoryType.VIDEOS
             ),
             StorageCategory(
                 name = "Music",
                 path = musicDir.absolutePath,
-                icon = Icons.Outlined.Audiotrack
+                icon = Icons.Outlined.Audiotrack,
+                type = StorageCategoryType.MUSIC
             ),
             StorageCategory(
                 name = "Documents",
                 path = documentsDir.absolutePath,
-                icon = Icons.AutoMirrored.Outlined.InsertDriveFile
+                icon = Icons.AutoMirrored.Outlined.InsertDriveFile,
+                type = StorageCategoryType.DOCUMENTS
             ),
             StorageCategory(
                 name = "Internal Storage",
                 path = internalDir.absolutePath,
-                icon = Icons.Outlined.Storage
+                icon = Icons.Outlined.Storage,
+                type = StorageCategoryType.INTERNAL_STORAGE
             )
         )
     }

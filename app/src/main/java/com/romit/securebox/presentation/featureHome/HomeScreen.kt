@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.data.model.StorageCategory
 import com.romit.securebox.presentation.featureHome.components.HomeLoadingScreen
 import com.romit.securebox.presentation.featureHome.components.HomeScreenCategoriesContent
 import com.romit.securebox.presentation.featureHome.components.HomeScreenEmptyState
@@ -30,7 +31,7 @@ import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsView
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    onCategoryClicked: (String) -> Unit,
+    onCategoryClicked: (StorageCategory) -> Unit,
     onShowAllRecents: () -> Unit,
     onOpenFile: (FileItem) -> Unit
 ) {

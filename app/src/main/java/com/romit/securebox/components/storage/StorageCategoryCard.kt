@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,40 +29,31 @@ import com.romit.securebox.data.model.StorageCategory
 
 @Composable
 fun StorageCategoryCard(
-    category: StorageCategory, onCategoryClick: (String) -> Unit, modifier: Modifier
+    category: StorageCategory, onCategoryClick: (StorageCategory) -> Unit, modifier: Modifier
 ) {
-    Surface(
-        onClick = { onCategoryClick(category.path) },
-        shape = RoundedCornerShape(24.dp),
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.surface
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(24.dp))
+            .clickable { onCategoryClick(category) }
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center
     ) {
-        Row(
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = category.icon,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp)
+            Row(
+                modifier = Modifier,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    category.name,
-                    style = MaterialTheme.typography.titleSmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                Icon(
+                    imageVector = category.icon,
+                    contentDescription = null
                 )
                 Text(
-                    category.dirSize ?: "",
-                    style = MaterialTheme.typography.bodySmall,
+                    category.name,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -78,7 +68,6 @@ fun StorageCategoryCard(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp)
                 )
             }
         }

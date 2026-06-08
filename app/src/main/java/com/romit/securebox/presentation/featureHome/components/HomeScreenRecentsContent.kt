@@ -18,11 +18,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.romit.securebox.components.file.FileCard
+import com.romit.securebox.components.file.RecentsFileSection
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.presentation.featureHome.HomeUiState
-import com.romit.securebox.util.getListItemShape
 
 @Composable
 fun HomeScreenRecentsContent(
@@ -38,7 +38,8 @@ fun HomeScreenRecentsContent(
     ) {
         Text(
             text = "Recents",
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold
         )
 
         Box(
@@ -70,18 +71,12 @@ fun HomeScreenRecentsContent(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        uiState.recentFilesList.forEachIndexed { index, file ->
-            FileCard(
-                file = file,
-                onOpenFile = { onOpenFile(it) },
-                onSelectFileForBottomSheet = {
-                    onSelectFileForBottomSheet(it)
-                },
-                shape = getListItemShape(
-                    index = index,
-                    totalItems = uiState.recentFilesList.size
-                )
-            )
-        }
+        RecentsFileSection(
+            uiState.recentFilesList,
+            onOpenFile = { onOpenFile(it) },
+            onSelectFileForBottomSheet = {
+                onSelectFileForBottomSheet(it)
+            }
+        )
     }
 }

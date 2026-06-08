@@ -22,11 +22,13 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.romit.securebox.components.app.AppTopBar
-import com.romit.securebox.components.dialogs.DialogsAndBottomSheet
 import com.romit.securebox.components.app.FileOperationBottomAppBar
+import com.romit.securebox.components.dialogs.DialogsAndBottomSheet
+import com.romit.securebox.data.model.StorageCategoryType
 import com.romit.securebox.presentation.featureBrowse.FileBrowserScreen
 import com.romit.securebox.presentation.featureDestination.DestinationScreen
 import com.romit.securebox.presentation.featureHome.HomeScreen
+import com.romit.securebox.presentation.featureMedia.MediaFilesScreen
 import com.romit.securebox.presentation.featureRecents.AllRecentsScreen
 import com.romit.securebox.presentation.sharedViewmodel.NavigationViewModel
 import com.romit.securebox.presentation.sharedViewmodel.SharedFileOperationsUiEvent
@@ -115,8 +117,24 @@ fun SecureBoxApp(
                 when (route) {
                     is Screen.Home -> NavEntry(route) {
                         HomeScreen(
-                            onCategoryClicked = { path ->
-                                navigationViewModel.navigateTo(Screen.FileBrowser(path))
+                            onCategoryClicked = { category ->
+                                when (category.type) {
+                                    StorageCategoryType.DOWNLOADS,
+                                    StorageCategoryType.INTERNAL_STORAGE -> {
+                                        navigationViewModel.navigateTo(
+                                            Screen.FileBrowser(category.path)
+                                        )
+                                    }
+
+                                    StorageCategoryType.IMAGES,
+                                    StorageCategoryType.VIDEOS,
+                                    StorageCategoryType.MUSIC,
+                                    StorageCategoryType.DOCUMENTS -> {
+                                        navigationViewModel.navigateTo(
+                                            Screen.MediaCollection(category.type)
+                                        )
+                                    }
+                                }
                             },
                             onOpenFile = { file ->
                                 if (file.isDirectory) {
@@ -127,6 +145,15 @@ fun SecureBoxApp(
                             },
                             onShowAllRecents = {
                                 navigationViewModel.navigateTo(Screen.AllRecents)
+                            }
+                        )
+                    }
+
+                    is Screen.MediaCollection -> NavEntry(route) {
+                        MediaFilesScreen(
+                            type = route.type,
+                            onFileClicked = { file ->
+                                openFile(context, file)
                             }
                         )
                     }

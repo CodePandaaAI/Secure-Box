@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.os.Bundle
 import android.provider.MediaStore
 import com.romit.securebox.data.model.FileItem
+import com.romit.securebox.data.model.StorageCategoryType
 import com.romit.securebox.util.StorageHelper
 import com.romit.securebox.util.StorageHelper.getMimeType
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,109 @@ class FileRepository @Inject constructor(application: Application) {
     private val contentResolver = application.contentResolver
     suspend fun getRecentFiles(limit: Int): List<FileItem> {
         return getRecentFiles(null, pageSize = limit)
+    }
+
+    suspend fun getMediaFiles(
+        categoryType: StorageCategoryType,
+        lastTimestamp: Long?,
+        pageSize: Int
+    ): List<FileItem> {
+        return withContext(Dispatchers.IO) {
+            val files = mutableListOf<FileItem>()
+
+            val projection = arrayOf(
+                MediaStore.Files.FileColumns.DATA,
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.SIZE,
+                MediaStore.Files.FileColumns.DATE_MODIFIED,
+                MediaStore.Files.FileColumns.MIME_TYPE
+            )
+
+            val mediaSelection = when (categoryType) {
+                StorageCategoryType.IMAGES -> "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%'"
+                StorageCategoryType.VIDEOS -> "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%'"
+                StorageCategoryType.MUSIC -> "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'audio/%'"
+                StorageCategoryType.DOCUMENTS -> documentMimeSelection()
+                else -> return@withContext emptyList()
+            }
+
+            val paginationSelection = if (lastTimestamp != null) {
+                " AND ${MediaStore.Files.FileColumns.DATE_MODIFIED} * 1000 < $lastTimestamp"
+            } else {
+                ""
+            }
+
+            val queryArgs = Bundle().apply {
+                putString(
+                    ContentResolver.QUERY_ARG_SQL_SELECTION,
+                    "$mediaSelection$paginationSelection"
+                )
+                putString(
+                    ContentResolver.QUERY_ARG_SQL_SORT_ORDER,
+                    "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
+                )
+                putInt(ContentResolver.QUERY_ARG_LIMIT, pageSize)
+            }
+
+            val cursor = contentResolver.query(
+                MediaStore.Files.getContentUri("external"),
+                projection,
+                queryArgs,
+                null
+            )
+
+            cursor?.use {
+                val pathColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)
+                val nameColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                val sizeColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
+                val modifiedColumn =
+                    it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+                val mimeTypeColumn =
+                    it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
+
+                while (it.moveToNext()) {
+                    val path = it.getString(pathColumn)
+                    val file = File(path)
+
+                    if (!file.exists()) continue
+
+                    val mimeType = it.getString(mimeTypeColumn)
+
+                    files.add(
+                        FileItem(
+                            path = path,
+                            name = it.getString(nameColumn) ?: file.name,
+                            isDirectory = false,
+                            size = StorageHelper.formatSize(it.getLong(sizeColumn)),
+                            lastModified = it.getLong(modifiedColumn) * 1000L,
+                            mimeType = mimeType,
+                            extension = file.extension,
+                            isImage = mimeType?.startsWith("image/") == true
+                        )
+                    )
+                }
+            }
+
+            files
+        }
+    }
+
+    private fun documentMimeSelection(): String {
+        val mimeColumn = MediaStore.Files.FileColumns.MIME_TYPE
+        val exactTypes = listOf(
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-powerpoint",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "application/vnd.oasis.opendocument.text",
+            "application/vnd.oasis.opendocument.spreadsheet",
+            "application/vnd.oasis.opendocument.presentation"
+        ).joinToString(" OR ") { "$mimeColumn = '$it'" }
+
+        return "($mimeColumn LIKE 'text/%' OR $exactTypes)"
     }
 
     suspend fun getRecentFiles(lastTimestamp: Long?, pageSize: Int): List<FileItem> {

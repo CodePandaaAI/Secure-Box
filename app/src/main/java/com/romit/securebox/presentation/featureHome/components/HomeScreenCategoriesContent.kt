@@ -8,18 +8,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.romit.securebox.components.storage.StorageCategoryCard
 import com.romit.securebox.data.model.StorageCategory
 
 @Composable
-fun HomeScreenCategoriesContent(storageCategories: () -> List<StorageCategory>, onCategoryClicked: (String) -> Unit) {
+fun HomeScreenCategoriesContent(storageCategories: () -> List<StorageCategory>, onCategoryClicked: (StorageCategory) -> Unit) {
 
     val storageCategories = storageCategories()
 
     Text(
         text = "Categories",
-        style = MaterialTheme.typography.titleLarge
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.SemiBold
     )
 
     if (storageCategories.isEmpty()) {
