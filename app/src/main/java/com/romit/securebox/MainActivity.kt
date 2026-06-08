@@ -9,7 +9,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -65,7 +59,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SecureBoxTheme {
-                val color = MaterialTheme.colorScheme.primary
                 var hasExternalStoragePermission by remember { mutableStateOf(Environment.isExternalStorageManager()) }
 
                 val launcher = rememberLauncherForActivityResult(
@@ -84,37 +77,7 @@ class MainActivity : ComponentActivity() {
                             .background(MaterialTheme.colorScheme.surface),
                         contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.surface)
-                                .blur(137.5.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Canvas(
-                                modifier = Modifier
-                                    .size(275.dp)
-                            ) {
-                                drawCircle(
-                                    brush = Brush.linearGradient(
-                                        colors = listOf(
-                                            Color(0xFF8BC34A).copy(0.5f),
-                                            color.copy(alpha = 0.5f)
-                                        ),
-                                        start = Offset(
-                                            center.x - 275f,
-                                            center.y - 275f
-                                        ),
-                                        end = Offset(
-                                            center.x + 275f,
-                                            center.y + 275f
-                                        )
-                                    ),
-                                    radius = 500f,
-                                    center = center
-                                )
-                            }
-                        }
+                        GradientBackground()
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
