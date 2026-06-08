@@ -25,7 +25,7 @@ fun HomeScreenCategoriesContent(storageCategories: () -> List<StorageCategory>, 
     )
 
     if (storageCategories.isEmpty()) {
-        HomeLoadingScreen()
+        HomeScreenRecentsLoadingView()
     } else {
         // Category Grid (cleaner with Column for rows)
         Column(

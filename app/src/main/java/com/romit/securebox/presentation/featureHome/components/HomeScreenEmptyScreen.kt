@@ -23,9 +23,8 @@ import androidx.compose.ui.unit.dp
 fun HomeScreenEmptyState() {
     Box(
         modifier = Modifier
-            .padding(16.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(24.dp))
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
@@ -48,7 +47,7 @@ fun HomeScreenEmptyState() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "Files you open will appear here",
+                text = "Recent Pics, Videos, Docs, etc... will appear here",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )

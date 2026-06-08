@@ -29,8 +29,8 @@ val displayFontFamily = FontFamily(
 )
 
 val CustomFontFamily = FontFamily(
-    Font(R.font.momo_trust_display_regular, FontWeight.Normal),
-    Font(R.font.momo_trust_display_regular, FontWeight.Bold)
+    Font(R.font.source_serif_4_regular, FontWeight.Normal),
+    Font(R.font.source_serif_4_bold, FontWeight.Bold)
     // Add more font weights/styles as needed
 )
 
@@ -42,7 +42,7 @@ val Typography = Typography(
     displayMedium = baseline.displayMedium.copy(fontFamily = displayFontFamily),
     displaySmall = baseline.displaySmall.copy(fontFamily = displayFontFamily),
     headlineLarge = baseline.headlineLarge.copy(fontFamily = displayFontFamily),
-    headlineMedium = baseline.headlineMedium.copy(fontFamily = displayFontFamily),
+    headlineMedium = baseline.headlineMedium.copy(fontFamily = CustomFontFamily),
     headlineSmall = baseline.headlineSmall.copy(fontFamily = displayFontFamily),
     titleLarge = baseline.titleLarge.copy(fontFamily = displayFontFamily),
     titleMedium = baseline.titleMedium.copy(fontFamily = displayFontFamily),
