@@ -1,5 +1,6 @@
 package com.romit.securebox.components.file
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,7 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -95,11 +99,11 @@ fun FileCard(
 fun RecentsFileSection(
     files: List<FileItem>,
     onOpenFile: (FileItem) -> Unit,
-    onSelectFileForBottomSheet: (FileItem) -> Unit,
+    onSelectFileForBottomSheet: (FileItem) -> Unit
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -166,15 +170,20 @@ fun HomeScreenFileThumbnail(
                     // Optional: show loading indicator
                 }
             )
-            Text(
-                file.name,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.White,
-                maxLines = 1,
-                modifier = Modifier.padding(horizontal = 8.dp),
-                overflow = TextOverflow.Ellipsis
-            )
+            Box(
+                modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    file.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
 
         // If it's a folder, show folder icon
@@ -185,14 +194,20 @@ fun HomeScreenFileThumbnail(
                 modifier = modifier
                     .padding(8.dp)
             )
-            Text(
-                file.name,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Box(
+                modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    file.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
 
         // For other allRecents, show generic file icon
@@ -203,14 +218,20 @@ fun HomeScreenFileThumbnail(
                 modifier = modifier
                     .padding(16.dp)
             )
-            Text(
-                file.name,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Box(
+                modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    file.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

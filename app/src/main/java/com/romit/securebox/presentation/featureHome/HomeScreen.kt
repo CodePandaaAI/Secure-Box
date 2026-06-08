@@ -21,7 +21,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.StorageCategory
-import com.romit.securebox.presentation.featureHome.components.HomeScreenRecentsLoadingView
+import com.romit.securebox.presentation.featureHome.components.HomeScreenLoadingView
 import com.romit.securebox.presentation.featureHome.components.HomeScreenCategoriesContent
 import com.romit.securebox.presentation.featureHome.components.HomeScreenEmptyState
 import com.romit.securebox.presentation.featureHome.components.HomeScreenRecentsContent
@@ -60,12 +60,12 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(vertical = 16.dp, horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             // Recents Section
             when (val state = uiState) {
                 is HomeUiState.RecentFilesLoading -> {
-                    HomeScreenRecentsLoadingView()
+                    HomeScreenLoadingView()
                 }
 
                 is HomeUiState.Success -> {

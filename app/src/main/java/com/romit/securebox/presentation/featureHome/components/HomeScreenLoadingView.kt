@@ -10,7 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenRecentsLoadingView() {
+fun HomeScreenLoadingView() {
     Box(
         modifier = Modifier
             .fillMaxWidth(),

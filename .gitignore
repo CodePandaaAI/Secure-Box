@@ -10,6 +10,8 @@
 /captures/
 .externalNativeBuild/
 .cxx/
+app/release/*.apk
+app/release/baselineProfiles/
 
 # Local configuration files that should not be committed
 # Contains machine-specific paths (like SDK location)

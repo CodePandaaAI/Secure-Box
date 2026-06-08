@@ -29,16 +29,20 @@ import com.romit.securebox.data.model.StorageCategory
 
 @Composable
 fun StorageCategoryCard(
-    category: StorageCategory, onCategoryClick: (StorageCategory) -> Unit, modifier: Modifier
+    category: StorageCategory,
+    onCategoryClick: (StorageCategory) -> Unit,
+    shape: RoundedCornerShape,
+    modifier: Modifier
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
+            .clip(shape)
             .clickable { onCategoryClick(category) }
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
-        Column(modifier = Modifier.padding(16.dp),
+        Column(
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
