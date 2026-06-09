@@ -2,26 +2,14 @@ package com.romit.securebox.util
 
 import android.os.Environment
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.automirrored.outlined.InsertDriveFile
-import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.FolderZip
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.PictureAsPdf
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Slideshow
-import androidx.compose.material.icons.filled.TableChart
-import androidx.compose.material.icons.filled.VideoFile
 import androidx.compose.material.icons.outlined.Audiotrack
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.VideoLibrary
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.romit.securebox.R
+import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.data.model.StorageCategory
 import com.romit.securebox.data.model.StorageCategoryType
 import java.io.File
@@ -85,58 +73,104 @@ object StorageHelper {
         )
     }
 
-    fun getFileIcon(mimeType: String?, isDirectory: Boolean): ImageVector {
-        if (isDirectory) return Icons.Default.Folder
+    fun getFileIconRes(file: FileItem): Int {
+        val extension = (file.extension ?: File(file.path).extension).lowercase()
+        val mimeType = file.mimeType.orEmpty()
 
-        // Pick icon based on MIME type
         return when {
-            mimeType == null -> Icons.AutoMirrored.Filled.InsertDriveFile
+            extension == "pdf" -> R.drawable.app_file_icon_pdf
 
-            // Images
-            mimeType.startsWith("image/") -> Icons.Default.Image
+            extension in wordExtensions ||
+                    mimeType == "application/msword" ||
+                    mimeType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> {
+                R.drawable.app_file_icon_docx
+            }
 
-            // Videos
-            mimeType.startsWith("video/") -> Icons.Default.VideoFile
+            extension in spreadsheetExtensions ||
+                    mimeType == "application/vnd.ms-excel" ||
+                    mimeType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" -> {
+                R.drawable.app_file_icon_xlsx
+            }
 
-            // Audio
-            mimeType.startsWith("audio/") -> Icons.Default.MusicNote
+            extension in presentationExtensions ||
+                    mimeType == "application/vnd.ms-powerpoint" ||
+                    mimeType == "application/vnd.openxmlformats-officedocument.presentationml.presentation" -> {
+                R.drawable.app_file_icon_ppt
+            }
 
-            // Documents
-            mimeType == "application/pdf" -> Icons.Default.PictureAsPdf
-            mimeType.startsWith("text/") -> Icons.Default.Description
+            extension in archiveExtensions ||
+                    mimeType.contains("zip") ||
+                    mimeType == "application/x-rar-compressed" ||
+                    mimeType == "application/vnd.rar" ||
+                    mimeType == "application/x-7z-compressed" ||
+                    mimeType == "application/x-tar" ||
+                    mimeType == "application/gzip" -> {
+                R.drawable.app_file_icon_zip
+            }
 
-            // Microsoft Office Documents
-            mimeType == "application/msword" ||
-                    mimeType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ->
-                Icons.Default.Description // Word docs
+            extension in videoExtensions || mimeType.startsWith("video/") -> {
+                R.drawable.app_file_icon_video
+            }
 
-            mimeType == "application/vnd.ms-excel" ||
-                    mimeType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ->
-                Icons.Default.TableChart // Excel sheets
+            extension in kotlinExtensions -> {
+                R.drawable.app_file_icon_kotlin
+            }
 
-            mimeType == "application/vnd.ms-powerpoint" ||
-                    mimeType == "application/vnd.openxmlformats-officedocument.presentationml.presentation" ->
-                Icons.Default.Slideshow // PowerPoint presentations
+            extension in htmlExtensions -> {
+                R.drawable.app_file_icon_html
+            }
 
-            // Archives
-            mimeType.contains("zip") || mimeType == "application/x-rar-compressed" || mimeType == "application/vnd.rar" || mimeType == "application/x-7z-compressed" || mimeType == "application/x-tar" || mimeType == "application/gzip" -> Icons.Default.FolderZip
-
-            // Android APK
-            mimeType == "application/vnd.android.package-archive" -> Icons.Default.Android
-
-            // Code allRecents
-            mimeType == "application/json" ||
+            extension in codeExtensions ||
+                    mimeType == "application/json" ||
                     mimeType == "application/javascript" ||
                     mimeType == "application/xml" ||
-                    mimeType.startsWith("text/x-") -> Icons.Default.Code
+                    mimeType.startsWith("text/x-") -> {
+                R.drawable.app_file_icon_code
+            }
 
-            // Executables
-            mimeType == "application/x-msdownload" ||
-                    mimeType == "application/x-executable" -> Icons.Default.Settings
+            extension in textExtensions || mimeType.startsWith("text/") -> {
+                R.drawable.app_file_icon_txt
+            }
 
-            else -> Icons.AutoMirrored.Filled.InsertDriveFile
+            else -> R.drawable.app_file_icon_txt
         }
     }
+
+    private val wordExtensions = setOf("doc", "docx", "odt")
+    private val spreadsheetExtensions = setOf("xls", "xlsx", "ods", "csv")
+    private val presentationExtensions = setOf("ppt", "pptx", "odp")
+    private val archiveExtensions = setOf("zip", "rar", "7z", "tar", "gz", "tgz")
+    private val videoExtensions = setOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "m4v")
+    private val textExtensions = setOf("txt", "md", "rtf", "log")
+    private val kotlinExtensions = setOf("kt", "kts")
+    private val htmlExtensions = setOf("html", "htm")
+    private val codeExtensions = setOf(
+        "java",
+        "xml",
+        "json",
+        "css",
+        "js",
+        "ts",
+        "tsx",
+        "jsx",
+        "py",
+        "c",
+        "cpp",
+        "h",
+        "hpp",
+        "cs",
+        "go",
+        "rs",
+        "php",
+        "rb",
+        "sh",
+        "bat",
+        "gradle",
+        "properties",
+        "toml",
+        "yaml",
+        "yml"
+    )
 
     fun getDirectorySize(directory: File): Long {
         var size = 0L

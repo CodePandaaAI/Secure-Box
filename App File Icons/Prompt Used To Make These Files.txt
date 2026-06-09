@@ -1,0 +1,74 @@
+**Prompt blueprint**
+
+Create a high-quality 1:1 square app icon for a file manager app.
+
+The icon is a plush, fluffy, furry file document icon with a soft rounded-square document body and a folded top-right page corner. The body should look like thick realistic fur, not flat fabric. Use dense long fur strands, layered hair clumps, visible directionality, realistic soft shadows between fur layers, and a tactile cushion-like shape. The silhouette should be rounded and slightly puffy, like a soft furry square document.
+
+Use the same visual style as a premium 3D studio product render: clean white background, centered object, soft ambient lighting, subtle floor/contact shadow, high detail, crisp edges, realistic depth, polished app-icon composition.
+
+The document body color is **[MAIN FUR COLOR]**. The folded top-right corner is **[FOLD COLOR]**, also furry/plush, lighter than the main body. The fold should look thick, soft, raised, and curled downward slightly, with visible fur texture and realistic shadow underneath.
+
+Place a glossy rounded rectangular badge across the middle-lower area of the icon. The badge color is **[BADGE COLOR]**, slightly darker or more saturated than the fur color. The badge should look like smooth plastic or soft rubber, with rounded corners, beveled edges, subtle highlights, and a realistic shadow on the fur.
+
+On the badge, place large centered bold 3D text reading **[LABEL]**. The text should be cream-white/off-white, thick, rounded sans-serif, slightly extruded, with soft shadow and subtle bevel. The label must be perfectly readable and correctly spelled.
+
+Composition rules:
+The icon must be isolated, centered, front-facing, 1:1 aspect ratio, no extra objects, no background pattern, no UI mockup, no watermark, no cut-off edges. Keep the same consistent style as a furry file-extension icon set.
+
+**Negative prompt / avoid**
+
+Do not make it flat vector art. Do not use thin line icons. Do not make it cartoonish, messy, low-resolution, blurry, noisy, or overly realistic like an actual animal. Do not add hands, faces, eyes, logos, app screenshots, multiple icons, or extra labels. Do not distort the file extension text. Do not crop the icon. Do not use a transparent background unless explicitly requested.
+
+**Examples for your set**
+
+PDF:
+Main fur color: bright red / coral red
+Fold color: pale cream peach
+Badge color: glossy deep red
+Label: PDF
+
+DOCX:
+Main fur color: soft sky blue
+Fold color: pale icy blue / white-blue
+Badge color: glossy medium blue
+Label: DOCX
+
+WORD:
+Main fur color: deep royal blue
+Fold color: warm cream
+Badge color: glossy dark blue
+Label: WORD
+
+PPT:
+Main fur color: vivid orange
+Fold color: pale warm cream
+Badge color: glossy orange
+Label: PPT
+
+ZIP:
+Main fur color: golden yellow
+Fold color: pale cream yellow
+Badge color: glossy golden yellow
+Label: ZIP
+Add a vertical zipper on the left side: gold zipper teeth and pull tab, integrated into the furry body, realistic shadows, premium 3D detail.
+
+TXT:
+Main fur color: light warm gray
+Fold color: cream white
+Badge color: glossy dark gray
+Label: TXT
+
+XLSX / Excel:
+Main fur color: rich Excel green
+Fold color: pale mint green
+Badge color: glossy dark green
+Label: XLSX
+
+CODE:
+Main fur color: teal / cyan blue
+Fold color: pale cream
+Badge color: glossy dark teal
+Label: CODE
+Optional small embossed code mark under the label: `</>` centered below the word, subtle and same-color as badge highlight, not too distracting.
+
+For best consistency, keep the **document shape, fur density, badge position, lighting, shadow, fold size, and text treatment identical** across all icons.

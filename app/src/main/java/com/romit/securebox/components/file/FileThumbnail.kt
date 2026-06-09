@@ -1,89 +1,81 @@
 package com.romit.securebox.components.file
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.romit.securebox.R
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.ui.theme.SecureBoxTheme
-
+import com.romit.securebox.util.StorageHelper
 
 @Composable
 fun FileThumbnail(
     file: FileItem,
-    icon: ImageVector,
     modifier: Modifier = Modifier
 ) {
     when {
-        // ✅ If it's an image, show thumbnail
-
         file.isImage -> {
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceContainer,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                AsyncImage(
-                    model = file.path,
-                    contentDescription = file.name,
-                    modifier = modifier
-                        .background(
-                            MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                    contentScale = ContentScale.Crop,
-                    // Show placeholder while loading
-                    onLoading = {
-                        // Optional: show loading indicator
-                    }
-                )
-            }
+            AsyncImage(
+                model = file.path,
+                contentDescription = file.name,
+                modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
+                contentScale = ContentScale.Crop,
+                onLoading = {}
+            )
         }
 
-        // If it's a folder, show folder icon
         file.isDirectory -> {
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceContainer,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Folder,
-                    contentDescription = "Folder",
-                    modifier = modifier
-                        .padding(8.dp)
-                )
-            }
+            FolderIconImage(
+                contentDescription = "Folder",
+                modifier = modifier
+            )
         }
 
-        // For other allRecents, show generic file icon
         else -> {
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceContainer,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = "File",
-                    modifier = modifier
-                        .padding(8.dp)
-                )
-            }
+            FileIconImage(
+                file = file,
+                modifier = modifier
+            )
         }
     }
+}
+
+@Composable
+fun FolderIconImage(
+    modifier: Modifier = Modifier,
+    contentDescription: String? = "Folder"
+) {
+    Image(
+        painter = painterResource(R.drawable.app_folder_icon),
+        contentDescription = contentDescription,
+        modifier = modifier,
+        contentScale = ContentScale.Fit
+    )
+}
+
+@Composable
+fun FileIconImage(
+    file: FileItem,
+    modifier: Modifier = Modifier,
+    contentDescription: String = "File"
+) {
+    Image(
+        painter = painterResource(StorageHelper.getFileIconRes(file)),
+        contentDescription = contentDescription,
+        modifier = modifier,
+        contentScale = ContentScale.Fit
+    )
 }
 
 @Preview(showBackground = true)
@@ -94,7 +86,6 @@ fun FileThumbnailPreview() {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Image Preview
             FileThumbnail(
                 file = FileItem(
                     path = "path/to/image.jpg",
@@ -105,11 +96,9 @@ fun FileThumbnailPreview() {
                     mimeType = "image/jpeg",
                     isImage = true
                 ),
-                icon = Icons.Default.Image,
                 modifier = Modifier.size(64.dp)
             )
 
-            // Folder Preview
             FileThumbnail(
                 file = FileItem(
                     path = "path/to/folder",
@@ -120,11 +109,9 @@ fun FileThumbnailPreview() {
                     mimeType = null,
                     isImage = false
                 ),
-                icon = Icons.Default.Folder,
                 modifier = Modifier.size(64.dp)
             )
 
-            // Generic File Preview
             FileThumbnail(
                 file = FileItem(
                     path = "path/to/document.pdf",
@@ -135,7 +122,6 @@ fun FileThumbnailPreview() {
                     mimeType = "application/pdf",
                     isImage = false
                 ),
-                icon = Icons.Default.Description,
                 modifier = Modifier.size(64.dp)
             )
         }

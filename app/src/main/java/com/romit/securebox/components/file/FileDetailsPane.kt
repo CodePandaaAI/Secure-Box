@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -122,14 +121,12 @@ fun FileDetailsPane(
                         Box(
                             modifier = Modifier
                                 .size(200.dp)
-                                .padding(40.dp),
+                                .padding(32.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.Folder,
+                            FolderIconImage(
                                 contentDescription = "Folder",
-                                modifier = Modifier.fillMaxSize(),
-                                tint = MaterialTheme.colorScheme.primary
+                                modifier = Modifier.fillMaxSize()
                             )
                         }
                     }
@@ -146,14 +143,10 @@ fun FileDetailsPane(
                                 .padding(40.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = StorageHelper.getFileIcon(
-                                    file.mimeType,
-                                    false
-                                ),
+                            FileIconImage(
+                                file = file,
                                 contentDescription = "File",
-                                modifier = Modifier.fillMaxSize(),
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                modifier = Modifier.fillMaxSize()
                             )
                         }
                     }
@@ -345,11 +338,9 @@ fun FileDetailsPane(
                     .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    imageVector = Icons.Default.Folder,
+                FolderIconImage(
                     contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    modifier = Modifier.size(64.dp)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(

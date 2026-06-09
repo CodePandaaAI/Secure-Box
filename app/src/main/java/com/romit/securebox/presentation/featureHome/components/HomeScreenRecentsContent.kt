@@ -19,9 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.romit.securebox.components.file.RecentsFileSection
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.presentation.featureHome.HomeUiState
 
@@ -47,8 +45,7 @@ fun HomeScreenRecentsContent(
         ) {
             Text(
                 text = "Recents",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.SemiBold
+                style = MaterialTheme.typography.headlineMedium
             )
             Box(
                 modifier = Modifier
@@ -61,7 +58,7 @@ fun HomeScreenRecentsContent(
                     modifier = Modifier
                         .padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = "Show all",

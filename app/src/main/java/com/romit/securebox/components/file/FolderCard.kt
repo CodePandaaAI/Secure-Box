@@ -11,7 +11,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,7 +19,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.StorageHelper.formatDate
-import com.romit.securebox.util.StorageHelper.getFileIcon
 
 @Composable
 fun FolderCard(
@@ -29,10 +27,6 @@ fun FolderCard(
     shape: RoundedCornerShape,
     modifier: Modifier = Modifier
 ) {
-    val icon = remember(file.mimeType, file.isDirectory) {
-        getFileIcon(file.mimeType, file.isDirectory)
-    }
-
     Surface(
         color = MaterialTheme.colorScheme.surface,
         onClick = { onFolderClick(file) },
@@ -46,7 +40,7 @@ fun FolderCard(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FileThumbnail(file = file, icon = icon, Modifier.size(64.dp))
+            FileThumbnail(file = file, modifier = Modifier.size(64.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(

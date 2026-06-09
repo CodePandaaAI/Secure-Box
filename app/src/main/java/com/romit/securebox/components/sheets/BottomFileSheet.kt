@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -39,6 +38,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.romit.securebox.components.file.FileIconImage
+import com.romit.securebox.components.file.FolderIconImage
 import com.romit.securebox.data.model.FileItem
 import com.romit.securebox.util.StorageHelper
 
@@ -99,11 +100,10 @@ fun BottomFileSheet(
                         Box(
                             modifier = Modifier
                                 .size(150.dp)
-                                .padding(32.dp),
+                                .padding(24.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.Folder,
+                            FolderIconImage(
                                 contentDescription = "Folder",
                                 modifier = Modifier.fillMaxSize()
                             )
@@ -122,11 +122,8 @@ fun BottomFileSheet(
                                 .padding(32.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = StorageHelper.getFileIcon(
-                                    selectedFile().mimeType,
-                                    selectedFile().isDirectory
-                                ),
+                            FileIconImage(
+                                file = selectedFile(),
                                 contentDescription = "File",
                                 modifier = Modifier.fillMaxSize()
                             )
