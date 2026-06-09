@@ -1,11 +1,29 @@
-| <img src="assets/secure_box_logo.png" width="160" alt="Secure Box Logo" /><br><br><h1>Secure Box</h1><strong>your files, your way</strong><br><br>[![Android](https://img.shields.io/badge/Android-15-34A853?style=flat&logo=android&logoColor=white)](https://developer.android.com) [![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org) [![Compose](https://img.shields.io/badge/Jetpack_Compose-BOM_2026-4285F4?style=flat&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose) |
-|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+<table style="margin-left: auto; margin-right: auto;">
+  <tr>
+    <td style="text-align: center;">
+      <img src="assets/secure_box_logo.png" style="width: 160px;" alt="Secure Box Logo" />
+      <br><br>
+      <h1>Secure Box</h1>
+      <strong>your files, your way</strong>
+      <br><br>
+      <a href="https://developer.android.com"><img src="https://img.shields.io/badge/Android-15-34A853?style=flat&logo=android&logoColor=white" alt="Android 15" /></a>
+      <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.3-7F52FF?style=flat&logo=kotlin&logoColor=white" alt="Kotlin 2.3" /></a>
+      <a href="https://developer.android.com/jetpack/compose"><img src="https://img.shields.io/badge/Jetpack_Compose-BOM_2026-4285F4?style=flat&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose BOM 2026" /></a>
+    </td>
+  </tr>
+</table>
 
 <br>
 
-> A file manager that doesn't feel like one.
->
-> No clutter. No bloat. Just your files, shown the way you want.
+<table style="margin-left: auto; margin-right: auto;">
+  <tr>
+    <td style="text-align: center;">
+      <strong>A file manager that doesn't feel like one.</strong>
+      <br><br>
+      No clutter. No bloat. Just your files, shown the way you want.
+    </td>
+  </tr>
+</table>
 
 <br>
 
@@ -23,10 +41,18 @@ It shows image thumbnails instantly. Folders show their sizes. Everything loads 
 
 ## Screenshots
 
-|                                                                                                           |                                                                                                           |                                                                                                           |
-|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|
-| <img width="240" src="https://github.com/user-attachments/assets/434506c0-1387-4235-a3c5-4e107ce52b4b" /> | <img width="240" src="https://github.com/user-attachments/assets/8e6bac65-9923-4fda-92ad-f9bac2d6f9ec" /> | <img width="240" src="https://github.com/user-attachments/assets/022be59d-6026-44f1-9ef0-11bea6a332e0" /> |
-| <img width="240" src="https://github.com/user-attachments/assets/bc80357d-e678-4e3b-97de-29cd6fb01c1a" /> | <img width="240" src="https://github.com/user-attachments/assets/901177e3-dab7-4790-a765-80f19aa02fe4" /> | <img width="240" src="https://github.com/user-attachments/assets/28d5b5ab-29e2-4049-a06d-7e5b4a23d723" /> |
+<table style="margin-left: auto; margin-right: auto;">
+  <tr>
+    <td><img style="width: 240px;" src="https://github.com/user-attachments/assets/434506c0-1387-4235-a3c5-4e107ce52b4b" alt="Secure Box screenshot" /></td>
+    <td><img style="width: 240px;" src="https://github.com/user-attachments/assets/8e6bac65-9923-4fda-92ad-f9bac2d6f9ec" alt="Secure Box screenshot" /></td>
+    <td><img style="width: 240px;" src="https://github.com/user-attachments/assets/022be59d-6026-44f1-9ef0-11bea6a332e0" alt="Secure Box screenshot" /></td>
+  </tr>
+  <tr>
+    <td><img style="width: 240px;" src="https://github.com/user-attachments/assets/bc80357d-e678-4e3b-97de-29cd6fb01c1a" alt="Secure Box screenshot" /></td>
+    <td><img style="width: 240px;" src="https://github.com/user-attachments/assets/901177e3-dab7-4790-a765-80f19aa02fe4" alt="Secure Box screenshot" /></td>
+    <td><img style="width: 240px;" src="https://github.com/user-attachments/assets/28d5b5ab-29e2-4049-a06d-7e5b4a23d723" alt="Secure Box screenshot" /></td>
+  </tr>
+</table>
 
 <br>
 
@@ -34,17 +60,26 @@ It shows image thumbnails instantly. Folders show their sizes. Everything loads 
 
 Files should be easy to recognize before you read the name. Secure Box uses custom artwork for common file types, so folders, documents, videos, archives, and code all feel distinct at a glance.
 
-|                                             Folder                                              |                                              PDF                                               |                                                   Word                                                    |                                                  Sheet                                                  |
-|:-----------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------:|
-| <img width="96" src="app/src/main/res/drawable-nodpi/app_folder_icon.webp" alt="Folder icon" /> | <img width="96" src="app/src/main/res/drawable-nodpi/app_file_icon_pdf.webp" alt="PDF icon" /> | <img width="96" src="app/src/main/res/drawable-nodpi/app_file_icon_docx.webp" alt="Word document icon" /> | <img width="96" src="app/src/main/res/drawable-nodpi/app_file_icon_xlsx.webp" alt="Spreadsheet icon" /> |
-
-|                                                 Slides                                                  |                                                 Text                                                 |                                               Video                                                |                                              Archive                                               |
-|:-------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------:|
-| <img width="96" src="app/src/main/res/drawable-nodpi/app_file_icon_ppt.webp" alt="Presentation icon" /> | <img width="96" src="app/src/main/res/drawable-nodpi/app_file_icon_txt.webp" alt="Text file icon" /> | <img width="96" src="app/src/main/res/drawable-nodpi/app_file_icon_video.webp" alt="Video icon" /> | <img width="96" src="app/src/main/res/drawable-nodpi/app_file_icon_zip.webp" alt="Archive icon" /> |
-
-|                                               Code                                               |                                                Kotlin                                                |                                               HTML                                               |
-|:------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|
-| <img width="96" src="app/src/main/res/drawable-nodpi/app_file_icon_code.webp" alt="Code icon" /> | <img width="96" src="app/src/main/res/drawable-nodpi/app_file_icon_kotlin.webp" alt="Kotlin icon" /> | <img width="96" src="app/src/main/res/drawable-nodpi/app_file_icon_html.webp" alt="HTML icon" /> |
+<table style="margin-left: auto; margin-right: auto;">
+  <tr>
+    <td style="text-align: center;"><strong>Folder</strong><br><img src="app/src/main/res/drawable-nodpi/app_folder_icon.webp" style="width: 96px;" alt="Folder icon" /></td>
+    <td style="text-align: center;"><strong>PDF</strong><br><img src="app/src/main/res/drawable-nodpi/app_file_icon_pdf.webp" style="width: 96px;" alt="PDF icon" /></td>
+    <td style="text-align: center;"><strong>Word</strong><br><img src="app/src/main/res/drawable-nodpi/app_file_icon_docx.webp" style="width: 96px;" alt="Word document icon" /></td>
+    <td style="text-align: center;"><strong>Sheet</strong><br><img src="app/src/main/res/drawable-nodpi/app_file_icon_xlsx.webp" style="width: 96px;" alt="Spreadsheet icon" /></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;"><strong>Slides</strong><br><img src="app/src/main/res/drawable-nodpi/app_file_icon_ppt.webp" style="width: 96px;" alt="Presentation icon" /></td>
+    <td style="text-align: center;"><strong>Text</strong><br><img src="app/src/main/res/drawable-nodpi/app_file_icon_txt.webp" style="width: 96px;" alt="Text file icon" /></td>
+    <td style="text-align: center;"><strong>Video</strong><br><img src="app/src/main/res/drawable-nodpi/app_file_icon_video.webp" style="width: 96px;" alt="Video icon" /></td>
+    <td style="text-align: center;"><strong>Archive</strong><br><img src="app/src/main/res/drawable-nodpi/app_file_icon_zip.webp" style="width: 96px;" alt="Archive icon" /></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;"><strong>Code</strong><br><img src="app/src/main/res/drawable-nodpi/app_file_icon_code.webp" style="width: 96px;" alt="Code icon" /></td>
+    <td style="text-align: center;"><strong>Kotlin</strong><br><img src="app/src/main/res/drawable-nodpi/app_file_icon_kotlin.webp" style="width: 96px;" alt="Kotlin icon" /></td>
+    <td style="text-align: center;"><strong>HTML</strong><br><img src="app/src/main/res/drawable-nodpi/app_file_icon_html.webp" style="width: 96px;" alt="HTML icon" /></td>
+    <td style="text-align: center;"></td>
+  </tr>
+</table>
 
 <br>
 
@@ -107,5 +142,12 @@ git clone https://github.com/CodePandaaAI/Secure-Box.git
 
 ---
 
-| Built by learning, not by copying.<br><br>Made with Kotlin, Compose, and a lot of late nights. |
-|:----------------------------------------------------------------------------------------------:|
+<table style="margin-left: auto; margin-right: auto;">
+  <tr>
+    <td style="text-align: center;">
+      Built by learning, not by copying.
+      <br><br>
+      Made with Kotlin, Compose, and a lot of late nights.
+    </td>
+  </tr>
+</table>
