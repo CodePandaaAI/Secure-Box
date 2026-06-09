@@ -1,29 +1,24 @@
-<table style="margin-left: auto; margin-right: auto;">
-  <tr>
-    <td style="text-align: center;">
-      <img src="assets/secure_box_logo.png" style="width: 160px;" alt="Secure Box Logo" />
-      <br><br>
-      <h1>Secure Box</h1>
-      <strong>your files, your way</strong>
-      <br><br>
-      <a href="https://developer.android.com"><img src="https://img.shields.io/badge/Android-15-34A853?style=flat&logo=android&logoColor=white" alt="Android 15" /></a>
-      <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.3-7F52FF?style=flat&logo=kotlin&logoColor=white" alt="Kotlin 2.3" /></a>
-      <a href="https://developer.android.com/jetpack/compose"><img src="https://img.shields.io/badge/Jetpack_Compose-BOM_2026-4285F4?style=flat&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose BOM 2026" /></a>
-    </td>
-  </tr>
-</table>
+<div align="center">
+
+<img src="assets/secure_box_logo.png" width="160" alt="Secure Box Logo" />
+
+# Secure Box
+
+**your files, your way**
 
 <br>
 
-<table style="margin-left: auto; margin-right: auto;">
-  <tr>
-    <td style="text-align: center;">
-      <strong>A file manager that doesn't feel like one.</strong>
-      <br><br>
-      No clutter. No bloat. Just your files, shown the way you want.
-    </td>
-  </tr>
-</table>
+[![Android](https://img.shields.io/badge/Android-15-34A853?style=flat&logo=android&logoColor=white)](https://developer.android.com)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Compose](https://img.shields.io/badge/Jetpack_Compose-BOM_2026-4285F4?style=flat&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
+
+</div>
+
+<br>
+
+> A file manager that doesn't feel like one.
+>
+> No clutter. No bloat. Just your files, shown the way you want.
 
 <br>
 
@@ -142,12 +137,10 @@ git clone https://github.com/CodePandaaAI/Secure-Box.git
 
 ---
 
-<table style="margin-left: auto; margin-right: auto;">
-  <tr>
-    <td style="text-align: center;">
-      Built by learning, not by copying.
-      <br><br>
-      Made with Kotlin, Compose, and a lot of late nights.
-    </td>
-  </tr>
-</table>
+<div align="center">
+
+Built by learning, not by copying.
+
+Made with Kotlin, Compose, and a lot of late nights.
+
+</div>
