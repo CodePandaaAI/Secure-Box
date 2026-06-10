@@ -3,12 +3,16 @@ package com.romit.securebox.components.file
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,13 +30,18 @@ fun FileThumbnail(
 ) {
     when {
         file.isImage -> {
-            AsyncImage(
-                model = file.path,
-                contentDescription = file.name,
-                modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
-                contentScale = ContentScale.Crop,
-                onLoading = {}
-            )
+            Box(
+                modifier = modifier.clip(RoundedCornerShape(16.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = file.path,
+                    contentDescription = file.name,
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentScale = ContentScale.Crop,
+                    onLoading = {}
+                )
+            }
         }
 
         file.isDirectory -> {
