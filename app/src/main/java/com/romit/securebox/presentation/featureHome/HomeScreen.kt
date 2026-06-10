@@ -40,7 +40,7 @@ fun HomeScreen(
 
     val homeScreenViewModel: HomeScreenViewModel = hiltViewModel<HomeScreenViewModel>()
     val uiState by homeScreenViewModel.uiState.collectAsStateWithLifecycle()
-    val storageCategories = homeScreenViewModel.storageCategories.collectAsStateWithLifecycle()
+    val storageCategories = homeScreenViewModel.storageCategories
 
     val snackBarHostState = remember { SnackbarHostState() }
 
@@ -90,7 +90,7 @@ fun HomeScreen(
             }
             // Categories Section
             HomeScreenCategoriesContent(
-                { storageCategories.value },
+                { storageCategories },
                 onCategoryClicked
             )
         }

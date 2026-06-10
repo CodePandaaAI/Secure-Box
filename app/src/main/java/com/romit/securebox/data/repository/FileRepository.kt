@@ -172,29 +172,29 @@ class FileRepository @Inject constructor(application: Application) {
             )
 
             // 6. Loop through the results (the cursor)
-            cursor?.use {
-                val pathColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)
-                val nameColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
-                val sizeColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
+            cursor?.use { cursor ->
+                val pathColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)
+                val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
                 val modifiedColumn =
-                    it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
                 val mimeTypeColumn =
-                    it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
+                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
 
-                while (it.moveToNext()) {
-                    val path = it.getString(pathColumn)
+                while (cursor.moveToNext()) {
+                    val path = cursor.getString(pathColumn)
                     val file = File(path)
 
                     // MediaStore can be slow to update, skip if file was deleted
                     if (!file.exists()) continue
 
-                    val name = it.getString(nameColumn)
-                    val size = it.getLong(sizeColumn)
+                    val name = cursor.getString(nameColumn)
+                    val size = cursor.getLong(sizeColumn)
                     // MediaStore timestamp is in SECONDS, we need Milliseconds
-                    val modified = it.getLong(modifiedColumn) * 1000L
-                    val mimeType = it.getString(mimeTypeColumn)
+                    val lastModified = cursor.getLong(modifiedColumn) * 1000L
+                    val mimeType = cursor.getString(mimeTypeColumn)
 
-                    // Use the mimeType to check if it's an image
+                    // Use the mimeType to check if cursor's an image
                     val isImage = mimeType?.startsWith("image/") == true
 
                     files.add(
@@ -203,7 +203,7 @@ class FileRepository @Inject constructor(application: Application) {
                             name = name,
                             isDirectory = false, // We filtered out directories
                             size = StorageHelper.formatSize(size), // Use your helper
-                            lastModified = modified,
+                            lastModified = lastModified,
                             mimeType = mimeType,
                             extension = file.extension, // Get extension from file
                             isImage = isImage
