@@ -60,7 +60,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(vertical = 16.dp, horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Recents Section
             when (val state = uiState) {

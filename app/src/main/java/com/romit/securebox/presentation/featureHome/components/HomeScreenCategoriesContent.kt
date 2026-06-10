@@ -22,102 +22,122 @@ fun HomeScreenCategoriesContent(
     storageCategories: () -> List<StorageCategory>,
     onCategoryClicked: (StorageCategory) -> Unit
 ) {
-
     val storageCategories = storageCategories()
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(
-                RoundedCornerShape(
-                    topStart = 24.dp,
-                    topEnd = 24.dp,
-                    bottomStart = 4.dp,
-                    bottomEnd = 4.dp
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .clip(
+                    RoundedCornerShape(
+                        topStart = 24.dp,
+                        topEnd = 24.dp,
+                        bottomStart = 4.dp,
+                        bottomEnd = 4.dp
+                    )
                 )
-            )
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
-        Text(
-            text = "Categories",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-    }
-
-    if (storageCategories.isEmpty()) {
-        HomeScreenLoadingView()
-    } else {
-        // Category Grid (cleaner with Column for rows)
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            // Row 1
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                StorageCategoryCard(
-                    storageCategories[0],
-                    onCategoryClick = onCategoryClicked,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(
-                        topStart = 4.dp,
-                        topEnd = 4.dp,
-                        bottomStart = 4.dp,
-                        bottomEnd = 4.dp
-                    )
-                )
-                StorageCategoryCard(
-                    storageCategories[1],
-                    onCategoryClick = onCategoryClicked,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(
-                        topStart = 4.dp,
-                        topEnd = 4.dp,
-                        bottomStart = 4.dp,
-                        bottomEnd = 4.dp
-                    )
-                )
-            }
+            Text(
+                text = "Categories",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
 
-            // Row 2
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+        if (storageCategories.isEmpty()) {
+            HomeScreenLoadingView()
+        } else {
+            // Category Grid (cleaner with Column for rows)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                StorageCategoryCard(
-                    storageCategories[2],
-                    onCategoryClick = onCategoryClicked,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
-                )
-                StorageCategoryCard(
-                    storageCategories[3],
-                    onCategoryClick = onCategoryClicked,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
-                )
-            }
+                // Row 1
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    StorageCategoryCard(
+                        storageCategories[0],
+                        onCategoryClick = onCategoryClicked,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(
+                            topStart = 4.dp,
+                            topEnd = 4.dp,
+                            bottomStart = 4.dp,
+                            bottomEnd = 4.dp
+                        )
+                    )
+                    StorageCategoryCard(
+                        storageCategories[1],
+                        onCategoryClick = onCategoryClicked,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(
+                            topStart = 4.dp,
+                            topEnd = 4.dp,
+                            bottomStart = 4.dp,
+                            bottomEnd = 4.dp
+                        )
+                    )
+                }
 
-            // Row 3
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                StorageCategoryCard(
-                    storageCategories[4],
-                    onCategoryClick = onCategoryClicked,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
-                )
-                StorageCategoryCard(
-                    storageCategories[5],
-                    onCategoryClick = onCategoryClicked,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
-                )
+                // Row 2
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    StorageCategoryCard(
+                        storageCategories[2],
+                        onCategoryClick = onCategoryClicked,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(
+                            topStart = 4.dp,
+                            topEnd = 4.dp,
+                            bottomStart = 4.dp,
+                            bottomEnd = 4.dp
+                        )
+                    )
+                    StorageCategoryCard(
+                        storageCategories[3],
+                        onCategoryClick = onCategoryClicked,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(
+                            topStart = 4.dp,
+                            topEnd = 4.dp,
+                            bottomStart = 4.dp,
+                            bottomEnd = 4.dp
+                        )
+                    )
+                }
+
+                // Row 3
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    StorageCategoryCard(
+                        storageCategories[4],
+                        onCategoryClick = onCategoryClicked,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(
+                            topStart = 4.dp,
+                            topEnd = 4.dp,
+                            bottomStart = 24.dp,
+                            bottomEnd = 4.dp
+                        )
+                    )
+                    StorageCategoryCard(
+                        storageCategories[5],
+                        onCategoryClick = onCategoryClicked,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(
+                            topStart = 4.dp,
+                            topEnd = 4.dp,
+                            bottomStart = 4.dp,
+                            bottomEnd = 24.dp
+                        )
+                    )
+                }
             }
         }
     }
-
 }

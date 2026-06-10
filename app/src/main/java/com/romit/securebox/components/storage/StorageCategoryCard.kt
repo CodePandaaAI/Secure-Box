@@ -62,18 +62,6 @@ fun StorageCategoryCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
-                    .padding(4.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                    contentDescription = null,
-                )
-            }
         }
     }
 }
