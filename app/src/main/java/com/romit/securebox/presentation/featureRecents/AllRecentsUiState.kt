@@ -7,7 +7,7 @@ sealed interface AllRecentsUiState {
 
     data class Success(
         val allRecents: List<FileItem> = emptyList(),
-        val isPaginationEndReached: Boolean = false,
+        val hasMorePages: Boolean = false,
         val isLoadingNextPage: Boolean = false,
     ) : AllRecentsUiState
 

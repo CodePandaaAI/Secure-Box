@@ -30,7 +30,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
     fun loadNextPage() {
         val currentState = _uiState.value
         if (currentState !is AllRecentsUiState.Success) return
-        if (currentState.isLoadingNextPage || currentState.isPaginationEndReached) return
+        if (currentState.isLoadingNextPage || !currentState.hasMorePages) return
         val lastTimestamp = currentState.allRecents.lastOrNull()?.lastModified
 
         if (lastTimestamp == null) {
@@ -52,7 +52,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
                         state.copy(
                             allRecents = state.allRecents + newFiles,
                             isLoadingNextPage = false,
-                            isPaginationEndReached = newFiles.size < pageSize
+                            hasMorePages = newFiles.size == pageSize
                         )
                     } else state
                 }
@@ -78,7 +78,7 @@ class AllRecentsScreenViewModel @Inject constructor(private val repository: File
 
                 _uiState.value = AllRecentsUiState.Success(
                     allRecents = newFiles,
-                    isPaginationEndReached = newFiles.size < pageSize
+                    hasMorePages = newFiles.size == pageSize
                 )
 
             } catch (e: Exception) {

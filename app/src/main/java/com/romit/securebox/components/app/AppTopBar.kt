@@ -2,6 +2,9 @@ package com.romit.securebox.components.app
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -15,7 +18,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.romit.securebox.navigation.Screen
@@ -35,10 +40,24 @@ fun AppTopBar(
 
     if (currentScreen != null && currentScreen !is Screen.Home) {
         TopAppBar(
-            title = { Text("Secure Box") },
+            title = {
+                Box(
+                    Modifier
+                        .clip(MaterialTheme.shapes.extraLarge)
+                        .height(48.dp)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Secure Box",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            },
             navigationIcon = {
                 IconButton(
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    modifier = Modifier.height(48.dp),
                     onClick = { navigationViewModel.removeLastOrNull() },
                     colors = IconButtonDefaults.iconButtonColors(
                         containerColor = MaterialTheme.colorScheme.surface
@@ -52,7 +71,8 @@ fun AppTopBar(
                 }
 
             },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            modifier = Modifier.padding(start = 8.dp)
         )
     }
 }

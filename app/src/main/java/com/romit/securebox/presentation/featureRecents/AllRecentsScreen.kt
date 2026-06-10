@@ -106,8 +106,12 @@ fun AllRecentsScreen(
                         }
                     }
                 }
-                LaunchedEffect(reachedBottom) {
-                    if (reachedBottom && !state.isLoadingNextPage && !state.isPaginationEndReached) {
+                LaunchedEffect(
+                    reachedBottom,
+                    state.isLoadingNextPage,
+                    state.hasMorePages
+                ) {
+                    if (reachedBottom && !state.isLoadingNextPage && state.hasMorePages) {
                         recentsScreenViewModel.loadNextPage()
                     }
                 }
